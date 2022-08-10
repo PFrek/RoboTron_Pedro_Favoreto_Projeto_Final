@@ -1,0 +1,38 @@
+#####
+# Casos de Teste para o endpoint /login da API ServeRest
+
+POST - Fazer login com sucesso na ServeRest
+- Dados válidos
+- Ter um usuário cadastrado
+- A requisição deve voltar um status 200
+
+POST - Tentar fazer login com usuário não cadastrado
+- Dados válidos
+- Não ter um usuário cadastrado com os dadas enviados
+- A requisição deve voltar um status 400
+
+POST - Tentar fazer login com dados inválidos
+- Dados inválidos
+- A requisição deve voltar um status 400
+
+#####
+# Cenários de Teste para o endpoint /login da API ServeRest
+
+Cenário: POST Fazer Login Com Sucesso 200
+    Obter Dados de Usuário Existente
+    POST Endpoint /login com Dados Obtidos
+    Validar Status Code "200"
+    Validar Mensagem "Login realizado com sucesso"
+    Validar Authorization Contém Token Válido
+
+Cenário: POST Tentar Fazer Login Com Usuário Inexistente 400
+    Criar Dados de Usuário Inexistente
+    POST Endpoint /login com Dados Criados
+    Validar Status Code "400"
+    Validar Mensagem "Email e/ou senha inválidos"
+
+Cenário: POST Tentar Fazer Login Com Dados Inválidos 400
+    Criar Dados Inválidos/Mal-formatados
+    POST Endpoint /login com Dados Criados
+    Validar Status Code "400"
+    Validar Mensagem "Email e/ou senha inválidos"

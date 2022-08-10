@@ -5,7 +5,9 @@ Repositório que contém os códigos referentes ao projeto final das Sprints 5 e
 
 ### Estrutura
 
-(Informações da estrutura das pastas)
+A pasta Exemplos contém os exemplos apresentados nos vídeos das MasterClass da Trilha.
+
+Cada Endpoint da API ServeRest contém sua própria pasta, onde estão contidos os casos e cenários de teste das mesmas.
 
 ### Pré-requisitos
 
@@ -20,10 +22,10 @@ Repositório que contém os códigos referentes ao projeto final das Sprints 5 e
 ```bash
 
 # 1. Clonar repositório
-git clone https://github.com/PFrek/RoboTron_Pedro_Favoreto_Compass
+git clone https://github.com/PFrek/RoboTron_Pedro_Favoreto_Projeto_Final
 
 # 2. Ir até o diretório da Sprint 5
-cd RoboTron_Pedro_Favoreto_Compass\Sprint_5
+cd RoboTron_Pedro_Favoreto_Projeto_Final
 
 ```
 

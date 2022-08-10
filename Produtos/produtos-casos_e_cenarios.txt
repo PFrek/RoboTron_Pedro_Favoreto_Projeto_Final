@@ -1,0 +1,174 @@
+#####
+# Casos de Teste para o endpoint /produtos da API ServeRest
+
+GET - Listar todos os produtos cadastrados
+- Mostrar todos os produtos cadastrados
+- A requisição deve voltar um status 200
+
+
+POST - Cadastrar novo produto
+- Fazer login com um usuário
+- O usuário deve ser um administrador
+- Dados válidos
+- O nome do produto não pode já estar cadastrado
+- A requisição deve voltar um status 201
+- Verificar se um novo produto foi realmente cadastrado
+
+POST - Tentar cadastrar produto usando nome já cadastrado
+- Fazer login com um usuário
+- O usuário deve ser um administrador
+- Dados válidos
+- O nome do produto deve já estar cadastrado
+- A requisição deve voltar um status 400
+
+POST - Tentar cadastrar produto com dados inválidos
+- Fazer login com um usuário
+- O usuário deve ser um administrador
+- Dados inválidos
+- A requisição deve voltar um status 400
+
+POST - Tentar cadastrar produto sem ter feito login
+- Não fazer login com um usuário
+- Dados válidos
+- O nome do produto não pode já estar cadastrado
+- A requisição deve voltar um status 401
+
+POST - Tentar cadastrar produto sem ser administrador
+- Fazer login com um usuário
+- O usuário não pode ser um administrador
+- Dados válidos
+- O nome do produto não pode já estar cadastrado
+- A requisição deve voltar um status 403
+
+
+GET - Buscar produto existente
+- A id deve ser de um produto existente
+- A requisição deve voltar um status 200
+- A resposta deve conter as informações corretas desse produto
+
+GET - Tentar buscar produto inexistente
+- A id não pode ser de um produto existente
+- A requisição deve voltar um status 400
+
+
+DELETE - Excluir produto existente
+- Fazer login com um usuário
+- O usuário deve ser um administrador
+- A id deve ser de um produto existente
+- O produto não pode fazer parte de um carrinho
+- A requisição deve voltar um status 200
+- Verificar se o produto foi realmente excluído
+
+DELETE - Tentar excluir produto existente que faz parte de um carrinho
+- Fazer login com um usuário
+- O usuário deve ser um administrador
+- A id deve ser de um produto existente
+- O produto deve fazer parte de um carrinho
+- A requisição deve voltar um status 400
+
+DELETE - Tentar excluir produto inexistente
+- Fazer login com um usuário
+- O usuário deve ser um administrador
+- A id não pode ser de um produto existente
+- O produto não pode fazer parte de um carrinho
+- A requisição deve voltar um status 200
+(A documentação da ServeRest indica que é retornado status 200 tanto para 
+registros excluídos com sucesso como para quando nenhum registro é excluído)
+
+DELETE - Tentar excluir produto existente sem ter feito login
+- Não fazer login com um usuário
+- A id deve ser de um produto existente
+- O produto não pode fazer parte de um carrinho
+- A requisição deve voltar um status 401
+
+DELTE - Tentar excluir produto existente sem ser administrador
+- Fazer login com um usuário
+- O usuário não pode ser um administrador
+- A id deve ser de um produto existente
+- O produto não pode fazer parte de um carrinho
+- A requisição deve voltar um status 403
+
+
+PUT - Editar produto existente
+- Fazer login com um usuário
+- O usuário deve ser um administrador
+- Utilizar dados válidos para edição
+- O nome enviado nos dados não pode já estar cadastrado
+- A id deve ser de um produto existente
+- A requisição deve voltar um status 200
+- Verificar se os dados do produto foram realmente editados
+
+PUT - Tentar editar produto existente usando nome já cadastrado
+- Fazer login com um usuário
+- O usuário deve ser um administrador
+- Utilizar dados válidos para edição
+- O nome enviado nos dados deve já estar cadastrado
+- A id deve ser de um produto existente
+- A requisição deve voltar um status 400
+
+PUT - Tentar editar produto existente com dados inválidos
+- Fazer login com um usuário
+- O usuário deve ser um administrador
+- Utilizar dados inválidos para edição
+- A id deve ser de um produto existente
+- A requisição deve voltar um status 400
+
+PUT - Tentar editar produto inexistente
+- Fazer login com um usuário
+- O usuário deve ser um administrador
+- Utilizar dados válidos para edição
+- O nome enviado nos dados não pode já estar cadastrado
+- A id não pode ser de um produto existente
+- A requisição deve voltar um status 201
+- Verificar se o novo produto foi realmente cadastrado
+
+PUT - Tentar editar produto inexistente usando nome já cadastrado
+- Fazer login com um usuário
+- O usuário deve ser um administrador
+- Utilizar dados válidos para edição
+- O nome enviado nos dados deve já estar cadastrado
+- A id não pode ser de um produto existente
+- A requisição deve voltar um status 400
+
+PUT - Tentar editar produto inexistente usando dados inválidos
+- Fazer login com um usuário
+- O usuário deve ser um administrador
+- Utilizar dados inválidos para edição
+- A id não pode ser de um produto existente
+- A requisição deve voltar um status 400
+
+PUT - Tentar editar produto existente sem ter feito login
+- Não fazer login com um usuário
+- Utilizar dados válidos para edição
+- O nome enviado nos dados não pode já estar cadastrado
+- A id deve ser de um produto existente
+- A requisição deve voltar um status 401
+
+PUT - Tentar editar produto inexistente sem ter feito login
+- Não fazer login com um usuário
+- Utilizar dados válidos para edição
+- O nome enviado nos dados não pode já estar cadastrado
+- A id não pode ser de um produto existente
+- A requisição deve voltar um status 401
+
+PUT - Tentar editar produto existente sem ser administrador
+- Fazer login com um usuário
+- O usuário não pode ser um administrador
+- Utilizar dados válidos para edição
+- O nome enviado nos dados não pode já estar cadastrado
+- A id deve ser de um produto existente
+- A requisição deve voltar um status 403
+
+PUT - Tentar editar produto inexistente sem ser administrador
+- Fazer login com um usuário
+- O usuário não pode ser um administrador
+- Utilizar dados válidos para edição
+- O nome enviado nos dados não pode já estar cadastrado
+- A id não pode ser de um produto existente
+- A requisição deve voltar um status 403
+
+
+#####
+# Cenários de Teste para o endpoint /produtos da API ServeRest
+
+TODO

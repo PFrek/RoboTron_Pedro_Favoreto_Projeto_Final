@@ -1,0 +1,205 @@
+#####
+# Casos de Teste para o endpoint /usuarios da API ServeRest
+
+GET - Listar todos os usuários cadastrados
+- Mostrar todos os usuários cadastrados
+- A requisição deve voltar um status 200
+
+
+POST - Cadastrar novo usuário
+- Dados válidos
+- O email do usuário não pode já estar cadastrado
+- A requisição deve voltar um status 201
+- Verificar se um novo usuário foi realmente cadastrado
+
+POST - Tentar cadastrar usuário usando email já cadastrado
+- Dados válidos
+- O email do usuário deve já estar cadastrado
+- A requisição deve voltar um status 400
+
+POST - Tentar cadastrar usuário com dados inválidos
+- Dados inválidos
+- A requisição deve voltar um status 400
+
+
+GET - Buscar usuário existente
+- A id deve ser de um usuário existente
+- A requisição deve voltar um status 200
+- A resposta deve conter as informações corretas desse usuário
+
+GET - Tentar buscar usuário inexistente
+- A id não pode ser de um usuário existente
+- A requisição deve voltar um status 400
+
+
+DELETE - Excluir usuário existente
+- A id deve ser de um usuário existente
+- O usuário não deve ter um carrinho cadastrado
+- A requisição deve voltar um status 200
+- Verificar se o usuário foi realmente excluído
+
+DELETE - Tentar excluir usuário existente que tem carrinho cadastrado
+- A id deve ser de um usuário existente
+- O usuário deve ter um carrinho cadastrado
+- A requisição deve voltar um status 400
+
+DELETE - Tentar excluir usuário inexistente
+- A id não pode ser de um usuário existente
+- A requisição deve voltar um status 200
+(A documentação da ServeRest indica que é retornado status 200 tanto para 
+registros excluídos com sucesso como para quando nenhum registro é excluído)
+
+
+PUT - Editar usuário existente
+- Utilizar dados válidos para edição
+- O email enviado nos dados não pode já estar cadastrado
+- A id deve ser de um usuário existente
+- A requisição deve voltar um status 200
+- Verificar se os dados do usuário foram realmente editados
+
+PUT - Tentar editar usuário existente usando email já cadastrado
+- Utilizar dados válidos para edição
+- O email enviado nos dados deve já estar cadastrado
+- A id deve ser de um usuário existente
+- A requisição deve voltar um status 400
+
+PUT - Tentar editar usuário existente com dados inválidos
+- Utilizar dados inválidos para edição
+- A id deve ser de um usuário existente
+- A requisição deve voltar um status 400
+
+PUT - Tentar editar usuário inexistente
+- Utilizar dados válidos para edição
+- O email enviado nos dados não pode já estar cadastrado
+- A id não pode ser de um usuário existente
+- A requisição deve voltar um status 201
+- Verificar se o novo usuário foi realmente cadastrado
+
+PUT - Tentar editar usuário inexistente usando email já cadastrado
+- Utilizar dados válidos para edição
+- O email enviado nos dados deve já estar cadastrado
+- A id não pode ser de um usuário existente
+- A requisição deve voltar um status 400
+
+PUT - Tentar editar usuário inexistente usando dados inválidos
+- Utilizar dados inválidos para edição
+- A id não pode ser de um usuário existente
+- A requisição deve voltar um status 400
+
+
+#####
+# Cenários de Teste para o endpoint /usuarios da API ServeRest
+
+Cenário: GET - Todos os Usuários 200
+    GET Endpoint /usuarios
+    Validar Todos os Usuários na Response
+    Validar Status Code "200"
+
+
+Cenário: POST Cadastrar Novo Usuário 201
+    Criar Usuário Dinâmico
+    POST Endpoint /usuarios Usando Usuário Dinâmico
+    Validar Status Code "201"
+    Validar Mensagem "Cadastro realizado com sucesso"
+    Armazenar "_id" Retornado
+    GET Endpoint /usuarios Com ID "/_id"
+    Validar Status Code "200"
+    Validar Dados do Usuário Retornado
+
+Cenário: POST Tentar Cadastrar Usuário Com Email Repetido 400
+    Obter Email de Usuário Já Cadastrado
+    Criar Usuário Dinâmico Com Email Obtido
+    POST Endpoint /usuarios Usando Usuário Dinâmico
+    Validar Status Code "400"
+    Validar Mensagem "Este email já está sendo usado"
+
+Cenário: POST Tentar Cadastrar Usuário Com Dados Inválidos 400
+    Criar Usuário Dinâmico Com Dados Inválidos/Mal-formados
+    POST Endpoint /usuarios Usando Usuário Dinâmico
+    Validar Status Code "400"
+    Validar Mensagem "Este email já está sendo usado"
+
+
+Cenário: GET Buscar Usuário Existente 200
+    Obter ID De Usuário Existente
+    GET Endpoint /usuarios Com ID Obtido
+    Verificar Status Code "200"
+    Verificar Dados do Usuário Retornado
+
+Cenário: GET Tentar Buscar Usuário Inexistente 400
+    Criar ID De Usuário Inexistente
+    GET Endpoint /usuarios Com ID Criado
+    Verificar Status Code "400"
+    Verificar Mensagem "Usuário não encontrado"
+
+
+Cenário: DELETE Excluir Usuário Existente 200
+    Obter ID De Usuário Existente Sem Carrinho
+    DELETE Endpoint /usuarios Com ID Obtido
+    Verificar Status Code "200"
+    Validar Mensagem "Registro excluído com sucesso | Nenhum registro excluído"
+    GET Endpoint /usuarios Com ID Obtida
+    Verificar Status Code "400"
+    Verificar Mensagem "Usuário não encontrado"
+
+Cenário: DELETE Tentar Excluir Usuário Com Carrinho 400
+    Obter ID De Usuário Existente Com Carrinho
+    DELETE Endpoint /usuarios Com ID Obtido
+    Verificar Status Code "400"
+    Verificar Mensagem "Não é permitido excluir usuário com carrinho cadastrado"
+
+Cenário: DELETE Excluir Usuário Inexistente 200
+    Criar ID De Usuário Inexistente
+    DELETE Endpoint /usuarios Com ID Criado
+    Verificar Status Code "200"
+    Validar Mensagem "Registro excluído com sucesso | Nenhum registro excluído"
+
+
+Cenário: PUT Editar Usuário Existente 200
+    Criar Dados Dinâmicos Com Email Não Cadastrado
+    Obter ID De Usuário Existente
+    PUT Endpoint /usuarios Com ID Obtido Usando Dados Dinâmicos
+    Verificar Status Code "200"
+    Verificar Mensagem "Registro alterado com sucesso"
+    GET Endpoint /usuarios Com ID Obitdo
+    Validar Status Code "200"
+    Validar Dados do Usuário Retornado
+
+Cenário: PUT Tentar Editar Usuário Existente Com Email Repetido 400
+    Criar Dados Dinâmicos Com Email Já Cadastrado
+    Obter ID De Usuário Existente
+    PUT Endpoint /usuarios Com ID Obtido Usando Dados Dinâmicos
+    Verificar Status Code "400"
+    Verificar Mensagem "Este email já está sendo usado"
+
+Cenário: PUT Tentar Editar Usuário Existente Com Dados Inválidos 400
+    Criar Dados Dinâmicos Inválidos/Mal-formados
+    Obter ID De Usuário Existente
+    PUT Endpoint /usuarios Com ID Obtido Usando Dados Dinâmicos
+    Verificar Status Code "400"
+    Verificar Mensagem "Este email já está sendo usado"
+
+Cenário: PUT Tentar Editar Usuário Inexistente 201
+    Criar Dados Dinâmicos Com Email Não Cadastrado
+    Criar ID De Usuário Inexistente
+    PUT Endpoint /usuarios Com ID Criado Usando Dados Dinâmicos
+    Verificar Status Code "200"
+    Verificar Mensagem "Cadastro realizado com sucesso"
+    Armazenar "_id" Retornado
+    GET Endpoint /usuarios Com ID "/_id"
+    Validar Status Code "200"
+    Validar Dados do Usuário Retornado
+
+Cenário: PUT Tentar Editar Usuário Inexistente Com Email Repetido 400
+    Criar Dados Dinâmicos Com Email Já Cadastrado
+    Criar ID De Usuário Inexistente
+    PUT Endpoint /usuarios Com ID Criado Usando Dados Dinâmicos
+    Verificar Status Code "400"
+    Verificar Mensagem "Este email já está sendo usado"
+
+Cenário: PUT Tentar Editar Usuário Inexistente Com Dados Inválidos 400
+    Criar Dados Dinâmicos Inválidos/Mal-formados
+    Criar ID De Usuário Inexistente
+    PUT Endpoint /usuarios Com ID Criado Usando Dados Dinâmicos
+    Verificar Status Code "400"
+    Verificar Mensagem "Este email já está sendo usado"
