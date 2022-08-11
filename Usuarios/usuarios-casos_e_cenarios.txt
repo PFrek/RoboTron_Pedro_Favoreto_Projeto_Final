@@ -90,9 +90,8 @@ PUT - Tentar editar usuário inexistente usando dados inválidos
 #####
 # Cenários de Teste para o endpoint /usuarios da API ServeRest
 
-Cenário: GET - Todos os Usuários 200
+Cenário: GET Todos os Usuários 200
     GET Endpoint /usuarios
-    Validar Todos os Usuários na Response
     Validar Status Code "200"
 
 
@@ -117,7 +116,6 @@ Cenário: POST Tentar Cadastrar Usuário Com Dados Inválidos 400
     Criar Usuário Dinâmico Com Dados Inválidos/Mal-formados
     POST Endpoint /usuarios Usando Usuário Dinâmico
     Validar Status Code "400"
-    Validar Mensagem "Este email já está sendo usado"
 
 
 Cenário: GET Buscar Usuário Existente 200
