@@ -12,7 +12,7 @@ POST - Cadastrar novo produto
 - Dados válidos
 - O nome do produto não pode já estar cadastrado
 - A requisição deve voltar um status 201
-- Verificar se um novo produto foi realmente cadastrado
+- Validar se um novo produto foi realmente cadastrado
 
 POST - Tentar cadastrar produto usando nome já cadastrado
 - Fazer login com um usuário
@@ -57,7 +57,7 @@ DELETE - Excluir produto existente
 - A id deve ser de um produto existente
 - O produto não pode fazer parte de um carrinho
 - A requisição deve voltar um status 200
-- Verificar se o produto foi realmente excluído
+- Validar se o produto foi realmente excluído
 
 DELETE - Tentar excluir produto existente que faz parte de um carrinho
 - Fazer login com um usuário
@@ -81,7 +81,7 @@ DELETE - Tentar excluir produto existente sem ter feito login
 - O produto não pode fazer parte de um carrinho
 - A requisição deve voltar um status 401
 
-DELTE - Tentar excluir produto existente sem ser administrador
+DELETE - Tentar excluir produto existente sem ser administrador
 - Fazer login com um usuário
 - O usuário não pode ser um administrador
 - A id deve ser de um produto existente
@@ -96,7 +96,7 @@ PUT - Editar produto existente
 - O nome enviado nos dados não pode já estar cadastrado
 - A id deve ser de um produto existente
 - A requisição deve voltar um status 200
-- Verificar se os dados do produto foram realmente editados
+- Validar se os dados do produto foram realmente editados
 
 PUT - Tentar editar produto existente usando nome já cadastrado
 - Fazer login com um usuário
@@ -120,7 +120,7 @@ PUT - Tentar editar produto inexistente
 - O nome enviado nos dados não pode já estar cadastrado
 - A id não pode ser de um produto existente
 - A requisição deve voltar um status 201
-- Verificar se o novo produto foi realmente cadastrado
+- Validar se o novo produto foi realmente cadastrado
 
 PUT - Tentar editar produto inexistente usando nome já cadastrado
 - Fazer login com um usuário
@@ -171,4 +171,180 @@ PUT - Tentar editar produto inexistente sem ser administrador
 #####
 # Cenários de Teste para o endpoint /produtos da API ServeRest
 
-TODO
+Cenário: GET Todos Os Produtos 200
+    GET Endpoint /produtos
+    Validar Status Code 200
+
+
+Cenário: POST Cadastrar Novo Produto 201
+    Criar Dados De Produto
+    Fazer Login Com Administrador
+    POST Endpoint /produtos Usando Dados Criados
+    Validar Status Code 201
+    Armazenar "_id" Retornado
+    GET Endpoint /produtos Com ID "_id"
+    Validar Status Code 200
+    Validar Dados Do Produto Retornado
+
+Cenario: POST Tentar Cadastrar Produto Com Nome Repetido 400
+    Obter Nome De Produto Existente
+    Criar Dados De Produto Com Nome Existente
+    Fazer Login Com Administrador
+    POST Endpoint /produtos Usando Dados Criados
+    Validar Status Code 400
+    Validar Mensagem "Já existe produto com esse nome"
+
+Cenario: POST Tentar Cadastrar Produto Com Dados Inválidos 400
+    Criar Dados De Produto Inválidos
+    Fazer Login Com Administrador
+    POST Endpoint /produtos Usando Dados Criados
+    Validar Status Code 400
+
+Cenario: POST Tentar Cadastrar Produto Sem Login 401
+    Criar Dados De Produto
+    POST Endpoint /produtos Usando Dados Criados
+    Validar Status Code 401
+    Validar Mensagem "Token de acesso ausente, inválido, expirado ou usuário do token não existe mais"
+
+Cenario: POST Tentar Cadastrar Produto Sem Ser Administrador 403
+    Criar Dados De Produto
+    Fazer Login Com Usuário Padrão
+    POST Endpoint /produtos Usando Dados Criados
+    Validar Status Code 403
+    Validar Mensagem "Rota exclusiva para administradores"
+
+
+Cenario: GET Buscar Produto Existente 200
+    Obter ID De Produto Existente
+    GET Endpoint /produtos Com ID Obtido
+    Validar Status Code 200
+    Validar Dados do Produto Retornado
+
+Cenario: GET Tentar Buscar Produto Inexistente 400
+    Criar ID De Produto Inexistente
+    GET Endpoint /produtos Com ID Criado
+    Validar Status Code 400
+    Validar Mensagem "Produto não encontrado"
+
+
+Cenario: DELETE Excluir Produto Existente 200
+    Obter ID De Produto Existente Sem Carrinho
+    Fazer Login Com Administrador
+    DELETE Endpoint /produtos Com ID Obtido
+    Validar Status Code 200
+    Validar Mensagem "Registro excluído com sucesso"
+    GET Endpoint /produtos Com ID Obtido
+    Validar Status Code 400
+    Validar Mensagem "Produto não encontrado"
+
+Cenario: DELETE Tentar Excluir Produto Existente Com Carrinho 400
+    Obter ID De Produto Existente Com Carrinho
+    Fazer Login Com Administrador
+    DELETE Endpoint /produtos Com ID Obtido
+    Validar Status Code 400
+    Validar Mensagem "Não é permitido excluir produto que faz parte de carrinho"
+
+Cenario: DELETE Tentar Excluir Produto Inexistente 200
+    Criar ID De Produto Inexistente
+    Fazer Login Com Administrador
+    DELETE Endpoint /produtos Com ID Criado
+    Validar Status Code 200
+    Validar Mensagem "Nenhum registro excluído"
+(A documentação da ServeRest indica que é retornado status 200 tanto para 
+registros excluídos com sucesso como para quando nenhum registro é excluído)
+
+Cenario: DELETE Tentar Excluir Produto Existente Sem Login 401
+    Obter ID De Produto Existente Sem Carrinho
+    DELETE Endpoint /produtos Com ID Obtido
+    Validar Status Code 401
+    Validar Mensagem "Token de acesso ausente, inválido, expirado ou usuário do token não existe mais"
+
+Cenario: DELETE Tentar Excluir Produto Existente Sem Ser Administrador 403
+    Obter ID De Produto Existente Sem Carrinho
+    Fazer Login Com Usuário Padrão
+    DELETE Endpoint /produtos Com ID Obtido
+    Validar Status Code 403
+    Validar Mensagem "Rota exclusiva para administradores"
+
+
+Cenario: PUT Editar Produto Existente 200
+    Criar Dados De Produto Para Edição
+    Obter ID De Produto Existente
+    Fazer Login Com Administrador
+    PUT Endpoint /produtos Com ID Obtido Usando Dados Criados
+    Validar Status Code 200
+    Get Endpoint /produtos Com ID Obtido
+    Validar Status Code 200
+    Validar Dados Do Produto
+
+Cenario: PUT Tentar Editar Produto Existente Com Nome Repetido 400
+    Obter Nome De Produto Existente
+    Criar Dados De Produto Para Edição Usando Nome Obtido
+    Obter ID De Produto Existente
+    Fazer Login Com Administrador
+    PUT Endpoint /produtos Com ID Obtido Usando Dados Criados
+    Validar Status Code 400
+    Validar Mensagem "Já existe produto com esse nome"
+
+Cenario: PUT Tentar Editar Produto Existente Com Dados Inválidos 400
+    Criar Dados De Produto Inválidos
+    Obter ID De Produto Existente
+    Fazer Login Com Administrador
+    PUT Endpoint /produtos Com ID Obtido Usando Dados Criados
+    Validar Status Code 400
+
+Cenario: PUT Tentar Editar Produto Inexistente 201
+    Criar Dados De Produto Para Edição
+    Criar ID De Produto Inexistente
+    Fazer Login Com Administrador
+    PUT Endpoint /produtos Com ID Criado Usando Dados Criados
+    Validar Status Code 201
+    Armazenar "_id" Do Produto Criado
+    GET Endpoint /produtos Com "_id" Armazenado
+    Validar Status Code 200
+    Validar Dados Do Produto
+
+Cenario: PUT Tentar Editar Produto Inexistente Com Nome Repetido 400
+    Obter Nome De Produto Existente
+    Criar Dados De Produto Para Edição Usando Nome Obtido
+    Criar ID De Produto Inexistente
+    Fazer Login Com Administrador
+    PUT Endpoint /produtos Com ID Criado Usando Dados Criados
+    Validar Status Code 400
+    Validar Mensagem "Já existe produto com esse nome"
+
+Cenario: PUT Tentar Editar Produto Inexistente Com Dados Inválidos 400
+    Criar Dados De Produto Inválidos
+    Criar ID De Produto Inexistente
+    Fazer Login Com Administrador
+    PUT Endpoint /produtos Com ID Criado Usando Dados Criados
+    Validar Status Code 400
+
+Cenario: PUT Tentar Editar Produto Existente Sem Login 401
+    Criar Dados De Produto Para Edição
+    Obter ID De Produto Existente
+    PUT Endpoint /produtos Com ID Obtido Usando Dados Criados    
+    Validar Status Code 401
+    Validar Mensagem "Token de acesso ausente, inválido, expirado ou usuário do token não existe mais"
+
+Cenario: PUT Tentar Editar Produto Inexistente Sem Login 401
+    Criar Dados De Produto Para Edição
+    Criar ID De Produto Inexistente
+    PUT Endpoint /produtos Com ID Criado Usando Dados Criados    
+    Validar Status Code 401
+    Validar Mensagem "Token de acesso ausente, inválido, expirado ou usuário do token não existe mais"
+
+Cenario: PUT Tentar Editar Produto Existente Sem Ser Administrador 403
+    Criar Dados De Produto Para Edição
+    Obter ID De Produto Existente
+    Fazer Login Com Usuário Padrão
+    PUT Endpoint /produtos Com ID Obtido Usando Dados Criados    
+    Validar Status Code 403
+    Validar Mensagem "Rota exclusiva para administradores"
+
+Cenario: PUT Tentar Editar Produto Inexistente Sem Ser Administrador 403
+    Criar Dados De Produto Para Edição
+    Criar ID De Produto Inexistente
+    PUT Endpoint /produtos Com ID Criado Usando Dados Criados    
+    Validar Status Code 403
+    Validar Mensagem "Rota exclusiva para administradores"

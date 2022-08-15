@@ -10,7 +10,7 @@ POST - Cadastrar novo usuário
 - Dados válidos
 - O email do usuário não pode já estar cadastrado
 - A requisição deve voltar um status 201
-- Verificar se um novo usuário foi realmente cadastrado
+- Validar se um novo usuário foi realmente cadastrado
 
 POST - Tentar cadastrar usuário usando email já cadastrado
 - Dados válidos
@@ -36,7 +36,7 @@ DELETE - Excluir usuário existente
 - A id deve ser de um usuário existente
 - O usuário não deve ter um carrinho cadastrado
 - A requisição deve voltar um status 200
-- Verificar se o usuário foi realmente excluído
+- Validar se o usuário foi realmente excluído
 
 DELETE - Tentar excluir usuário existente que tem carrinho cadastrado
 - A id deve ser de um usuário existente
@@ -55,7 +55,7 @@ PUT - Editar usuário existente
 - O email enviado nos dados não pode já estar cadastrado
 - A id deve ser de um usuário existente
 - A requisição deve voltar um status 200
-- Verificar se os dados do usuário foram realmente editados
+- Validar se os dados do usuário foram realmente editados
 
 PUT - Tentar editar usuário existente usando email já cadastrado
 - Utilizar dados válidos para edição
@@ -73,7 +73,7 @@ PUT - Tentar editar usuário inexistente
 - O email enviado nos dados não pode já estar cadastrado
 - A id não pode ser de um usuário existente
 - A requisição deve voltar um status 201
-- Verificar se o novo usuário foi realmente cadastrado
+- Validar se o novo usuário foi realmente cadastrado
 
 PUT - Tentar editar usuário inexistente usando email já cadastrado
 - Utilizar dados válidos para edição
@@ -121,35 +121,35 @@ Cenário: POST Tentar Cadastrar Usuário Com Dados Inválidos 400
 Cenário: GET Buscar Usuário Existente 200
     Obter ID De Usuário Existente
     GET Endpoint /usuarios Com ID Obtido
-    Verificar Status Code "200"
-    Verificar Dados do Usuário Retornado
+    Validar Status Code "200"
+    Validar Dados do Usuário Retornado
 
 Cenário: GET Tentar Buscar Usuário Inexistente 400
     Criar ID De Usuário Inexistente
     GET Endpoint /usuarios Com ID Criado
-    Verificar Status Code "400"
-    Verificar Mensagem "Usuário não encontrado"
+    Validar Status Code "400"
+    Validar Mensagem "Usuário não encontrado"
 
 
 Cenário: DELETE Excluir Usuário Existente 200
     Obter ID De Usuário Existente Sem Carrinho
     DELETE Endpoint /usuarios Com ID Obtido
-    Verificar Status Code "200"
-    Validar Mensagem "Registro excluído com sucesso | Nenhum registro excluído"
+    Validar Status Code "200"
+    Validar Mensagem "Registro excluído com sucesso"
     GET Endpoint /usuarios Com ID Obtida
-    Verificar Status Code "400"
-    Verificar Mensagem "Usuário não encontrado"
+    Validar Status Code "400"
+    Validar Mensagem "Usuário não encontrado"
 
 Cenário: DELETE Tentar Excluir Usuário Com Carrinho 400
     Obter ID De Usuário Existente Com Carrinho
     DELETE Endpoint /usuarios Com ID Obtido
-    Verificar Status Code "400"
-    Verificar Mensagem "Não é permitido excluir usuário com carrinho cadastrado"
+    Validar Status Code "400"
+    Validar Mensagem "Não é permitido excluir usuário com carrinho cadastrado"
 
 Cenário: DELETE Excluir Usuário Inexistente 200
     Criar ID De Usuário Inexistente
     DELETE Endpoint /usuarios Com ID Criado
-    Verificar Status Code "200"
+    Validar Status Code "200"
     Validar Mensagem "Registro excluído com sucesso | Nenhum registro excluído"
 
 
@@ -157,8 +157,8 @@ Cenário: PUT Editar Usuário Existente 200
     Criar Dados Dinâmicos Com Email Não Cadastrado
     Obter ID De Usuário Existente
     PUT Endpoint /usuarios Com ID Obtido Usando Dados Dinâmicos
-    Verificar Status Code "200"
-    Verificar Mensagem "Registro alterado com sucesso"
+    Validar Status Code "200"
+    Validar Mensagem "Registro alterado com sucesso"
     GET Endpoint /usuarios Com ID Obitdo
     Validar Status Code "200"
     Validar Dados do Usuário Retornado
@@ -167,22 +167,21 @@ Cenário: PUT Tentar Editar Usuário Existente Com Email Repetido 400
     Criar Dados Dinâmicos Com Email Já Cadastrado
     Obter ID De Usuário Existente
     PUT Endpoint /usuarios Com ID Obtido Usando Dados Dinâmicos
-    Verificar Status Code "400"
-    Verificar Mensagem "Este email já está sendo usado"
+    Validar Status Code "400"
+    Validar Mensagem "Este email já está sendo usado"
 
 Cenário: PUT Tentar Editar Usuário Existente Com Dados Inválidos 400
     Criar Dados Dinâmicos Inválidos/Mal-formados
     Obter ID De Usuário Existente
     PUT Endpoint /usuarios Com ID Obtido Usando Dados Dinâmicos
-    Verificar Status Code "400"
-    Verificar Mensagem "Este email já está sendo usado"
+    Validar Status Code "400"
 
 Cenário: PUT Tentar Editar Usuário Inexistente 201
     Criar Dados Dinâmicos Com Email Não Cadastrado
     Criar ID De Usuário Inexistente
     PUT Endpoint /usuarios Com ID Criado Usando Dados Dinâmicos
-    Verificar Status Code "200"
-    Verificar Mensagem "Cadastro realizado com sucesso"
+    Validar Status Code "201"
+    Validar Mensagem "Cadastro realizado com sucesso"
     Armazenar "_id" Retornado
     GET Endpoint /usuarios Com ID "/_id"
     Validar Status Code "200"
@@ -192,12 +191,11 @@ Cenário: PUT Tentar Editar Usuário Inexistente Com Email Repetido 400
     Criar Dados Dinâmicos Com Email Já Cadastrado
     Criar ID De Usuário Inexistente
     PUT Endpoint /usuarios Com ID Criado Usando Dados Dinâmicos
-    Verificar Status Code "400"
-    Verificar Mensagem "Este email já está sendo usado"
+    Validar Status Code "400"
+    Validar Mensagem "Este email já está sendo usado"
 
 Cenário: PUT Tentar Editar Usuário Inexistente Com Dados Inválidos 400
     Criar Dados Dinâmicos Inválidos/Mal-formados
     Criar ID De Usuário Inexistente
     PUT Endpoint /usuarios Com ID Criado Usando Dados Dinâmicos
-    Verificar Status Code "400"
-    Verificar Mensagem "Este email já está sendo usado"
+    Validar Status Code "400"

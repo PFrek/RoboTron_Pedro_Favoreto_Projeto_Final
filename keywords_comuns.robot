@@ -49,15 +49,25 @@ Enviar PUT
     ${response}=           PUT On Session    serverest    ${endpoint}    data=&{body}    headers=&{headers}    expected_status=any
     [Return]                ${response}
 
+Obter Dados De Produto Existente
+    [Documentation]         Retorna os dados do produto de índice index na lista de produtos cadastrados.
+    ...                     Necessita que uma sessão com alias 'serverest' já tenha sido criada.
+    ...                     \nRetorna: \&{produto} - os dados do produto encontrado.
+
+    [Arguments]             ${index}=0
+    ${response}=            GET On Session    serverest    /produtos
+    &{produto}=             Create Dictionary    &{response.json()["produtos"][${index}]}
+    [Return]                &{produto}
+
 Obter Dados De Usuario Existente
     [Documentation]         Retorna os dados do usuário de índice index na lista de usuários cadastrados.
     ...                     Necessita que uma sessão com alias 'serverest' já tenha sido criada.
-    ...                     \nRetorna: \&{primeiro_usuario} - os dados do primeiro usuário.
+    ...                     \nRetorna: \&{usuario} - os dados do usuário encontrado.
 
     [Arguments]             ${index}=0
-    ${resposta}=            GET On Session    serverest    /usuarios
-    &{primeiro_usuario}=    Create Dictionary    &{resposta.json()["usuarios"][${index}]}
-    [Return]                &{primeiro_usuario}
+    ${response}=            GET On Session    serverest    /usuarios
+    &{usuario}=             Create Dictionary    &{response.json()["usuarios"][${index}]}
+    [Return]                &{usuario}
 
 Obter Informacoes De Login
     [Documentation]         Extrai somente email e senha de um json contendo todas as informações de um usuário.

@@ -8,52 +8,7 @@ Resource         ../keywords_comuns.robot
 ${endpoint}           /usuarios
 
 
-
-* Test Cases *
-Reset: Reinicializar Lista De Usuarios
-    [Documentation]         Reinicializa a lista de usuários.
-    ...                     \nO primeiro usuário é um usuário admin sem carrinho.
-    ...                     \nO segundo usuário é um usuário padrão com carrinho.
-    [Tags]                  Reset    #robot:skip
-
-    Criar Sessao
-
-    # Lista atual de usuários
-    ${response}=            Enviar GET    ${endpoint}
-    @{usuarios}=            Set Variable    ${response.json()["usuarios"]}
-    
-    # Para cada usuario da lista
-    FOR  ${usuario}  IN  @{usuarios}
-        # Excluir o usuario
-        ${id}=              Set Variable    ${usuario["_id"]}
-        ${response}=        Enviar DELETE    ${endpoint}/${id}
-    END
-
-    # Adiciona o usuário admin sem carrinho
-    &{usuario}=        Criar Usuario Dinamico    nome=Fulano da Silva    email=beltrano@qa.com.br
-    ...                password=teste    administrador=true
-    ${response}=       Enviar POST    ${endpoint}    ${usuario}
-
-
-    # Adiciona o usuário padrão com carrinho
-    &{usuario}=        Criar Usuario Dinamico    nome=Com Carrinho    email=comcarrinho@qa.com.br
-    ...                password=1234    administrador=false
-    ${response}=       Enviar POST    ${endpoint}    ${usuario}
-
-    # TODO - Adicionar carrinho ao usuario
-
-    # &{login}=          Obter Informacoes De Login    &{usuario}
-
-    # ${response}=       Enviar POST    /login    ${login}
-    # ${token}=          Set Variable    ${response.json()["authorization"][7:]}
-    # Log To Console     ${token}
-
-    # # Cadastrar carrinho
-    # &{headers}=        Create Dictionary    Authorization=${token}
-    # &{body}=           Create Dictionary    produtos=@{EMPTY}
-    # ${response}=       Enviar POST    /carrinhos    ${body}    headers=&{headers}
-    
-
+* Test Cases * 
 
 Cenario: GET Todos Os Usuarios 200
     [Documentation]         Teste de listar todos os usuários com sucesso.
@@ -72,7 +27,7 @@ Cenario: POST Cadastrar Novo Usuario 201
     Criar Sessao
 
     # Cadastrar Usuario
-    &{usuario}=                Criar Usuario Dinamico
+    &{usuario}=                Criar Dados De Usuario
     ${response}=               Enviar POST    ${endpoint}    ${usuario}
     Validar Status Code        201    ${response}
     Validar Mensagem           Cadastro realizado com sucesso    ${response}
@@ -88,26 +43,29 @@ Cenario: POST Cadastrar Novo Usuario 201
     # Permite que este teste seja repetido sem alterar informações do usuário
     Enviar DELETE              ${endpoint}/${id}
     
+
 Cenario: POST Tentar Cadastrar Usuario Com Email Repetido 400
-    [Documentation]          Teste para tentativa de cadastro com email já cadastrado.
+    [Documentation]          Teste para tentativa de cadastro de usuário com email já cadastrado.
     [Tags]                   POST
 
     Criar Sessao
     ${email}=                Obter Email Existente
-    &{usuario}=              Criar Usuario Dinamico    nome_teste    ${email}    1234    true
-    ${resposta}=             Enviar POST    ${endpoint}    ${usuario}
-    Validar Status Code      400    ${resposta}
-    Validar Mensagem         Este email já está sendo usado    ${resposta}
+    &{usuario}=              Criar Dados De Usuario    nome_teste    ${email}    1234    true
+    ${response}=             Enviar POST    ${endpoint}    ${usuario}
+    Validar Status Code      400    ${response}
+    Validar Mensagem         Este email já está sendo usado    ${response}
+
 
 Cenario: POST Tentar Cadastrar Usuario Com Dados Inválidos 400
-    [Documentation]        Teste para tentativa de cadastro com dados inválidos (email faltando).
+    [Documentation]        Teste para tentativa de cadastro de usuário com dados inválidos (email faltando).
     [Tags]                 POST
 
     Criar Sessao
     # Usuário com email faltando
     &{usuario}=            Create Dictionary    nome=nome    password=234    administrador=false
-    ${resposta}=           Enviar POST    ${endpoint}    ${usuario}
-    Validar Status Code    400    ${resposta}
+    ${response}=           Enviar POST    ${endpoint}    ${usuario}
+    Validar Status Code    400    ${response}
+
 
 
 Cenario: GET Buscar Usuario Existente 200
@@ -123,7 +81,7 @@ Cenario: GET Buscar Usuario Existente 200
 
 
 Cenario: GET Tentar Buscar Usuario Inexistente 400
-    [Documentation]        Teste para tentativa de busca por id inexistente.
+    [Documentation]        Teste para tentativa de busca de produto por id inexistente.
     [Tags]                 GET
 
     Criar Sessao
@@ -140,9 +98,13 @@ Cenario: DELETE Excluir Usuario Existente 200
 
     Criar Sessao
 
+    # Criar novo usuário, garante que não terá carrinho
+    &{usuario}=            Criar Dados De Usuario
+    ${response}=           Enviar POST    ${endpoint}    ${usuario}
+    Validar Status Code    201    ${response}
+    ${id}=                 Set Variable    ${response.json()["_id"]}
+
     # Deletar usuário
-    &{usuario}=            Obter Dados De Usuario Existente
-    ${id}=                 Set Variable    ${usuario["_id"]}
     ${response}=           Enviar DELETE    ${endpoint}/${id}
     Validar Status Code    200    ${response}
     Validar Mensagem       Registro excluído com sucesso
@@ -153,18 +115,17 @@ Cenario: DELETE Excluir Usuario Existente 200
     Validar Status Code    400    ${response}
     Validar Mensagem       Usuário não encontrado    ${response}
 
-    # Re-cadastra o usuário excluído
-    # Permite repetição do teste
-    &{recadastro}=         Remover Campo ID    ${usuario}
-    ${resposta}=           Enviar POST    ${endpoint}    ${recadastro}
 
-
-# TODO - Tentar excluir usuário com carrinho
+# TODO - Obter ID do usuario dinamicamente
 Cenario: DELETE Tentar Excluir Usuario Com Carrinho 400
     [Documentation]        Teste de tentativa de excluir usuário com carrinho cadastrado.
     [Tags]                 DELETE
 
-    Skip                   Não implementado.
+    # &{usuario}=            Obter Dados De Usuario Existente    1
+    ${id}=                 Set Variable    LxuDUdB6dVirB3br
+    ${response}=           Enviar DELETE    ${endpoint}/${id}
+    Validar Status Code    400    ${response}
+    Validar Mensagem       Não é permitido excluir usuário com carrinho cadastrado    ${response}
 
 
 Cenario: DELETE Tentar Excluir Usuario Inexistente 200
@@ -186,7 +147,7 @@ Cenario: PUT Editar Usuario Existente 200
 
     Criar Sessao
 
-    &{novos_dados}=        Criar Usuario Dinamico    nome=Nome Editado    email=email_editado@teste.com.br
+    &{novos_dados}=        Criar Dados De Usuario    nome=Nome Editado    email=email_editado@teste.com.br
     ...                    password=4321    administrador=false
 
     &{usuario}=            Obter Dados De Usuario Existente
@@ -222,7 +183,7 @@ Cenario: PUT Tentar Editar Usuario Existente Com Email Repetido 400
 
 
     # Usuário de quem o email repetido será retirado
-    &{usuario_email}=                     Obter Dados De Usuario Existente    1
+    &{usuario_email}=               Obter Dados De Usuario Existente    1
     ${email}=                       Set Variable    ${usuario_email["email"]}
 
     # Altera o email a ser editado
@@ -249,15 +210,65 @@ Cenario: PUT Tentar Editar Usuário Existente Com Dados Inválidos 400
     ${response}=               Enviar PUT    ${endpoint}/${id}    ${dados_invalidos}
     Validar Status Code        400    ${response}
 
+Cenario: PUT Tentar Editar Usuário Inexistente 201
+    [Documentation]    Teste para tentativa de edição de usuário inexistente.
+    [Tags]             PUT
+
+    Criar Sessao
+
+    &{usuario}=        Criar Dados De Usuario    nome=novo usuario    email=novo_usuario@qa.com.br
+    ...                password=teste    administrador=false
+
+    ${id}=             Set Variable    id_nao_existe
+
+    ${response}=       Enviar PUT    ${endpoint}/${id}    ${usuario}
+    Validar Status Code    201    ${response}
+    Validar Mensagem    Cadastro realizado com sucesso    ${response}
+    ${id}=             Set Variable    ${response.json()["_id"]}
+
+    ${response}=       Enviar GET    ${endpoint}/${id}
+    Validar Status Code    200    ${response}
+
+    Validar Usuarios Iguais    ${response.json()}    ${usuario}
+
+    ${response}=       Enviar DELETE    ${endpoint}/${id}
+    Validar Status Code    200    ${response}
 
 
+Cenario: PUT Tentar Editar Usuário Inexistente Com Email Repetido 400
+    [Documentation]    Teste para tentativa de edição de usuário inexistente utilizando email já cadastrado.
+    [Tags]             PUT
+
+    ${email}=          Obter Email Existente
+    &{usuario}=        Criar Dados De Usuario    nome=novo usuario    email=${email}
+    ...                password=123teste    administrador=false
+
+    ${id}=             Set Variable    id_nao_existe
+
+    ${response}=        Enviar PUT    ${endpoint}/${id}    ${usuario}
+    Validar Status Code    400    ${response}
+    Validar Mensagem   Este email já está sendo usado    ${response}
+
+
+Cenario: PUT Tentar Editar Usuário Inexistente Com Dados Inválidos 400
+    [Documentation]    Teste para tentativa de edição de usuário inexistente com dados inválidos.
+    [Tags]             PUT
+
+    Criar Sessao
+
+    ${id}=                     Set Variable    id_nao_existe
+    
+    &{dados_invalidos}=        Create Dictionary    nome=Nome    idade=24
+
+    ${response}=               Enviar PUT    ${endpoint}/${id}    ${dados_invalidos}
+    Validar Status Code        400    ${response}
 
 
 * Keywords *
 
 # Listadas apenas keywords usadas unicamente nesta suíte de testes
 
-Criar Usuario Dinamico
+Criar Dados De Usuario
     [Documentation]    Cria um usuário com as informações passadas por argumento.
     ...                Se nenhum argumento for passado, usa informações pré-definidas.
     ...                \nRetorna: \&{usuario}
@@ -282,8 +293,7 @@ Obter Email Existente
     ...                  \nRetorna: \${email}
 
     &{usuario}=          Obter Dados De Usuario Existente
-    &{login}=            Obter Informacoes De Login    &{usuario}
-    ${email}=            Set Variable    ${login["email"]}
+    ${email}=            Set Variable    ${usuario["email"]}
     [Return]             ${email}
 
 Validar Usuarios Iguais
