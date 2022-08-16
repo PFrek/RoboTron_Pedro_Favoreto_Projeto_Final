@@ -51,22 +51,25 @@ Cenario: POST Realizar Login 200
 Cenario: POST Criar Produto 201
     [Tags]    POSTPRODUTO
     Criar Sessao
+    Fazer Login e Armazenar Token
     POST Endpoint /produtos
+    Validar Status Code "201"
+
+Cenario: DELETE Excluir Produto 200
+    [Tags]    DELETEPRODUTO
+    Criar Sessao
+    Fazer Login e Armazenar Token
+    Criar Um Produto e Armazenar ID
+    DELETE Endpoint /produtos
+    Validar Status Code "200"
+
+Cenario: POST Criar Usuario De Massa Estatica 201
+    [Tags]    POSTCRIARUSUARIOESTATICO
+    Criar Sessao
+    Criar Usuario Estatico Valido
     Validar Status Code "201"
 
 # Sessão para criação de Keywords Personalizadas
 * Keywords *
 Criar Sessao
     Create Session        serverest    http://localhost:3000/
-
-Validar Status Code "${statuscode}"
-    Should Be True    ${response.status_code} == ${statuscode}
-
-Validar Quantidade "${quantidade}"
-    Should Be Equal    ${response.json()["quantidade"]}    ${quantidade}
-
-Validar Se Mensagem Contem "${palavra}"
-    Should Contain    ${response.json()["message"]}    ${palavra}
-
-Printar Conteudo Response
-    Log To Console    Nome: ${response.json()["usuarios"][1]["nome"]}

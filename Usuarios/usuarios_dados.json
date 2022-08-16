@@ -1,0 +1,148 @@
+{
+    "dados_cadastro": {
+        "user_valido": {
+            "nome": "User Válido",
+            "email": "user_valido@qa.com.br",
+            "password": "teste",
+            "administrador": "false"
+        },
+        "user_email_repetido": {
+            "nome": "Email Repetido",
+            "email": "user_valido@qa.com.br",
+            "password": "teste",
+            "administrador": "false"
+        },
+        "user_nome_em_branco": {
+            "nome": "",
+            "email": "nome_em_branco@qa.com.br",
+            "password": "teste",
+            "administrador": "false"
+        },
+        "user_sem_nome": {
+            "email": "sem_nome@qa.com.br",
+            "password": "teste",
+            "administrador": "false"
+        },
+        "user_email_em_branco": {
+            "nome": "Email em Branco",
+            "email": "",
+            "password": "teste",
+            "administrador": "false"
+        },
+        "user_sem_email": {
+            "nome": "Sem Email",
+            "password": "teste",
+            "administrador": "false"
+        },
+        "user_password_em_branco": {
+            "nome": "Password em Branco",
+            "email": "password_em_branco@qa.com.br",
+            "password": "",
+            "administrador": "false"
+        },
+        "user_sem_password": {
+            "nome": "Sem Password",
+            "email": "sem_password@qa.com.br",
+            "administrador": "false"
+        },
+        "user_administrador_em_branco": {
+            "nome": "Administrador em Branco",
+            "email": "admin_em_branco@qa.com.br",
+            "password": "teste",
+            "administrador": ""
+        },
+        "user_sem_administrador": {
+            "nome": "Sem Administrador",
+            "email": "sem_admin@qa.com.br",
+            "password": "teste"
+        }
+    },
+    "dados_delete": {
+        "user_cadastro": {
+            "nome": "Administrador",
+            "email": "admin_teste_delete@qa.com.br",
+            "password": "teste",
+            "administrador": "true"
+        },
+        "user_login": {
+            "email": "admin_teste_delete@qa.com.br",
+            "password": "teste"
+        },
+        "produto": {
+            "nome": "Teste Delete Usuario",
+            "preco": 340,
+            "descricao": "Teste",
+            "quantidade": 100
+        }       
+    },
+    "dados_edicao": {
+        "user_inicial": {
+            "nome": "User Inicial",
+            "email": "user_inicial@qa.com.br",
+            "password": "teste",
+            "administrador": "false"
+        },
+        "user_email_repetido": {
+            "nome": "User Email Repetido",
+            "email": "email_repetido@qa.com.br",
+            "password": "teste",
+            "administrador": "false"
+        },
+        "edicao_valida": {
+            "nome": "Nome Editado",
+            "email": "email_editado@qa.com.br",
+            "password": "editado",
+            "administrador": "true"
+        },
+        "edicao_email_repetido": {
+            "nome": "Nome Editado",
+            "email": "email_repetido@qa.com.br",
+            "password": "editado",
+            "administrador": "true"
+        },
+        "edicao_nome_em_branco": {
+            "nome": "",
+            "email": "email_editado@qa.com.br",
+            "password": "editado",
+            "administrador": "true"
+        },
+        "edicao_sem_nome": {
+            "email": "email_editado@qa.com.br",
+            "password": "editado",
+            "administrador": "true"
+        },
+        "edicao_email_em_branco": {
+            "nome": "Nome Editado",
+            "email": "",
+            "password": "editado",
+            "administrador": "true"
+        },
+        "edicao_sem_email": {
+            "nome": "Nome Editado",
+            "password": "editado",
+            "administrador": "true"
+        },
+        "edicao_password_em_branco": {
+            "nome": "Nome Editado",
+            "email": "email_editado@qa.com.br",
+            "password": "",
+            "administrador": "true"
+        },
+        "edicao_sem_password": {
+            "nome": "Nome Editado",
+            "email": "email_editado@qa.com.br",
+            "administrador": "true"
+        },
+        "edicao_administrador_em_branco": {
+            "nome": "Nome Editado",
+            "email": "email_editado@qa.com.br",
+            "password": "editado",
+            "administrador": ""
+        },
+        "edicao_sem_administrador": {
+            "nome": "Nome Editado",
+            "email": "email_editado@qa.com.br",
+            "password": "editado"
+        }
+    }
+}

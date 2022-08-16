@@ -369,7 +369,7 @@ Cenario: PUT Tentar Editar Produto Inexistente 201
     Validar Status Code        200    ${response}
 
 
-Cenario: PUT Tentar Editar Produt Inexistente Com Nome Repetido 400
+Cenario: PUT Tentar Editar Produto Inexistente Com Nome Repetido 400
     [Documentation]    Teste para tentativa de edição de produto inexistente utilizando nome já cadastrado.
     [Tags]             PUT
 

@@ -1,6 +1,6 @@
 * Settings *
 Documentation        Keywords e variáveis para Ações do endpoint de usuários.
-
+Resource             ./common.robot
 
 * Variables *
 ${nome_do_usuario}        herbert richards
@@ -14,8 +14,7 @@ GET Endpoint /usuarios
     Set Global Variable        ${response}
 
 POST Endpoint /usuarios
-    &{payload}              Create Dictionary    nome=${nome_do_usuario}    email=${email_do_usuario}    password=${senha_do_usuario}    administrador=true
-    ${response}             POST On Session    serverest    /usuarios    data=&{payload}
+    ${response}             POST On Session    serverest    /usuarios    json=&{payload}
     Log To Console          Resonse: ${response.content}
     Set Global Variable     ${response}
 
@@ -29,3 +28,18 @@ DELETE Endpoint /usuarios
     ${response}             DELETE On Session    serverest    /usuarios/VJ1xMrlgWMriSUad
     Log To Console          ${response.content}
     Set Global Variable     ${response}
+
+Validar Quantidade "${quantidade}"
+    Should Be Equal    ${response.json()["quantidade"]}    ${quantidade}
+
+Validar Se Mensagem Contem "${palavra}"
+    Should Contain    ${response.json()["message"]}    ${palavra}
+
+Printar Conteudo Response
+    Log To Console    Nome: ${response.json()["usuarios"][1]["nome"]}
+
+Criar Usuario Estatico Valido
+    ${json}                Importar JSON Estatico    json_usuario_ex.json
+    ${payload}             Set Variable    ${json["user_valido"]}
+    Set Global Variable    ${payload}
+    POST Endpoint /usuarios
