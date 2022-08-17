@@ -293,6 +293,21 @@ Cenario: PUT Tentar Editar Produto Existente Com Dados Inválidos 400
     PUT Endpoint /produtos Com ID Obtido Usando Dados Criados
     Validar Status Code 400
 
+Cenario: PUT Tentar Editar Produto Existente Sem Login 401
+    Criar Dados De Produto Para Edição
+    Obter ID De Produto Existente
+    PUT Endpoint /produtos Com ID Obtido Usando Dados Criados    
+    Validar Status Code 401
+    Validar Mensagem "Token de acesso ausente, inválido, expirado ou usuário do token não existe mais"
+
+Cenario: PUT Tentar Editar Produto Existente Sem Ser Administrador 403
+    Criar Dados De Produto Para Edição
+    Obter ID De Produto Existente
+    Fazer Login Com Usuário Padrão
+    PUT Endpoint /produtos Com ID Obtido Usando Dados Criados    
+    Validar Status Code 403
+    Validar Mensagem "Rota exclusiva para administradores"
+
 Cenario: PUT Tentar Editar Produto Inexistente 201
     Criar Dados De Produto Para Edição
     Criar ID De Produto Inexistente
@@ -320,27 +335,12 @@ Cenario: PUT Tentar Editar Produto Inexistente Com Dados Inválidos 400
     PUT Endpoint /produtos Com ID Criado Usando Dados Criados
     Validar Status Code 400
 
-Cenario: PUT Tentar Editar Produto Existente Sem Login 401
-    Criar Dados De Produto Para Edição
-    Obter ID De Produto Existente
-    PUT Endpoint /produtos Com ID Obtido Usando Dados Criados    
-    Validar Status Code 401
-    Validar Mensagem "Token de acesso ausente, inválido, expirado ou usuário do token não existe mais"
-
 Cenario: PUT Tentar Editar Produto Inexistente Sem Login 401
     Criar Dados De Produto Para Edição
     Criar ID De Produto Inexistente
     PUT Endpoint /produtos Com ID Criado Usando Dados Criados    
     Validar Status Code 401
     Validar Mensagem "Token de acesso ausente, inválido, expirado ou usuário do token não existe mais"
-
-Cenario: PUT Tentar Editar Produto Existente Sem Ser Administrador 403
-    Criar Dados De Produto Para Edição
-    Obter ID De Produto Existente
-    Fazer Login Com Usuário Padrão
-    PUT Endpoint /produtos Com ID Obtido Usando Dados Criados    
-    Validar Status Code 403
-    Validar Mensagem "Rota exclusiva para administradores"
 
 Cenario: PUT Tentar Editar Produto Inexistente Sem Ser Administrador 403
     Criar Dados De Produto Para Edição

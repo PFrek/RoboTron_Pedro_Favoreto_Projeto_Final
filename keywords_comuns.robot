@@ -122,7 +122,7 @@ Validar Usuario Deletado
     [Documentation]               Valida se um usuário foi deletado com sucesso.
     [Arguments]                   ${response}
     Validar Status Code           200    ${response}
-    # Validar Mensagem              Registro excluído com sucesso    ${response}
+    Validar Mensagem              Registro excluído com sucesso    ${response}
 
 Cadastrar Produto
     [Documentation]               Cadastra um novo produto com os dados json informados.
@@ -153,7 +153,7 @@ Validar Produto Deletado
     [Documentation]               Valida se um produto foi deletado com sucesso.
     [Arguments]                   ${response}
     Validar Status Code           200    ${response}
-    # Validar Mensagem              Registro excluído com sucesso    ${response}
+    Validar Mensagem              Registro excluído com sucesso    ${response}
 
 Cadastrar Carrinho
     [Documentation]               Cadastra um novo carrinho com os dados json informados.
@@ -202,7 +202,7 @@ Validar Carrinho Deletado
     [Documentation]               Valida se um carrinho foi deletado com sucesso.
     [Arguments]                   ${response}
     Validar Status Code           200    ${response}
-    # Validar Mensagem              Registro excluído com sucesso. Estoque dos produtos reabastecido    ${response}
+    Validar Mensagem Contem       Registro excluído com sucesso.    ${response}
 
 Obter Informacoes De Login
     [Documentation]         Extrai somente email e senha de um json contendo todas as informações de um usuário.
@@ -220,6 +220,11 @@ Validar Mensagem
 
     [Arguments]                       ${esperado}    ${response}
     Should Be Equal As Strings        ${response.json()["message"]}    ${esperado}
+
+Validar Mensagem Contem
+    [Documentation]                Verifica se a propriedade 'message' da resposta contém a frase informada.
+    [Arguments]                    ${frase}    ${response}
+    Should Contain                 ${response.json()["message"]}    ${frase}
 
 Validar Status Code
     [Documentation]                Verifica se o status code na resposta é o mesmo que o esperado.

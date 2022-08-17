@@ -5,535 +5,1031 @@ Resource         ../keywords_comuns.robot
 
 
 * Variables *
-${endpoint}           /produtos
-${email_admin}        fulano@qa.com.br
-${senha_admin}        teste
-${email_padrao}       comcarrinho@qa.com.br
-${senha_padrao}       1234
+${dados_json}         produtos_dados.json
 
 * Test Cases *
 
-Cenario: GET Todos Os Produtos 200
+CT-P01: GET Todos Os Produtos 200
     [Documentation]        Teste de listar todos os produtos com sucesso.
-    [Tags]                 GET
-
-    Criar Sessao
-    ${response}=           Enviar GET    ${endpoint}
-    Validar Status Code    200    ${response}
-
-
-
-Cenario: POST Cadastrar Novo Produto 201
-    [Documentation]       Teste de cadastrar um novo produto com sucesso.
-    [Tags]                POST
-
+    [Tags]                 GET-TODOS
+    #####
+    # Setup
     Criar Sessao
 
-    # Cadastrar produto
-    &{produto}=                Criar Dados De Produto
-    
-    ${token}=                  Fazer Login Com Administrador
-    &{headers}=                Create Dictionary    Authorization=${token}
-
-    ${response}=               Enviar POST    ${endpoint}    ${produto}    headers=${headers}
-    Validar Status Code        201    ${response}
-    
-    # Validar que o produto foi realmente criado
-    # ID do produto criado
-    ${id}=                     Set Variable    ${response.json()["_id"]}
-    ${response}=               Enviar GET    ${endpoint}/${id}
-    Validar Status Code        200    ${response}
-    Validar Produtos Iguais    ${response.json()}    ${produto}
-
-    # Deletar produto cadastrado
-    # Permite que este teste seja repetido sem alterar informações do produto
-    Enviar DELETE              ${endpoint}/${id}    headers=${headers}
-    
-
-Cenario: POST Tentar Cadastrar Produto Com Nome Repetido 400
-    [Documentation]          Teste para tentativa de cadastro de produto com nome já cadastrado.
-    [Tags]                   POST
-
-    Criar Sessao
-    ${nome}=                 Obter Nome Existente
-    &{produto}=              Criar Dados De Produto    ${nome}    ${200}    Nome repetido    ${100}
-
-    ${token}=                Fazer Login Com Administrador
-    &{headers}=              Create Dictionary    Authorization=${token}
-
-    ${response}=             Enviar POST    ${endpoint}    ${produto}    headers=${headers}
-    Validar Status Code      400    ${response}
-    Validar Mensagem         Já existe produto com esse nome    ${response}
-
-
-Cenario: POST Tentar Cadastrar Produto Com Dados Inválidos 400
-    [Documentation]        Teste para tentativa de cadastro de produto com dados inválidos (preco faltando).
-    [Tags]                 POST
-
-    Criar Sessao
-    # Produto com preco faltando
-    &{produto}=            Create Dictionary    nome=nome    descricao=Preco faltando    quantidade=${10}
-    
-    ${token}=              Fazer Login Com Administrador
-    &{headers}=            Create Dictionary    Authorization=${token}
-    
-    ${response}=           Enviar POST    ${endpoint}    ${produto}    headers=${headers}
-    Validar Status Code    400    ${response}
-
-
-Cenario: POST Tentar Cadastrar Produto Sem Login 401
-    [Documentation]        Teste para tentativa de cadastro de produto sem ter feito login.
-    [Tags]                 POST
-
-    Criar Sessao
-    &{produto}=            Criar Dados De Produto
-
-    ${response}=           Enviar POST    ${endpoint}    ${produto}
-    Validar Status Code    401    ${response}
-    Validar Mensagem       Token de acesso ausente, inválido, expirado ou usuário do token não existe mais
-    ...                    ${response}
-
-
-Cenario: POST Tentar Cadastrar Produto Sem Ser Administrador 403
-    [Documentation]        Teste para tentativa de cadastro de produto por usuário não-administrador.
-    [Tags]                 POST
-
-    Criar Sessao
-    &{produto}=            Criar Dados De Produto
-
-    ${token}=              Fazer Login Com Usuario Padrao
-    &{headers}=            Create Dictionary    Authorization=${token}
-
-    ${response}=           Enviar POST    ${endpoint}    ${produto}    headers=${headers}
-    Validar Status Code    403    ${response}
-    Validar Mensagem       Rota exclusiva para administradores    ${response}
-
-
-
-Cenario: GET Buscar Produto Existente 200
-    [Documentation]        Teste de busca de produto existente por id.
-    [Tags]                 GET
-    
-    Criar Sessao
-    &{produto}=            Obter Dados De Produto Existente
-    ${id}=                 Set Variable    ${produto["_id"]}
-    ${response}=           Enviar GET    ${endpoint}/${id}
+    #####
+    # Teste
+    ${response}=           Enviar GET    /produtos
     Validar Status Code    200    ${response}
     Log To Console         ${response.json()}
 
 
-Cenario: GET Tentar Buscar Produto Inexistente 400
-    [Documentation]        Teste para tentativa de busca de produto por id inexistente.
-    [Tags]                 GET
-
+CT-P02: POST Cadastrar Novo Produto 201
+    [Documentation]       Teste de cadastrar um novo produto com sucesso.
+    [Tags]                POST
+    #####
+    # Setup
     Criar Sessao
-    ${id}=                 Set Variable    naoexiste123
-    ${response}=           Enviar GET    ${endpoint}/${id}
-    Validar Status Code    400    ${response}
-    Validar Mensagem       Produto não encontrado    ${response}
+    ${json}=                   Carregar JSON    ${dados_json}
 
-
-
-Cenario: DELETE Excluir Produto Existente 200
-    [Documentation]        Teste de excluir produto existente com sucesso.
-    [Tags]                 DELETE
-
-    Criar Sessao
-
-    # Criar novo produto, garante que não estará em carrinho
-    &{produto}=            Criar Dados De Produto
-
-    ${token}=              Fazer Login Com Administrador
-    &{headers}=            Create Dictionary    Authorization=${token}
-
-    ${response}=           Enviar POST    ${endpoint}    ${produto}    headers=${headers}
-    Validar Status Code    201    ${response}
-    ${id}=                 Set Variable    ${response.json()["_id"]}
-
-    # Deletar produto
-    ${response}=           Enviar DELETE    ${endpoint}/${id}    headers=${headers}
-    Validar Status Code    200    ${response}
-    Validar Mensagem       Registro excluído com sucesso
-    ...                    ${response}
+    ${id_usuario}=             Cadastrar Usuario    ${json["dados_usuarios"]["user_admin"]}
     
-    # Verifica se o produto foi realmente excluído
-    ${response}=           Enviar GET    ${endpoint}/${id}
-    Validar Status Code    400    ${response}
-    Validar Mensagem       Produto não encontrado    ${response}
+    ${token_auth}=             Fazer Login    ${json["dados_usuarios"]["user_admin_login"]}
+    &{headers}=                Create Dictionary    Authorization=${token_auth}
+    
+    ${dados_produto}=          Set Variable    ${json["dados_cadastro"]["produto_valido"]}
+
+    #####
+    # Teste
+    ${response}=               Enviar POST    /produtos    ${dados_produto}    headers=${headers}
+    Validar Status Code        201    ${response}
+    Validar Mensagem           Cadastro realizado com sucesso    ${response}
+    Should Not Be Empty        ${response.json()["_id"]}
+
+    ${id_produto}=             Set Variable    ${response.json()["_id"]}
+    #####
+    # Limpeza dos dados
+    [Teardown]                 Run Keywords    Deletar Produto    ${id_produto}    ${token_auth}
+    ...                        AND             Deletar Usuario    ${id_usuario}
+    
+
+CT-P03: POST Tentar Cadastrar Produto Com Nome Repetido 400
+    [Documentation]          Teste para tentativa de cadastro de produto com nome já cadastrado.
+    [Tags]                   POST
+    #####
+    # Setup
+    Criar Sessao
+    ${json}=                 Carregar JSON    ${dados_json}
+
+    ${id_usuario}=           Cadastrar Usuario    ${json["dados_usuarios"]["user_admin"]}
+    
+    ${token_auth}=           Fazer Login    ${json["dados_usuarios"]["user_admin_login"]}
+
+    ${id_nome_repetido}=     Cadastrar Produto    ${json["dados_cadastro"]["produto_valido"]}    ${token_auth}
+
+    ${dados_produto}=        Set Variable    ${json["dados_cadastro"]["produto_nome_repetido"]}
+
+    &{headers}=              Create Dictionary    Authorization=${token_auth}
+
+    #####
+    # Teste
+    ${response}=             Enviar POST    /produtos    ${dados_produto}    headers=${headers}
+    Validar Status Code      400    ${response}
+    Validar Mensagem         Já existe produto com esse nome    ${response}
+
+    #####
+    # Limpeza dos dados
+    [Teardown]               Run Keywords    Deletar Produto    ${id_nome_repetido}    ${token_auth}
+    ...                      AND             Deletar Usuario    ${id_usuario}
 
 
-# TODO - Obter ID do produto dinamicamente
-Cenario: DELETE Tentar Excluir Produto Em Carrinho 400
-    [Documentation]        Teste de tentativa de excluir produto cadastrado em carrinho.
-    [Tags]                 DELETE
+CT-P04: POST Tentar Cadastrar Produto Com Nome Em Branco 400
+    [Documentation]        Teste para tentativa de cadastro de produto com nome em branco.
+    [Tags]                 POST
+    #####
+    # Setup & Teste
+    Criar Sessao
+    
+    ${response}    ${id_usuario}=    Tentar Cadastrar Produto    "produto_nome_em_branco"
+    Validar Status Code              400    ${response}
 
-    ${id}=                 Set Variable    BeeJh5lz3k6kSIzA
+    #####
+    # Limpeza dos dados
+    [Teardown]                       Deletar Usuario    ${id_usuario}
 
-    ${token}=              Fazer Login Com Administrador
-    &{headers}=            Create Dictionary    Authorization=${token}
-
-    ${response}=           Enviar DELETE    ${endpoint}/${id}    headers=${headers}
-
-    Validar Status Code    400    ${response}
-    Validar Mensagem       Não é permitido excluir produto que faz parte de carrinho    ${response}
-
-
-Cenario: DELETE Tentar Excluir Produto Inexistente 200
-    [Documentation]        Teste de tentativa de excluir produto inexistente.
-    [Tags]                 DELETE
-
+CT-P05: POST Tentar Cadastrar Produto Sem Nome 400
+    [Documentation]        Teste para tentativa de cadastro de produto sem campo de nome.
+    [Tags]                 POST
+    #####
+    # Setup & Teste
     Criar Sessao
 
-    ${id}=                 Set Variable    naoexiste123
+    ${response}    ${id_usuario}=    Tentar Cadastrar Produto    "produto_sem_nome"
+    Validar Status Code              400    ${response}
 
-    ${token}=              Fazer Login Com Administrador
-    &{headers}=            Create Dictionary    Authorization=${token}
+    #####
+    # Limpeza dos dados
+    [Teardown]                       Deletar Usuario    ${id_usuario}
 
-    ${response}=           Enviar DELETE    ${endpoint}/${id}    headers=${headers}
-    Validar Status Code    200    ${response}
-    Validar Mensagem       Nenhum registro excluído    ${response}
+CT-P06: POST Tentar Cadastrar Produto Com Preco Em Branco 400
+    [Documentation]        Teste para tentativa de cadastro de produto com preco em branco.
+    [Tags]                 POST
+    #####
+    # Setup & Teste
+    Criar Sessao
+    
+    ${response}    ${id_usuario}=    Tentar Cadastrar Produto    "produto_preco_em_branco"
+    Validar Status Code              400    ${response}
 
+    #####
+    # Limpeza dos dados
+    [Teardown]                       Deletar Usuario    ${id_usuario}
 
-Cenario: DELETE Tentar Excluir Produto Existente Sem Login 401
-    [Documentation]        Teste de tentativa de excluir produto existente sem ter feito login.
-    [Tags]                 DELETE
-
+CT-P07: POST Tentar Cadastrar Produto Sem Preco 400
+    [Documentation]        Teste para tentativa de cadastro de produto sem campo de preco.
+    [Tags]                 POST
+    #####
+    # Setup & Teste
     Criar Sessao
 
-    # Criar novo produto, garante que não estará em carrinho
-    &{produto}=            Criar Dados De Produto
+    ${response}    ${id_usuario}=    Tentar Cadastrar Produto    "produto_sem_preco"
+    Validar Status Code              400    ${response}
 
-    ${token}=              Fazer Login Com Administrador
-    &{headers}=            Create Dictionary    Authorization=${token}
+    #####
+    # Limpeza dos dados
+    [Teardown]                       Deletar Usuario    ${id_usuario}
 
-    ${response}=           Enviar POST    ${endpoint}    ${produto}    headers=${headers}
-    Validar Status Code    201    ${response}
-    ${id}=                 Set Variable    ${response.json()["_id"]}
+CT-P08: POST Tentar Cadastrar Produto Com Descricao Em Branco 400
+    [Documentation]        Teste para tentativa de cadastro de produto com descricao em branco.
+    [Tags]                 POST
+    #####
+    # Setup & Teste
+    Criar Sessao
+    
+    ${response}    ${id_usuario}=    Tentar Cadastrar Produto    "produto_descricao_em_branco"
+    Validar Status Code              400    ${response}
 
-    # Deletar produto sem login
-    ${response}=           Enviar DELETE    ${endpoint}/${id}
+    #####
+    # Limpeza dos dados
+    [Teardown]                       Deletar Usuario    ${id_usuario}
+
+CT-P09: POST Tentar Cadastrar Produto Sem Descricao 400
+    [Documentation]        Teste para tentativa de cadastro de produto sem campo de descricao.
+    [Tags]                 POST
+    #####
+    # Setup & Teste
+    Criar Sessao
+
+    ${response}    ${id_usuario}=    Tentar Cadastrar Produto    "produto_sem_descricao"
+    Validar Status Code              400    ${response}
+
+    #####
+    # Limpeza dos dados
+    [Teardown]                       Deletar Usuario    ${id_usuario}
+
+CT-P10: POST Tentar Cadastrar Produto Com Quantidade Em Branco 400
+    [Documentation]        Teste para tentativa de cadastro de produto com quantidade em branco.
+    [Tags]                 POST
+    #####
+    # Setup & Teste
+    Criar Sessao
+    
+    ${response}    ${id_usuario}=    Tentar Cadastrar Produto    "produto_quantidade_em_branco"
+    Validar Status Code              400    ${response}
+
+    #####
+    # Limpeza dos dados
+    [Teardown]                       Deletar Usuario    ${id_usuario}
+
+CT-P11: POST Tentar Cadastrar Produto Sem Quantidade 400
+    [Documentation]        Teste para tentativa de cadastro de produto sem campo de quantidade.
+    [Tags]                 POST
+    #####
+    # Setup & Teste
+    Criar Sessao
+
+    ${response}    ${id_usuario}=    Tentar Cadastrar Produto    "produto_sem_quantidade"
+    Validar Status Code              400    ${response}
+
+    #####
+    # Limpeza dos dados
+    [Teardown]                       Deletar Usuario    ${id_usuario}
+
+CT-P12: POST Tentar Cadastrar Produto Sem Login 401
+    [Documentation]        Teste para tentativa de cadastro de produto sem ter feito login.
+    [Tags]                 POST
+    #####
+    # Setup
+    Criar Sessao
+    ${json}=               Carregar JSON    ${dados_json}
+
+    ${produto}=            Set Variable    ${json["dados_cadastro"]["produto_valido"]}
+
+    #####
+    # Teste
+    ${response}=           Enviar POST    /produtos    ${produto}
     Validar Status Code    401    ${response}
     Validar Mensagem       Token de acesso ausente, inválido, expirado ou usuário do token não existe mais
     ...                    ${response}
 
 
+CT-P13: POST Tentar Cadastrar Produto Sem Ser Administrador 403
+    [Documentation]        Teste para tentativa de cadastro de produto por usuário não-administrador.
+    [Tags]                 POST
+    #####
+    # Setup
+    Criar Sessao
+    ${json}=               Carregar JSON    ${dados_json}
 
-    # Deletar produto, permite que o teste seja repetido sem alterar os dados
-    ${response}=           Enviar DELETE    ${endpoint}/${id}    headers=${headers}
+    ${id_usuario}=         Cadastrar Usuario    ${json["dados_usuarios"]["user_padrao"]}
+
+    ${token_auth}=         Fazer Login    ${json["dados_usuarios"]["user_padrao_login"]}
+    &{headers}=            Create Dictionary    Authorization=${token_auth}
+
+    ${produto}=            Set Variable    ${json["dados_cadastro"]["produto_valido"]}
+
+    #####
+    # Teste
+    ${response}=            Enviar POST    /produtos    ${produto}    headers=${headers}
+    Validar Status Code    403    ${response}
+    Validar Mensagem       Rota exclusiva para administradores    ${response}
+
+    #####
+    # Limpeza dos dados
+    [Teardown]             Deletar Usuario    ${id_usuario}
+
+
+
+CT-P14: GET Buscar Produto Existente 200
+    [Documentation]        Teste de busca de produto existente por id.
+    [Tags]                 GET
+    #####
+    # Setup
+    Criar Sessao
+    ${json}=                   Carregar JSON    ${dados_json}
+
+    ${id_usuario}=             Cadastrar Usuario    ${json["dados_usuarios"]["user_admin"]}
+
+    ${token_auth}=             Fazer Login    ${json["dados_usuarios"]["user_admin_login"]}
+
+    ${dados_produto}=          Set Variable    ${json["dados_cadastro"]["produto_valido"]}
+    ${id_produto}=             Cadastrar Produto    ${dados_produto}    ${token_auth}
+
+    #####
+    # Teste
+    ${response}=               Enviar GET    /produtos/${id_produto}
+    Validar Status Code        200    ${response}
+    Validar Produtos Iguais    ${response.json()}    ${dados_produto}
+
+    #####
+    # Limpeza dos dados
+    [Teardown]                 Run Keywords    Deletar Produto    ${id_produto}    ${token_auth}
+    ...                        AND             Deletar Usuario    ${id_usuario}
+
+
+CT-P15: GET Tentar Buscar Produto Inexistente 400
+    [Documentation]        Teste para tentativa de busca de produto por id inexistente.
+    [Tags]                 GET
+    #####
+    # Setup
+    Criar Sessao
+
+    ${id_produto}=                 Set Variable    naoexiste123
+
+    #####
+    # Teste
+    ${response}=           Enviar GET    /produtos/${id_produto}
+    Validar Status Code    400    ${response}
+    Validar Mensagem       Produto não encontrado    ${response}
+
+
+CT-P16: DELETE Excluir Produto Existente 200
+    [Documentation]        Teste de excluir produto existente com sucesso.
+    [Tags]                 DELETE
+    #####
+    # Setup
+    Criar Sessao
+    ${json}=               Carregar JSON    ${dados_json}
+
+    ${id_usuario}=         Cadastrar Usuario    ${json["dados_usuarios"]["user_admin"]}
+    
+    ${token_auth}=         Fazer Login    ${json["dados_usuarios"]["user_admin_login"]}
+    &{headers}=            Create Dictionary    Authorization=${token_auth}
+
+    ${id_produto}=         Cadastrar Produto    ${json["dados_cadastro"]["produto_valido"]}    ${token_auth}
+    #####
+    # Teste
+    ${response}=           Enviar DELETE    /produtos/${id_produto}    headers=${headers}
     Validar Status Code    200    ${response}
-    Validar Mensagem       Registro excluído com sucesso
+    Validar Mensagem       Registro excluído com sucesso    ${response}
+    
+    # Verifica se o produto foi realmente excluído
+    ${response}=           Enviar GET    /produtos/${id_produto}
+    Validar Status Code    400    ${response}
+    Validar Mensagem       Produto não encontrado    ${response}
+
+    #####
+    # Limpeza dos dados
+    [Teardown]             Deletar Usuario    ${id_usuario}
+
+CT-P17: DELETE Tentar Excluir Produto Em Carrinho 400
+    [Documentation]        Teste de tentativa de excluir produto cadastrado em carrinho.
+    [Tags]                 DELETE
+    #####
+    # Setup
+    Criar Sessao
+    ${json}=               Carregar JSON    ${dados_json}
+
+    ${id_usuario}=         Cadastrar Usuario    ${json["dados_usuarios"]["user_admin"]}
+
+    ${token_auth}=         Fazer Login    ${json["dados_usuarios"]["user_admin_login"]}
+    &{headers}=            Create Dictionary    Authorization=${token_auth}
+
+    ${id_produto}=         Cadastrar Produto    ${json["dados_cadastro"]["produto_valido"]}    ${token_auth}
+
+    ${id_carrinho1}=        Cadastrar Carrinho    ${id_produto}    ${token_auth}
+    
+
+    #####
+    # Teste
+    ${response}=           Enviar DELETE    /produtos/${id_produto}    headers=${headers}
+    Validar Status Code    400    ${response}
+    Validar Mensagem       Não é permitido excluir produto que faz parte de carrinho    ${response}
+    Should Not Be Empty    ${response.json()["idCarrinhos"]}
+    Should Be Equal        ${response.json()["idCarrinhos"][0]}    ${id_carrinho1}
+
+    #####
+    # Limpeza dos dados
+    [Teardown]             Run Keywords    Cancelar Compra    ${token_auth}
+    ...                    AND             Deletar Produto    ${id_produto}    ${token_auth}
+    ...                    AND             Deletar Usuario    ${id_usuario}
+
+
+CT-P18: DELETE Tentar Excluir Produto Inexistente 200
+    [Documentation]        Teste de tentativa de excluir produto inexistente.
+    [Tags]                 DELETE
+    #####
+    # Setup
+    Criar Sessao
+    ${json}=               Carregar JSON    ${dados_json}
+
+    ${id_usuario}=         Cadastrar Usuario    ${json["dados_usuarios"]["user_admin"]}
+
+    ${token_auth}=         Fazer Login    ${json["dados_usuarios"]["user_admin_login"]}
+    &{headers}=            Create Dictionary    Authorization=${token_auth}
+
+    ${id_produto}=         Set Variable    naoexiste123
+
+    #####
+    # Teste
+    ${response}=           Enviar DELETE    /produtos/${id_produto}    headers=${headers}
+    Validar Status Code    200    ${response}
+    Validar Mensagem       Nenhum registro excluído    ${response}
+
+    #####
+    # Limpeza dos dados
+    [Teardown]             Deletar Usuario    ${id_usuario}
+
+
+CT-P19: DELETE Tentar Excluir Produto Existente Sem Login 401
+    [Documentation]        Teste de tentativa de excluir produto existente sem ter feito login.
+    [Tags]                 DELETE
+    #####
+    # Setup
+    Criar Sessao
+    ${json}=               Carregar JSON    ${dados_json}
+
+    ${id_usuario}=         Cadastrar Usuario    ${json["dados_usuarios"]["user_admin"]}
+
+    ${token_auth}=         Fazer Login    ${json["dados_usuarios"]["user_admin_login"]}
+
+    ${id_produto}=         Cadastrar Produto    ${json["dados_cadastro"]["produto_valido"]}    ${token_auth}
+
+    #####
+    # Teste
+    ${response}=           Enviar DELETE    /produtos/${id_produto}
+    Validar Status Code    401    ${response}
+    Validar Mensagem       Token de acesso ausente, inválido, expirado ou usuário do token não existe mais
     ...                    ${response}
 
+    #####
+    # Limpeza dos dados
+    [Teardown]             Run Keywords    Deletar Produto    ${id_produto}    ${token_auth}
+    ...                    AND             Deletar Usuario    ${id_usuario}
 
-Cenario: DELETE Tentar Excluir Produto Existente Sem Ser Administrador 403
+
+CT-P20: DELETE Tentar Excluir Produto Existente Sem Ser Administrador 403
     [Documentation]        Teste de tentativa de excluir produto existente por usuário não-administrador.
     [Tags]                 DELETE
-
+    #####
+    # Setup
     Criar Sessao
+    ${json}=                   Carregar JSON    ${dados_json}
 
-    # Criar novo produto, garante que não estará em carrinho
-    &{produto}=            Criar Dados De Produto
+    ${id_admin}=               Cadastrar Usuario    ${json["dados_usuarios"]["user_admin"]}
 
-    ${token}=              Fazer Login Com Administrador
-    &{headers}=            Create Dictionary    Authorization=${token}
+    ${token_auth_admin}=       Fazer Login    ${json["dados_usuarios"]["user_admin_login"]}
 
-    ${response}=           Enviar POST    ${endpoint}    ${produto}    headers=${headers}
-    Validar Status Code    201    ${response}
-    ${id}=                 Set Variable    ${response.json()["_id"]}
+    ${id_produto}=             Cadastrar Produto    ${json["dados_cadastro"]["produto_valido"]}    ${token_auth_admin}
 
-    # Deletar produto sem ser administrador
-    ${token}=              Fazer Login Com Usuario Padrao
-    &{headers}=            Create Dictionary    Authorization=${token}
+    ${id_user_padrao}=         Cadastrar Usuario    ${json["dados_usuarios"]["user_padrao"]}
 
-    ${response}=           Enviar DELETE    ${endpoint}/${id}    headers=${headers}
-    Validar Status Code    403    ${response}
-    Validar Mensagem       Rota exclusiva para administradores
-    ...                    ${response}
+    ${token_auth_padrao}=      Fazer Login    ${json["dados_usuarios"]["user_padrao_login"]}
+    &{headers}=                Create Dictionary    Authorization=${token_auth_padrao}
 
+    #####
+    # Teste
+    ${response}=               Enviar DELETE    /produtos/${id_produto}    headers=${headers}
+    Validar Status Code        403    ${response}
+    Validar Mensagem           Rota exclusiva para administradores
+    ...                        ${response}
 
-
-    # Deletar produto, permite que o teste seja repetido sem alterar os dados
-    ${token}=              Fazer Login Com Administrador
-    &{headers}=            Create Dictionary    Authorization=${token}
-
-    ${response}=           Enviar DELETE    ${endpoint}/${id}    headers=${headers}
-    Validar Status Code    200    ${response}
-    Validar Mensagem       Registro excluído com sucesso
-    ...                    ${response}
+    #####
+    # Limpeza dos dados
+    [Teardown]                 Run Keywords    Deletar Produto    ${id_produto}    ${token_auth_admin}
+    ...                        AND             Deletar Usuario    ${id_user_padrao}
+    ...                        AND             Deletar Usuario    ${id_admin}
 
 
-Cenario: PUT Editar Produto Existente 200
+CT-P21: PUT Editar Produto Existente 200
     [Documentation]        Teste de edição de um produto existente.
     [Tags]                 PUT
-
+    #####
+    # Setup
     Criar Sessao
+    ${json}=               Carregar JSON    ${dados_json}
 
-    &{novos_dados}=        Criar Dados De Produto    nome=Nome Editado    preco=${120}
-    ...                    descricao=Descricao editada    quantidade=${50}
+    ${id_usuario}=         Cadastrar Usuario    ${json["dados_usuarios"]["user_admin"]}
+    
+    ${token_auth}=         Fazer Login    ${json["dados_usuarios"]["user_admin_login"]}
+    &{headers}=            Create Dictionary    Authorization=${token_auth}
 
-    &{produto}=            Obter Dados De Produto Existente
-    ${id}=                 Set Variable    ${produto["_id"]}
+    ${id_produto}=         Cadastrar Produto    ${json["dados_edicao"]["produto_inicial"]}    ${token_auth}
 
-    ${token}=              Fazer Login Com Administrador
-    &{headers}=            Create Dictionary    Authorization=${token}
+    ${novos_dados}=        Set Variable    ${json["dados_edicao"]["edicao_valida"]}
 
-    ${response}=           Enviar PUT    ${endpoint}/${id}    ${novos_dados}    headers=${headers}
+    #####
+    # Teste
+    ${response}=           Enviar PUT    /produtos/${id_produto}    ${novos_dados}    headers=${headers}
     Validar Status Code    200    ${response}
     Validar Mensagem       Registro alterado com sucesso    ${response}
 
     # Verificar se o produto foi realmente editado
-    ${response}=           Enviar GET    ${endpoint}/${id}
+    ${response}=           Enviar GET    /produtos/${id_produto}
     Validar Status Code    200    ${response}
     Validar Produtos Iguais    ${response.json()}    ${novos_dados}
 
-    # Retornar os dados antigos para o produto
-    # Permite repetição do teste
-    &{dados_antigos}=      Remover Campo ID    ${produto}
-
-    ${response}=           Enviar PUT    ${endpoint}/${id}    ${dados_antigos}    headers=${headers}
-    Validar Status Code    200    ${response}
+    #####
+    # Limpeza dos dados
+    [Teardown]             Run Keywords    Deletar Produto    ${id_produto}    ${token_auth}
+    ...                    AND             Deletar Usuario    ${id_usuario}
 
 
-Cenario: PUT Tentar Editar Produto Existente Com Nome Repetido 400
+CT-P22: PUT Tentar Editar Produto Existente Com Nome Repetido 400
     [Documentation]        Teste de tentativa de edição de um produto existente com
     ...                    o nome de outro produto já cadastrado.
     [Tags]                 PUT
-
+    #####
+    # Setup
     Criar Sessao
+    ${json}=                        Carregar JSON    ${dados_json}
+
+    ${id_usuario}=                  Cadastrar Usuario    ${json["dados_usuarios"]["user_admin"]}
+
+    ${token_auth}=                  Fazer Login    ${json["dados_usuarios"]["user_admin_login"]}
+    &{headers}=                     Create Dictionary    Authorization=${token_auth}
 
     # Produto que será editado
-    &{produto_editado}=             Obter Dados De Produto Existente    0
-    ${id}=                          Set Variable    ${produto_editado["_id"]}
+    ${id_produto_editado}=          Cadastrar Produto    ${json["dados_edicao"]["produto_inicial"]}    ${token_auth}
 
+    # Produto do qual o nome repetido será retirado
+    ${id_produto_repetido}=         Cadastrar Produto    ${json["dados_edicao"]["produto_nome_repetido"]}    ${token_auth}
 
-    # Produto de quem o nome repetido será retirado
-    &{produto_nome}=                Obter Dados De Produto Existente    1
-    ${nome}=                        Set Variable    ${produto_nome["nome"]}
+    ${novos_dados}=                 Set Variable    ${json["dados_edicao"]["edicao_nome_repetido"]}
 
-    # Altera o nome a ser editado
-    &{produto_editado}=             Create Dictionary    nome=${nome}
-    ...                             preco=${15}    descricao=Nova descricao
-    ...                             quantidade=${90}
-    
-    ${token}=                       Fazer Login Com Administrador
-    &{headers}=                     Create Dictionary    Authorization=${token}
-
-    ${response}=                    Enviar PUT    ${endpoint}/${id}    ${produto_editado}    headers=${headers}
+    #####
+    # Teste
+    ${response}=                    Enviar PUT    /produtos/${id_produto_editado}    ${novos_dados}    headers=${headers}
     Validar Status Code             400    ${response}
     Validar Mensagem                Já existe produto com esse nome    ${response}
 
+    #####
+    # Limpeza dos dados
+    [Teardown]                      Run Keywords    Deletar Produto    ${id_produto_editado}    ${token_auth}
+    ...                             AND             Deletar Produto    ${id_produto_repetido}    ${token_auth}
+    ...                             AND             Deletar Usuario    ${id_usuario}
 
-Cenario: PUT Tentar Editar Produto Existente Com Dados Inválidos 400
-    [Documentation]    Teste para tentativa de edição de produto existente com dados inválidos.
+
+CT-P23: PUT Tentar Editar Produto Existente Com Nome Em Branco 400
+    [Documentation]    Teste para tentativa de edição de produto existente com nome em branco.
     [Tags]             PUT
-
+    #####
+    # Setup & Teste
     Criar Sessao
 
-    &{produto_editado}=        Obter Dados De Produto Existente
-    ${id}=                     Set Variable    ${produto_editado["_id"]}
-    
-    &{dados_invalidos}=        Create Dictionary    nome=Produto Inválido    modelo=A2
+    ${response}    ${id_usuario}    ${id_produto}    ${token_auth}=
+    ...    Tentar Editar Produto Existente    "edicao_nome_em_branco"
 
-    ${token}=                  Fazer Login Com Administrador
-    &{headers}=                Create Dictionary    Authorization=${token}
-
-    ${response}=               Enviar PUT    ${endpoint}/${id}    ${dados_invalidos}    headers=${headers}
     Validar Status Code        400    ${response}
 
+    #####
+    # Limpeza dos dados
+    [Teardown]        Run Keywords    Deletar Produto    ${id_produto}    ${token_auth}
+    ...               AND             Deletar Usuario    ${id_usuario}
 
-Cenario: PUT Tentar Editar Produto Inexistente 201
-    [Documentation]    Teste para tentativa de edição de produto inexistente.
+CT-P24: PUT Tentar Editar Produto Existente Sem Nome 400
+    [Documentation]    Teste para tentativa de edição de produto existente sem campo de nome.
     [Tags]             PUT
-
+    #####
+    # Setup & Teste
     Criar Sessao
 
-    &{produto}=                Criar Dados De Produto    nome=Novo Produto    preco=${200}
-    ...                        descricao=Produto novo cadastrado    quantidade=${50}
+    ${response}    ${id_usuario}    ${id_produto}    ${token_auth}=
+    ...    Tentar Editar Produto Existente    "edicao_sem_nome"
 
-    ${id}=                     Set Variable    id_nao_existe
-
-    ${token}=                  Fazer Login Com Administrador
-    &{headers}=                Create Dictionary    Authorization=${token}
-
-    ${response}=               Enviar PUT    ${endpoint}/${id}    ${produto}    headers=${headers}
-    Validar Status Code        201    ${response}
-    Validar Mensagem           Cadastro realizado com sucesso    ${response}
-    ${id}=                     Set Variable    ${response.json()["_id"]}
-
-    ${response}=               Enviar GET    ${endpoint}/${id}
-    Validar Status Code        200    ${response}
-    Validar Produtos Iguais    ${response.json()}    ${produto}
-
-    # Deletar produto, permite que o teste seja repetido sem alterar os dados
-    ${response}=               Enviar DELETE    ${endpoint}/${id}    headers=${headers} 
-    Validar Status Code        200    ${response}
-
-
-Cenario: PUT Tentar Editar Produto Inexistente Com Nome Repetido 400
-    [Documentation]    Teste para tentativa de edição de produto inexistente utilizando nome já cadastrado.
-    [Tags]             PUT
-
-    ${nome}=                   Obter Nome Existente
-    &{produto}=                Criar Dados De Produto    nome=${nome}    preco=${25}
-    ...                        descricao=Produto com nome repetido    quantidade=${15}
-
-    ${id}=                     Set Variable    id_nao_existe
-
-    ${token}=                  Fazer Login Com Administrador
-    &{headers}=                Create Dictionary    Authorization=${token}
-
-    ${response}=               Enviar PUT    ${endpoint}/${id}    ${produto}    headers=${headers}
     Validar Status Code        400    ${response}
-    Validar Mensagem           Já existe produto com esse nome    ${response}
 
+    #####
+    # Limpeza dos dados
+    [Teardown]        Run Keywords    Deletar Produto    ${id_produto}    ${token_auth}
+    ...               AND             Deletar Usuario    ${id_usuario}
 
-Cenario: PUT Tentar Editar Produto Inexistente Com Dados Inválidos 400
-    [Documentation]    Teste para tentativa de edição de produto inexistente com dados inválidos.
+CT-P25: PUT Tentar Editar Produto Existente Com Preco Em Branco 400
+    [Documentation]    Teste para tentativa de edição de produto existente com preco em branco.
     [Tags]             PUT
-
+    #####
+    # Setup & Teste
     Criar Sessao
 
-    ${id}=                     Set Variable    id_nao_existe
-    
-    &{dados_invalidos}=        Create Dictionary    nome=Produto Inválido    modelo=A2
+    ${response}    ${id_usuario}    ${id_produto}    ${token_auth}=
+    ...    Tentar Editar Produto Existente    "edicao_preco_em_branco"
 
-    ${token}=                  Fazer Login Com Administrador
-    &{headers}=                Create Dictionary    Authorization=${token}
-
-    ${response}=               Enviar PUT    ${endpoint}/${id}    ${dados_invalidos}    headers=${headers}
     Validar Status Code        400    ${response}
 
+    #####
+    # Limpeza dos dados
+    [Teardown]        Run Keywords    Deletar Produto    ${id_produto}    ${token_auth}
+    ...               AND             Deletar Usuario    ${id_usuario}
 
-Cenario: PUT Tentar Editar Produto Existente Sem Login 401
+CT-P26: PUT Tentar Editar Produto Existente Sem Preco 400
+    [Documentation]    Teste para tentativa de edição de produto existente sem campo de preco.
+    [Tags]             PUT
+    #####
+    # Setup & Teste
+    Criar Sessao
+
+    ${response}    ${id_usuario}    ${id_produto}    ${token_auth}=
+    ...    Tentar Editar Produto Existente    "edicao_sem_preco"
+
+    Validar Status Code        400    ${response}
+
+    #####
+    # Limpeza dos dados
+    [Teardown]        Run Keywords    Deletar Produto    ${id_produto}    ${token_auth}
+    ...               AND             Deletar Usuario    ${id_usuario}
+
+CT-P27: PUT Tentar Editar Produto Existente Com Descricao Em Branco 400
+    [Documentation]    Teste para tentativa de edição de produto existente com descricao em branco.
+    [Tags]             PUT
+    #####
+    # Setup & Teste
+    Criar Sessao
+
+    ${response}    ${id_usuario}    ${id_produto}    ${token_auth}=
+    ...    Tentar Editar Produto Existente    "edicao_descricao_em_branco"
+
+    Validar Status Code        400    ${response}
+
+    #####
+    # Limpeza dos dados
+    [Teardown]        Run Keywords    Deletar Produto    ${id_produto}    ${token_auth}
+    ...               AND             Deletar Usuario    ${id_usuario}
+
+CT-P28: PUT Tentar Editar Produto Existente Sem Descricao 400
+    [Documentation]    Teste para tentativa de edição de produto existente sem campo de descricao.
+    [Tags]             PUT
+    #####
+    # Setup & Teste
+    Criar Sessao
+
+    ${response}    ${id_usuario}    ${id_produto}    ${token_auth}=
+    ...    Tentar Editar Produto Existente    "edicao_sem_descricao"
+
+    Validar Status Code        400    ${response}
+
+    #####
+    # Limpeza dos dados
+    [Teardown]        Run Keywords    Deletar Produto    ${id_produto}    ${token_auth}
+    ...               AND             Deletar Usuario    ${id_usuario}
+
+CT-P29: PUT Tentar Editar Produto Existente Com Quantidade Em Branco 400
+    [Documentation]    Teste para tentativa de edição de produto existente com quantidade em branco.
+    [Tags]             PUT
+    #####
+    # Setup & Teste
+    Criar Sessao
+
+    ${response}    ${id_usuario}    ${id_produto}    ${token_auth}=
+    ...    Tentar Editar Produto Existente    "edicao_quantidade_em_branco"
+
+    Validar Status Code        400    ${response}
+
+    #####
+    # Limpeza dos dados
+    [Teardown]        Run Keywords    Deletar Produto    ${id_produto}    ${token_auth}
+    ...               AND             Deletar Usuario    ${id_usuario}
+
+CT-P30: PUT Tentar Editar Produto Existente Sem Quantidade 400
+    [Documentation]    Teste para tentativa de edição de produto existente sem campo de quantidade.
+    [Tags]             PUT
+    #####
+    # Setup & Teste
+    Criar Sessao
+
+    ${response}    ${id_usuario}    ${id_produto}    ${token_auth}=
+    ...    Tentar Editar Produto Existente    "edicao_sem_quantidade"
+
+    Validar Status Code        400    ${response}
+
+    #####
+    # Limpeza dos dados
+    [Teardown]        Run Keywords    Deletar Produto    ${id_produto}    ${token_auth}
+    ...               AND             Deletar Usuario    ${id_usuario}
+
+CT-P31: PUT Tentar Editar Produto Existente Sem Login 401
     [Documentation]        Teste de edição de um produto existente sem ter feito login.
     [Tags]                 PUT
-
+    #####
+    # Setup
     Criar Sessao
+    ${json}=               Carregar JSON    ${dados_json}
 
-    &{novos_dados}=        Criar Dados De Produto    nome=Nome Editado    preco=${120}
-    ...                    descricao=Descricao editada    quantidade=${50}
+    ${id_usuario}=         Cadastrar Usuario    ${json["dados_usuarios"]["user_admin"]}
 
-    &{produto}=            Obter Dados De Produto Existente
-    ${id}=                 Set Variable    ${produto["_id"]}
+    ${token_auth}=         Fazer Login    ${json["dados_usuarios"]["user_admin_login"]}
 
-    ${response}=           Enviar PUT    ${endpoint}/${id}    ${novos_dados}
+    ${id_produto}=         Cadastrar Produto    ${json["dados_edicao"]["produto_inicial"]}    ${token_auth}
+
+    ${novos_dados}=        Set Variable    ${json["dados_edicao"]["edicao_valida"]}
+
+
+    #####
+    # Teste
+    ${response}=           Enviar PUT    /produtos/${id_produto}    ${novos_dados}
     Validar Status Code    401    ${response}
     Validar Mensagem       Token de acesso ausente, inválido, expirado ou usuário do token não existe mais
     ...                    ${response}
 
+    #####
+    # Limpeza dos dados
+    [Teardown]             Run Keywords    Deletar Produto    ${id_produto}    ${token_auth}
+    ...                    AND             Deletar Usuario    ${id_usuario}
 
-Cenario: PUT Tentar Editar Produto Inexistente Sem Login 401
-    [Documentation]    Teste para tentativa de edição de produto inexistente sem ter feito login.
-    [Tags]             PUT
-
-    Criar Sessao
-
-    &{produto}=            Criar Dados De Produto    nome=Novo Produto    preco=${200}
-    ...                    descricao=Produto novo cadastrado    quantidade=${50}
-
-    ${id}=                 Set Variable    id_nao_existe
-
-    ${response}=           Enviar PUT    ${endpoint}/${id}    ${produto}
-    Validar Status Code    401    ${response}
-    Validar Mensagem       Token de acesso ausente, inválido, expirado ou usuário do token não existe mais
-    ...                    ${response}
-
-
-Cenario: PUT Tentar Editar Produto Existente Sem Ser Administrador 403
+CT-P32: PUT Tentar Editar Produto Existente Sem Ser Administrador 403
     [Documentation]        Teste de edição de um produto existente por usuário não-administrador.
     [Tags]                 PUT
-
+    #####
+    # Setup
     Criar Sessao
+    ${json}=                 Carregar JSON    ${dados_json}
 
-    &{novos_dados}=        Criar Dados De Produto    nome=Nome Editado    preco=${120}
-    ...                    descricao=Descricao editada    quantidade=${50}
+    ${id_admin}=             Cadastrar Usuario    ${json["dados_usuarios"]["user_admin"]}
 
-    &{produto}=            Obter Dados De Produto Existente
-    ${id}=                 Set Variable    ${produto["_id"]}
+    ${token_auth_admin}=     Fazer Login    ${json["dados_usuarios"]["user_admin_login"]}
 
-    ${token}=              Fazer Login Com Usuario Padrao
-    &{headers}=            Create Dictionary    Authorization=${token}
+    ${id_produto}=           Cadastrar Produto    ${json["dados_edicao"]["produto_inicial"]}    ${token_auth_admin}
 
-    ${response}=           Enviar PUT    ${endpoint}/${id}    ${novos_dados}    headers=${headers}
+    ${novos_dados}=          Set Variable    ${json["dados_edicao"]["edicao_valida"]}
+
+    ${id_user_padrao}=       Cadastrar Usuario    ${json["dados_usuarios"]["user_padrao"]}
+
+    ${token_auth_padrao}=    Fazer Login    ${json["dados_usuarios"]["user_padrao_login"]}
+    &{headers}=              Create Dictionary    Authorization=${token_auth_padrao}
+
+    #####
+    # Teste
+    ${response}=           Enviar PUT    /produtos/${id_produto}    ${novos_dados}    headers=${headers}
     Validar Status Code    403    ${response}
     Validar Mensagem       Rota exclusiva para administradores
     ...                    ${response}
 
+    #####
+    # Limpeza dos dados
+    [Teardown]             Run Keywords    Deletar Produto    ${id_produto}    ${token_auth_admin}
+    ...                    AND             Deletar Usuario    ${id_user_padrao}
+    ...                    AND             Deletar Usuario    ${id_admin}
 
-Cenario: PUT Tentar Editar Produto Inexistente Sem Ser Administrador 403
-    [Documentation]    Teste para tentativa de edição de produto inexistente por usuário não-administrador.
+
+CT-P33: PUT Tentar Editar Produto Inexistente 201
+    [Documentation]        Teste de edição de um produto inexistente.
+    [Tags]                 PUT
+    #####
+    # Setup
+    Criar Sessao
+    ${json}=                   Carregar JSON    ${dados_json}
+
+    ${id_usuario}=             Cadastrar Usuario    ${json["dados_usuarios"]["user_admin"]}
+    
+    ${token_auth}=             Fazer Login    ${json["dados_usuarios"]["user_admin_login"]}
+    &{headers}=                Create Dictionary    Authorization=${token_auth}
+
+    ${id_produto}=             Set Variable    naoexiste9432
+
+    ${novos_dados}=            Set Variable    ${json["dados_edicao"]["edicao_valida"]}
+
+    #####
+    # Teste
+    ${response}=               Enviar PUT    /produtos/${id_produto}    ${novos_dados}    headers=${headers}
+    Validar Status Code        201    ${response}
+    Validar Mensagem           Cadastro realizado com sucesso    ${response}
+
+    # Verificar se o produto foi realmente criado
+    ${id_produto}=             Set Variable    ${response.json()["_id"]}
+    ${response}=               Enviar GET    /produtos/${id_produto}
+    Validar Status Code        200    ${response}
+    Validar Produtos Iguais    ${response.json()}    ${novos_dados}
+
+    #####
+    # Limpeza dos dados
+    [Teardown]             Run Keywords    Deletar Produto    ${id_produto}    ${token_auth}
+    ...                    AND             Deletar Usuario    ${id_usuario}
+
+
+CT-P34: PUT Tentar Editar Produto Inexistente Com Nome Repetido 400    
+    [Documentation]        Teste de tentativa de edição de um produto inexistente com
+    ...                    o nome de outro produto já cadastrado.
+    [Tags]                 PUT
+    #####
+    # Setup
+    Criar Sessao
+    ${json}=                        Carregar JSON    ${dados_json}
+
+    ${id_usuario}=                  Cadastrar Usuario    ${json["dados_usuarios"]["user_admin"]}
+
+    ${token_auth}=                  Fazer Login    ${json["dados_usuarios"]["user_admin_login"]}
+    &{headers}=                     Create Dictionary    Authorization=${token_auth}
+
+    # Produto que será editado
+    ${id_produto_editado}=          Set Variable    naoexiste123
+
+    # Produto do qual o nome repetido será retirado
+    ${id_produto_repetido}=         Cadastrar Produto    ${json["dados_edicao"]["produto_nome_repetido"]}    ${token_auth}
+
+    ${novos_dados}=                 Set Variable    ${json["dados_edicao"]["edicao_nome_repetido"]}
+
+    #####
+    # Teste
+    ${response}=                    Enviar PUT    /produtos/${id_produto_editado}    ${novos_dados}    headers=${headers}
+    Validar Status Code             400    ${response}
+    Validar Mensagem                Já existe produto com esse nome    ${response}
+
+    #####
+    # Limpeza dos dados
+    [Teardown]                      Run Keywords    Deletar Produto    ${id_produto_repetido}    ${token_auth}
+    ...                             AND             Deletar Usuario    ${id_usuario}
+
+CT-P35: PUT Tentar Editar Produto Inexistente Com Nome Em Branco 400
+    [Documentation]    Teste para tentativa de edição de produto inexistente com nome em branco.
     [Tags]             PUT
-
+    #####
+    # Setup & Teste
     Criar Sessao
 
-    &{produto}=            Criar Dados De Produto    nome=Novo Produto    preco=${200}
-    ...                    descricao=Produto novo cadastrado    quantidade=${50}
+    ${response}    ${id_usuario}=
+    ...    Tentar Editar Produto Inexistente    "edicao_nome_em_branco"
 
-    ${id}=                 Set Variable    id_nao_existe
+    Validar Status Code        400    ${response}
 
-    ${token}=              Fazer Login Com Usuario Padrao
-    &{headers}=            Create Dictionary    Authorization=${token}
+    #####
+    # Limpeza dos dados
+    [Teardown]        Deletar Usuario    ${id_usuario}
 
-    ${response}=           Enviar PUT    ${endpoint}/${id}    ${produto}    headers=${headers}
+CT-P36: PUT Tentar Editar Produto Inexistente Sem Nome 400
+    [Documentation]    Teste para tentativa de edição de produto inexistente sem campo de nome.
+    [Tags]             PUT
+    #####
+    # Setup & Teste
+    Criar Sessao
+
+    ${response}    ${id_usuario}=
+    ...    Tentar Editar Produto Inexistente    "edicao_sem_nome"
+
+    Validar Status Code        400    ${response}
+
+    #####
+    # Limpeza dos dados
+    [Teardown]        Deletar Usuario    ${id_usuario}
+
+CT-P37: PUT Tentar Editar Produto Inexistente Com Preco Em Branco 400
+    [Documentation]    Teste para tentativa de edição de produto inexistente com preco em branco.
+    [Tags]             PUT
+    #####
+    # Setup & Teste
+    Criar Sessao
+
+    ${response}    ${id_usuario}=
+    ...    Tentar Editar Produto Inexistente    "edicao_preco_em_branco"
+
+    Validar Status Code        400    ${response}
+
+    #####
+    # Limpeza dos dados
+    [Teardown]        Deletar Usuario    ${id_usuario}
+
+CT-P38: PUT Tentar Editar Produto Inexistente Sem Preco 400
+    [Documentation]    Teste para tentativa de edição de produto inexistente sem campo de preco.
+    [Tags]             PUT
+    #####
+    # Setup & Teste
+    Criar Sessao
+
+    ${response}    ${id_usuario}=
+    ...    Tentar Editar Produto Inexistente    "edicao_sem_preco"
+
+    Validar Status Code        400    ${response}
+
+    #####
+    # Limpeza dos dados
+    [Teardown]        Deletar Usuario    ${id_usuario}
+
+CT-P39: PUT Tentar Editar Produto Inexistente Com Descricao Em Branco 400
+    [Documentation]    Teste para tentativa de edição de produto inexistente com descricao em branco.
+    [Tags]             PUT
+    #####
+    # Setup & Teste
+    Criar Sessao
+
+    ${response}    ${id_usuario}=
+    ...    Tentar Editar Produto Inexistente    "edicao_descricao_em_branco"
+
+    Validar Status Code        400    ${response}
+
+    #####
+    # Limpeza dos dados
+    [Teardown]        Deletar Usuario    ${id_usuario}
+
+CT-P40: PUT Tentar Editar Produto Inexistente Sem Descricao 400
+    [Documentation]    Teste para tentativa de edição de produto inexistente sem campo de descricao.
+    [Tags]             PUT
+    #####
+    # Setup & Teste
+    Criar Sessao
+
+    ${response}    ${id_usuario}=
+    ...    Tentar Editar Produto Inexistente    "edicao_sem_descricao"
+
+    Validar Status Code        400    ${response}
+
+    #####
+    # Limpeza dos dados
+    [Teardown]        Deletar Usuario    ${id_usuario}
+
+CT-P41: PUT Tentar Editar Produto Inexistente Com Quantidade Em Branco 400
+    [Documentation]    Teste para tentativa de edição de produto inexistente com quantidade em branco.
+    [Tags]             PUT
+    #####
+    # Setup & Teste
+    Criar Sessao
+
+    ${response}    ${id_usuario}=
+    ...    Tentar Editar Produto Inexistente    "edicao_quantidade_em_branco"
+
+    Validar Status Code        400    ${response}
+
+    #####
+    # Limpeza dos dados
+    [Teardown]        Deletar Usuario    ${id_usuario}
+
+CT-P42: PUT Tentar Editar Produto Inexistente Sem Quantidade 400
+    [Documentation]    Teste para tentativa de edição de produto inexistente sem campo de quantidade.
+    [Tags]             PUT
+    #####
+    # Setup & Teste
+    Criar Sessao
+
+    ${response}    ${id_usuario}=
+    ...    Tentar Editar Produto Inexistente    "edicao_sem_quantidade"
+
+    Validar Status Code        400    ${response}
+
+    #####
+    # Limpeza dos dados
+    [Teardown]        Deletar Usuario    ${id_usuario}
+
+
+
+CT-P43: PUT Tentar Editar Produto Inexistente Sem Login 401
+    [Documentation]        Teste de edição de um produto existente sem ter feito login.
+    [Tags]                 PUT
+    #####
+    # Setup
+    Criar Sessao
+    ${json}=               Carregar JSON    ${dados_json}
+
+    ${id_produto}=         Set Variable    naoexiste1412
+
+    ${novos_dados}=        Set Variable    ${json["dados_edicao"]["edicao_valida"]}
+
+
+    #####
+    # Teste
+    ${response}=           Enviar PUT    /produtos/${id_produto}    ${novos_dados}
+    Validar Status Code    401    ${response}
+    Validar Mensagem       Token de acesso ausente, inválido, expirado ou usuário do token não existe mais
+    ...                    ${response}
+
+
+CT-P44: PUT Tentar Editar Produto Inexistente Sem Ser Administrador 403
+    [Documentation]        Teste de edição de um produto existente por usuário não-administrador.
+    [Tags]                 PUT
+    #####
+    # Setup
+    Criar Sessao
+    ${json}=                 Carregar JSON    ${dados_json}
+
+    ${id_produto}=           Set Variable    naoexiste10312
+
+    ${novos_dados}=          Set Variable    ${json["dados_edicao"]["edicao_valida"]}
+
+    ${id_user_padrao}=       Cadastrar Usuario    ${json["dados_usuarios"]["user_padrao"]}
+
+    ${token_auth_padrao}=    Fazer Login    ${json["dados_usuarios"]["user_padrao_login"]}
+    &{headers}=              Create Dictionary    Authorization=${token_auth_padrao}
+
+    #####
+    # Teste
+    ${response}=           Enviar PUT    /produtos/${id_produto}    ${novos_dados}    headers=${headers}
     Validar Status Code    403    ${response}
     Validar Mensagem       Rota exclusiva para administradores
     ...                    ${response}
+
+    #####
+    # Limpeza dos dados
+    [Teardown]             Deletar Usuario    ${id_user_padrao}
+
 
 
 * Keywords *
 
 # Listadas apenas keywords usadas unicamente nesta suíte de testes
 
-Criar Dados De Produto
-    [Documentation]    Cria um produto com as informações passadas por argumento.
-    ...                Se nenhum argumento for passado, usa informações pré-definidas.
-    ...                \nRetorna: \&{produto}
+Tentar Cadastrar Produto
+    [Documentation]         Realiza uma tentativa de cadastro de produto com os dados json informados.
+    ...                     Não faz validações dentro da keyword.
+    ...                     \nCria um usuário administrador para login, e que precisa ser excluído manualmente.
+    ...                     \nReturn: \${response} -- a resposta da tentativa de cadastro de usuário.
+    ...                     \n\${id_usuario} -- a id do usuário criado para login.
+    [Arguments]             ${json_produto}
+    #####
+    # Setup
+    ${json}=                Carregar JSON    ${dados_json}
+    ${produto}=             Set Variable    ${json["dados_cadastro"][${json_produto}]}
 
-    [Arguments]        ${nome}=Headset Audio Ex    ${preco}=${200}    ${descricao}=Headset    ${quantidade}=${100}
-    &{produto}=        Create Dictionary    nome=${nome}    preco=${preco}    descricao=${descricao}    quantidade=${quantidade}
-    [Return]           &{produto}
+    ${id_usuario}=          Cadastrar Usuario    ${json["dados_usuarios"]["user_admin"]}
+    ${token_auth}=          Fazer Login    ${json["dados_usuarios"]["user_admin_login"]}
+    &{headers}=             Create Dictionary    Authorization=${token_auth}
 
-Remover Campo ID
-    [Documentation]    Remove o campo '_id' de um produto, para facilitar o recadastramento.
-    
-    [Arguments]        ${produto}
-    &{produto}=        Create Dictionary    nome=${produto["nome"]}    
-    ...                preco=${produto["preco"]}    descricao=${produto["descricao"]}
-    ...                quantidade=${produto["quantidade"]}
-    [Return]           &{produto}
+    #####
+    # Teste
+    ${response}=            Enviar POST    /produtos    ${produto}    headers=${headers}
+    [Return]                ${response}    ${id_usuario}
 
+Tentar Editar Produto Existente
+    [Documentation]         Realiza uma tentativa de edição de produto existente com os dados json informados.
+    ...                     Não faz validações dentro da keyword.
+    ...                     \nCria um usuário administrador para login, e que precisa ser excluído manualmente.
+    ...                     \nCria um produto que será editado, e que precisa ser excluído manualmente.
+    ...                     \nReturn: \${response} -- a resposta da tentativa de edição de produto.
+    ...                     \n\${id_usuario} -- a id do usuário criado para login.
+    ...                     \n\${id_produto} -- a id do produto criado para edição.
+    ...                     \n\${token_auth} -- a token de autorização do usuário logado.
+    [Arguments]             ${json_edicao}
+    #####
+    # Setup
+    ${json}=                Carregar JSON    ${dados_json}
 
-Obter Nome Existente
-    [Documentation]      Obtém o nome do primeiro produto da lista de produtos registrados.
-    ...                  Necessita que uma sessão com alias 'serverest' já tenha sido criada.
-    ...                  \nRetorna: \${nome}
+    ${id_usuario}=          Cadastrar Usuario    ${json["dados_usuarios"]["user_admin"]}
 
-    &{produto}=          Obter Dados De Produto Existente
-    ${nome}=             Set Variable    ${produto["nome"]}
-    [Return]             ${nome}
+    ${token_auth}=          Fazer Login    ${json["dados_usuarios"]["user_admin_login"]}
+    &{headers}=             Create Dictionary    Authorization=${token_auth}
 
-Fazer Login Com Administrador
-    [Documentation]      Realiza login com um usuário administrador.
-    ...                  Necessita que uma sessão com alias 'serverest' já tenha sido criada.
-    ...                  \nRetorna: \${token}
+    ${id_produto}=          Cadastrar Produto    ${json["dados_edicao"]["produto_inicial"]}    ${token_auth}
 
-    &{login}=            Create Dictionary    email=${email_admin}    password=${senha_admin}
-    ${response}=         Enviar POST    /login    ${login}
-    ${token}=            Set Variable    ${response.json()["authorization"]}
-    [Return]             ${token}
+    ${novos_dados}=         Set Variable    ${json["dados_edicao"][${json_edicao}]}
 
-Fazer Login Com Usuario Padrao
-    [Documentation]      Realiza login com um usuário não-administrador.
-    ...                  Necessita que uma sessão com alias 'serverest' já tenha sido criada.
-    ...                  \nRetorna: \${token}
+    #####
+    # Teste
+    ${response}=            Enviar PUT    /produtos/${id_produto}    ${novos_dados}    headers=${headers}
+    [Return]                ${response}    ${id_usuario}    ${id_produto}    ${token_auth}
 
-    &{login}=            Create Dictionary    email=${email_padrao}    password=${senha_padrao}
-    ${response}=         Enviar POST    /login    ${login}
-    ${token}=            Set Variable    ${response.json()["authorization"]}
-    [Return]             ${token}
+Tentar Editar Produto Inexistente
+    [Documentation]         Realiza uma tentativa de edição de produto inexistente com os dados json informados.
+    ...                     Não faz validações dentro da keyword.
+    ...                     \nCria um usuário administrador para login, e que precisa ser excluído manualmente.
+    ...                     \nReturn: \${response} -- a resposta da tentativa de edição de produto.
+    ...                     \n\${id_usuario} -- a id do usuário criado para login.
+    [Arguments]             ${json_edicao}
+    #####
+    # Setup
+    ${json}=                Carregar JSON    ${dados_json}
+
+    ${id_usuario}=          Cadastrar Usuario    ${json["dados_usuarios"]["user_admin"]}
+
+    ${token_auth}=          Fazer Login    ${json["dados_usuarios"]["user_admin_login"]}
+    &{headers}=             Create Dictionary    Authorization=${token_auth}
+
+    ${id_produto}=          Set Variable    naoexiste234
+
+    ${novos_dados}=         Set Variable    ${json["dados_edicao"][${json_edicao}]}
+
+    #####
+    # Teste
+    ${response}=            Enviar PUT    /produtos/${id_produto}    ${novos_dados}    headers=${headers}
+    [Return]                ${response}    ${id_usuario}
+
 
 Validar Produtos Iguais
     [Documentation]      Verifica se dois produtos serverest possuem todos os campos iguais.
+    ...                  Ignora o campo de '_id'.
 
     [Arguments]          ${produto_1}    ${produto_2}
     Should Be Equal      ${produto_1["nome"]}    ${produto_2["nome"]}
