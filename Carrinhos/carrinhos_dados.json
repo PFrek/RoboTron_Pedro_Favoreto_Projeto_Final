@@ -1,0 +1,38 @@
+{
+    "dados_usuarios": {
+        "user_admin": {
+            "nome": "User Admin",
+            "email": "user_admin@qa.com.br",
+            "password": "teste",
+            "administrador": "true"
+        },
+        "user_admin_login": {
+            "email": "user_admin@qa.com.br",
+            "password": "teste"
+        },
+        "user_padrao": {
+            "nome": "User Padrão",
+            "email": "user_padrao@qa.com.br",
+            "password": "teste",
+            "administrador": "false"
+        },
+        "user_padrao_login": {
+            "email": "user_padrao@qa.com.br",
+            "password": "teste"
+        }
+    },
+    "dados_cadastro": {
+        "produto_normal": {
+            "nome": "Produto Normal",
+            "preco": 100,
+            "descricao": "Primeiro produto normal",
+            "quantidade": 100
+        },
+        "produto_pouca_quantidade": {
+            "nome": "Produto Pouca Quantidade",
+            "preco": 50,
+            "descricao": "Produto com pouca quantidade em estoque",
+            "quantidade": 5
+        }
+    }
+}

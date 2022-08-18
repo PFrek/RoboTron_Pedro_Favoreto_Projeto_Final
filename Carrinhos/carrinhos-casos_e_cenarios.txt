@@ -1,0 +1,108 @@
+#####
+# Casos de Teste para o endpoint /carrinhos da API ServeRest
+
+GET - Listar todos os carrinhos cadastrados
+- Mostrar todos os carrinhos cadastrados
+- A requisição deve voltar um status 200
+
+
+POST - Cadastrar novo carrinho como administrador
+- Fazer login com um usuário administrador
+- Cadastrar novos produtos que estarão no carrinho
+- Cadastrar novo carrinho
+- A requisição deve voltar um status 201
+- Validar se um novo carrinho foi realmente cadastrado
+
+POST - Cadastrar novo carrinho como usuário Padrão
+- Fazer login com um usuário administrador
+- Cadastrar novos produtos que estarão no carrinho
+- Fazer login com um usuário padrão
+- Cadastrar novo carrinho
+- A requisição deve voltar um status 201
+- Validar se um novo carrinho foi realmente cadastrado
+
+POST - Tentar cadastrar carrinho com produto duplicado
+- Fazer login com um usuário administrador
+- Cadastrar novo produto que estára no carrinho
+- Cadastrar novo carrinho com produto repetido
+- A requisição deve voltar um status 400
+
+POST - Tentar cadastrar mais de um carrinho com um usuário
+- Fazer login com um usuário administrador
+- Cadastrar novos produtos que estarão no carrinho
+- Cadastrar novo carrinho duas vezes com o mesmo usuário
+- A requisição deve voltar um status 400
+
+POST - Tentar cadastrar um carrinho com produto inexistente
+- Fazer login com um usuário administrador
+- Cadastrar novo carrinho contendo id de produto inexistente
+- A requisição deve voltar um status 400
+
+POST - Tentar cadastrar um carrinho sem quantidade de produto suficiente
+- Fazer login com um usuário administrador
+- Cadastrar novos produtos que estarão no carrinho
+- Cadastrar novo carrinho contendo produtos além da quantidade existente
+- A requisição deve voltar um status 400
+
+POST - Tentar cadastrar um carrinho com dados inválidos
+- Fazer login com um usuário administrador
+- Cadastrar novos produtos que estarão no carrinho
+- Cadastrar novo carrinho contendo dados inválidos
+- A requisição deve voltar um status 400
+
+POST - Tentar cadastrar um carrinho sem ter feito login
+- Fazer login com um usuário administrador
+- Cadastrar novos produtos que estarão no carrinho
+- Cadastrar novo carrinho sem credencial de login
+- A requisição deve voltar um status 401
+
+
+GET - Buscar carrinho existente
+- Fazer login com um usuário administrador
+- Cadastrar novos produtos que estarão no carrinho
+- Cadastrar novo carrinho
+- Buscar o carrinho cadastrado pela id
+- A requisição deve voltar um status 200
+- A resposta deve conter as informações corretas desse carrinho
+
+GET - Tentar buscar carrinho inexistente
+- Criar id de carrinho inválida
+- Busar um carrinho com essa id
+- A requisição deve voltar um status 400
+
+
+DELETE - Concluir compra com um carrinho existente
+- Fazer login com um usuário administrador
+- Cadastrar novos produtos que estarão no carrinho
+- Cadastrar novo carrinho
+- Concluir compra do carrinho cadastrado
+- A requisição deve voltar um status 200
+- Validar se o carrinho foi realmente excluído
+- Validar se as quantidades de produto NÃO foram reabastecidas
+
+DELETE - Cancelar compra com um carrinho existente
+- Fazer login com um usuário administrador
+- Cadastrar novos produtos que estarão no carrinho
+- Cadastrar novo carrinho
+- Cancelar compra do carrinho cadastrado
+- A requisição deve voltar um status 200
+- Validar se o carrinho foi realmente excluído
+- Validar se as quantidades de produto FORAM reabastecidas
+
+DELETE - Tentar concluir compra com usuário sem carrinho
+- Fazer login com um usuário
+- Concluir compra com o usuário logado
+- A requisição deve voltar um status 200
+
+DELETE - Tentar cancelar compra com usuário sem carrinho
+- Fazer login com um usuário
+- Cancelar compra com o usuário logado
+- A requisição deve voltar um status 200
+
+DELETE - Tentar concluir compra sem ter feito login
+- Concluir compra sem credenciais de login
+- A requisição deve voltar um status 401
+
+DELETE - Tentar cancelar compra sem ter feito login
+- Cancelar compra sem credenciais de login
+- A requisição deve voltar um status 401

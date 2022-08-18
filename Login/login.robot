@@ -16,11 +16,11 @@ CT-L01: POST Fazer Login Com Sucesso 200
     #####
     # Setup
     Criar Sessao
-    ${json}=               Carregar JSON    ${dados_json}
+    ${json}=               Carregar JSON        ${dados_json}
     
     ${usuario_id}=         Cadastrar Usuario    ${json["dados_cadastro"]["user_valido"]}
 
-    ${login}=              Set Variable    ${json["dados_teste"]["user_valido"]}
+    ${login}=              Set Variable         ${json["dados_teste"]["user_valido"]}
 
     #####
     # Teste

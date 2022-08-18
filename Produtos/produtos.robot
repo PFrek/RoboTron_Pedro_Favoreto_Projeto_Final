@@ -45,7 +45,14 @@ CT-P02: POST Cadastrar Novo Produto 201
     Validar Mensagem           Cadastro realizado com sucesso    ${response}
     Should Not Be Empty        ${response.json()["_id"]}
 
+    
+    # Validar que o produto foi realmente criado
     ${id_produto}=             Set Variable    ${response.json()["_id"]}
+    ${response}=               Enviar GET    /produtos/${id_produto}
+    Validar Status Code        200    ${response}
+    Validar Produtos Iguais    ${response.json()}    ${dados_produto}
+
+
     #####
     # Limpeza dos dados
     [Teardown]                 Run Keywords    Deletar Produto    ${id_produto}    ${token_auth}
