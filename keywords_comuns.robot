@@ -141,14 +141,15 @@ Cadastrar Carrinho
     ...                           \nReturn: \${id} -- a id do carrinho cadastrado
     [Arguments]                   ${id_produto}    ${token_auth}    ${quantidade}=${3}
 
-    &{produto}=                   Create Dictionary    idProduto=${id_produto}    quantidade=${quantidade}
-    @{lista}=                     Create List    ${produto}
-    &{carrinho}=                  Create Dictionary    produtos=${lista}
+    &{produto}                    Create Dictionary    idProduto=${id_produto}    quantidade=${quantidade}
+    @{lista}                      Create List          ${produto}
+    &{carrinho}                   Create Dictionary    produtos=${lista}
 
-    &{headers}=                   Create Dictionary    Authorization=${token_auth}
-    ${response}=                  Enviar POST    /carrinhos    ${carrinho}    headers=${headers}
+    &{headers}                    Create Dictionary    Authorization=${token_auth}
+    ${response}                   Enviar POST    /carrinhos    ${carrinho}    headers=${headers}
 
     Validar Carrinho Cadastrado   ${response}
+    
     [Return]                      ${response.json()["_id"]}
 
 Validar Carrinho Cadastrado

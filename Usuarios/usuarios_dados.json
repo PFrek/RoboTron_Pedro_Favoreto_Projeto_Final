@@ -58,13 +58,13 @@
         }
     },
     "dados_delete": {
-        "user_cadastro": {
+        "user_admin": {
             "nome": "Administrador",
             "email": "admin_teste_delete@qa.com.br",
             "password": "teste",
             "administrador": "true"
         },
-        "user_login": {
+        "user_admin_login": {
             "email": "admin_teste_delete@qa.com.br",
             "password": "teste"
         },
