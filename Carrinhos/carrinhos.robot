@@ -34,7 +34,7 @@ CT-C02: GET Buscar Carrinho Existente 200
     ##########
     # Setup
     Criar Sessao
-    ${json}                Carregar JSON    ${dados_json}
+    
 
     # Criar Usuário
     ${id_usuario}          Cadastrar Usuario Dinamico    administrador=true
@@ -75,7 +75,7 @@ CT-C03: GET Buscar Carrinho Inexistente 400
     ##########
     # Setup
     Criar Sessao
-    ${json}                Carregar JSON    ${dados_json}
+    
 
     ${id_carrinho}         Set Variable    naoexiste9283
 
@@ -97,7 +97,7 @@ CT-C04: POST Cadastrar Carrinho Como Administrador 201
     ##########
     # Setup
     Criar Sessao
-    ${json}                Carregar JSON    ${dados_json}
+    
 
     # Criar Usuário
     ${id_usuario}          Cadastrar Usuario Dinamico    administrador=true
@@ -146,7 +146,7 @@ CT-C05: POST Cadastrar Carrinho Como Usuario Padrao 201
     ##########
     # Setup
     Criar Sessao
-    ${json}                Carregar JSON    ${dados_json}
+    
 
     # Criar usuários
     ${id_user_admin}       Cadastrar Usuario Dinamico    administrador=true
@@ -199,7 +199,7 @@ CT-C06: POST Tentar Cadastrar Carrinho Com Produto Duplicado 400
     ##########
     # Setup
     Criar Sessao
-    ${json}                Carregar JSON    ${dados_json}
+    
 
     # Criar usuário
     ${id_usuario}          Cadastrar Usuario Dinamico    administrador=true
@@ -234,7 +234,7 @@ CT-C07: POST Tentar Cadastrar Mais De Um Carrinho Com Um Usuario 400
     ##########
     # Setup
     Criar Sessao
-    ${json}                Carregar JSON    ${dados_json}
+    
 
     # Criar usuário
     ${id_usuario}          Cadastrar Usuario Dinamico    administrador=true
@@ -278,7 +278,7 @@ CT-C08: POST Tentar Cadastrar Um Carrinho Com Produto Inexistente 400
     ##########
     # Setup
     Criar Sessao
-    ${json}                Carregar JSON    ${dados_json}
+    
 
     # Criar Usuário
     ${id_usuario}          Cadastrar Usuario Dinamico    administrador=true
@@ -311,7 +311,7 @@ CT-C09: POST Tentar Cadastrar Carrinho Sem Quantidade De Produto Suficiente 400
     ##########
     # Setup
     Criar Sessao
-    ${json}                Carregar JSON    ${dados_json}
+    
 
     # Criar Usuário
     ${id_usuario}          Cadastrar Usuario Dinamico    administrador=true
@@ -345,7 +345,7 @@ CT-C10: POST Tentar Cadastrar Carrinho Sem Login 401
     ##########
     # Setup
     Criar Sessao
-    ${json}                Carregar JSON    ${dados_json}
+    
 
     # Criar Usuário
     ${id_usuario}          Cadastrar Usuario Dinamico    administrador=true
@@ -382,7 +382,7 @@ CT-C11: POST Tentar Cadastrar Carrinho Com IdProduto Em Branco 400
     ##########
     # Setup
     Criar Sessao
-    ${json}                Carregar JSON    ${dados_json}
+    
 
     # Criar Usuário
     ${id_usuario}          Cadastrar Usuario Dinamico    administrador=true
@@ -412,7 +412,7 @@ CT-C12: POST Tentar Cadastrar Carrinho Sem IdProduto 400
     ##########
     # Setup
     Criar Sessao
-    ${json}                Carregar JSON    ${dados_json}
+    
 
     # Criar Usuário
     ${id_usuario}          Cadastrar Usuario Dinamico    administrador=true
@@ -442,7 +442,7 @@ CT-C13: POST Tentar Cadastrar Carrinho Com Quantidade Em Branco 400
     ##########
     # Setup
     Criar Sessao
-    ${json}                Carregar JSON    ${dados_json}
+    
 
     # Criar Usuário
     ${id_usuario}          Cadastrar Usuario Dinamico    administrador=true
@@ -476,7 +476,7 @@ CT-C14: POST Tentar Cadastrar Carrinho Sem Quantidade 400
     ##########
     # Setup
     Criar Sessao
-    ${json}                Carregar JSON    ${dados_json}
+    
 
     # Criar Usuário
     ${id_usuario}          Cadastrar Usuario Dinamico    administrador=true
@@ -514,7 +514,6 @@ CT-C15: DELETE Concluir Compra Com Carrinho Existente 200
     ##########
     # Setup
     Criar Sessao
-    ${json}                   Carregar JSON    ${dados_json}
 
     # Criar Usuário
     ${id_usuario}             Cadastrar Usuario Dinamico    administrador=true
@@ -561,7 +560,6 @@ CT-C16: DELETE Cancelar Compra Com Carrinho Existente 200
     ##########
     # Setup
     Criar Sessao
-    ${json}                   Carregar JSON    ${dados_json}
 
     # Criar Usuário
     ${id_usuario}             Cadastrar Usuario Dinamico    administrador=true
@@ -607,7 +605,7 @@ CT-C17: DELETE Tentar Concluir Compra Sem Carrinho 200
     ##########
     # Setup
     Criar Sessao
-    ${json}                Carregar JSON    ${dados_json}
+    
 
     # Criar Usuário
     ${id_usuario}          Cadastrar Usuario Dinamico    administrador=true
@@ -632,7 +630,7 @@ CT-C18: DELETE Tentar Cancelar Compra Sem Carrinho 200
     ##########
     # Setup
     Criar Sessao
-    ${json}                Carregar JSON    ${dados_json}
+    
 
     # Criar Usuário
     ${id_usuario}          Cadastrar Usuario Dinamico    administrador=true
