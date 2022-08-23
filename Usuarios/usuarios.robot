@@ -37,7 +37,7 @@ CT-U02: GET Buscar Usuario Existente 200
     ${json}                    Carregar JSON        ${arquivo_json}
 
     ${usuario}                 Set Variable         ${json["dados_cadastro"]["user_valido"]}
-    ${id_usuario}              Cadastrar Usuario    ${usuario}
+    ${id_usuario}              Cadastrar Usuario Estatico    ${usuario}
 
     ##########
     # Teste
@@ -114,7 +114,7 @@ CT-U05: POST Tentar Cadastrar Usuario Com Email Repetido 400
     ${json}                  Carregar JSON    ${arquivo_json}
     
     ${usuario}               Set Variable             ${json["dados_cadastro"]["user_valido"]}
-    ${id_cadastrado}         Cadastrar Usuario        ${usuario}
+    ${id_cadastrado}         Cadastrar Usuario Estatico        ${usuario}
 
     ${usuario}               Set Variable    ${json["dados_cadastro"]["user_email_repetido"]}
 
@@ -238,10 +238,8 @@ CT-U14: DELETE Excluir Usuario Existente 200
     ##########
     # Setup
     Criar Sessao
-    ${json}                Carregar JSON    ${arquivo_json}
 
-    ${usuario}             Set Variable    ${json["dados_cadastro"]["user_valido"]}
-    ${id_usuario}          Cadastrar Usuario    ${usuario}
+    ${id_usuario}          Cadastrar Usuario Dinamico    administrador=false
 
     ##########
     # Teste
@@ -264,11 +262,11 @@ CT-U15: DELETE Tentar Excluir Usuario Inexistente 200
     # Setup
     Criar Sessao
 
-    ${id}                  Set Variable    naoexiste123
+    ${id_usuario}                  Set Variable    naoexiste123
 
     ##########
     # Teste
-    ${response}            Enviar DELETE    /usuarios/${id}
+    ${response}            Enviar DELETE    /usuarios/${id_usuario}
 
     Validar Status Code    200    ${response}
     Validar Mensagem       Nenhum registro excluído    ${response}
@@ -282,10 +280,10 @@ CT-U16: DELETE Tentar Excluir Usuario Com Carrinho 400
     Criar Sessao
     ${json}                Carregar JSON    ${arquivo_json}
 
-    ${id_usuario}          Cadastrar Usuario    ${json["dados_delete"]["user_admin"]}
-    ${token_auth}          Fazer Login          ${json["dados_delete"]["user_admin_login"]}
+    ${id_usuario}          Cadastrar Usuario Dinamico    administrador=true
+    ${token_auth}          Fazer Login          ${id_usuario}
 
-    ${id_produto}          Cadastrar Produto    ${json["dados_delete"]["produto"]}    ${token_auth}
+    ${id_produto}          Cadastrar Produto Dinamico    ${token_auth}
 
     ${id_carrinho}         Cadastrar Carrinho   ${id_produto}    ${token_auth}
 
@@ -322,7 +320,7 @@ CT-U17: PUT Editar Usuario Existente 200
     Criar Sessao
     ${json}                    Carregar JSON    ${arquivo_json}
     
-    ${id_usuario}              Cadastrar Usuario    ${json["dados_edicao"]["user_inicial"]}
+    ${id_usuario}              Cadastrar Usuario Estatico    ${json["dados_edicao"]["user_inicial"]}
 
     ${novos_dados}             Set Variable    ${json["dados_edicao"]["edicao_valida"]}
 
@@ -387,9 +385,9 @@ CT-U19: PUT Tentar Editar Usuario Existente Com Email Repetido 400
     Criar Sessao
     ${json}                     Carregar JSON    ${arquivo_json}
 
-    ${id_usuario_email}         Cadastrar Usuario    ${json["dados_edicao"]["user_email_repetido"]}
+    ${id_usuario_email}         Cadastrar Usuario Estatico    ${json["dados_edicao"]["user_email_repetido"]}
 
-    ${id_usuario_editado}       Cadastrar Usuario    ${json["dados_edicao"]["user_inicial"]}
+    ${id_usuario_editado}       Cadastrar Usuario Estatico    ${json["dados_edicao"]["user_inicial"]}
 
     ${novos_dados}              Set Variable    ${json["dados_edicao"]["edicao_email_repetido"]}
     
@@ -422,7 +420,7 @@ CT-U20: PUT Tentar Editar Usuário Inexistente Com Email Repetido 400
     Criar Sessao
     ${json}                     Carregar JSON    ${arquivo_json}
 
-    ${id_usuario_email}         Cadastrar Usuario    ${json["dados_edicao"]["user_email_repetido"]}
+    ${id_usuario_email}         Cadastrar Usuario Estatico    ${json["dados_edicao"]["user_email_repetido"]}
 
     ${id_usuario_editado}       Set Variable    naoexiste124
 
@@ -699,7 +697,7 @@ Tentar Editar Usuario Existente
     # Setup
     ${json}                 Carregar JSON    ${arquivo_json}
 
-    ${id_usuario}           Cadastrar Usuario    ${json["dados_edicao"]["user_inicial"]}
+    ${id_usuario}           Cadastrar Usuario Estatico    ${json["dados_edicao"]["user_inicial"]}
 
     ${novos_dados}          Set Variable    ${json["dados_edicao"][${json_edicao}]}
 

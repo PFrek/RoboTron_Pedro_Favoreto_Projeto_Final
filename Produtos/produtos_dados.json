@@ -1,26 +1,4 @@
 {
-    "dados_usuarios": {
-        "user_admin": {
-            "nome": "User Admin",
-            "email": "user_admin@qa.com.br",
-            "password": "teste",
-            "administrador": "true"
-        },
-        "user_admin_login": {
-            "email": "user_admin@qa.com.br",
-            "password": "teste"
-        },
-        "user_padrao": {
-            "nome": "User Padrão",
-            "email": "user_padrao@qa.com.br",
-            "password": "teste",
-            "administrador": "false"
-        },
-        "user_padrao_login": {
-            "email": "user_padrao@qa.com.br",
-            "password": "teste"
-        }
-    },
     "dados_cadastro": {
         "produto_valido": {
             "nome": "Teste Produto Válido",

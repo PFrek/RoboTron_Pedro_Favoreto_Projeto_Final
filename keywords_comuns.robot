@@ -2,6 +2,7 @@
 Documentation    Arquivo contendo keywords comuns que são reutilizadas em vários endpoints.
 Library          RequestsLibrary
 Library          OperatingSystem
+Library          FakerLibrary
 
 * Variables *
 ${url}            http://localhost:3000/
@@ -25,7 +26,7 @@ Carregar JSON
 Enviar DELETE
     [Documentation]     Envia uma requisição DELETE para o endpoint escolhido.
     ...                 Necessita que uma sessão com alias 'serverest' já tenha sido criada.
-    ...                 \nRetorna: \${response} - a resposta recebida.
+    ...                 \Return: \${response} - a resposta recebida.
 
     [Arguments]         ${endpoint}    ${headers}=&{EMPTY}
     ${response}=        DELETE On Session    serverest    ${endpoint}    headers=${headers}    expected_status=any
@@ -34,7 +35,7 @@ Enviar DELETE
 Enviar GET
     [Documentation]     Envia uma requisição GET para o endpoint escolhido.
     ...                 Necessita que uma sessão com alias 'serverest' já tenha sido criada.
-    ...                 \nRetorna: \${response} - a resposta recebida.
+    ...                 \nReturn: \${response} - a resposta recebida.
 
     [Arguments]         ${endpoint}    ${headers}=&{EMPTY}
     ${response}=        GET On Session    serverest    ${endpoint}    headers=${headers}    expected_status=any
@@ -43,7 +44,7 @@ Enviar GET
 Enviar POST
     [Documentation]         Envia uma requisição POST contendo o argumento body para o endpoint escolhido.
     ...                     Necessita que uma sessão com alias 'serverest' já tenha sido criada.
-    ...                     \nRetorna: \${response} - a resposta recebida.
+    ...                     \nReturn: \${response} - a resposta recebida.
 
     [Arguments]             ${endpoint}    ${json}    ${headers}=&{EMPTY}
     ${response}=            POST On Session    serverest    ${endpoint}    json=${json}    headers=${headers}    expected_status=any
@@ -52,18 +53,29 @@ Enviar POST
 Enviar PUT
     [Documentation]         Envia uma requisição PUT contendo o argumento body para o endpoint escolhido.
     ...                     Necessita que uma sessão com alias 'serverest' já tenha sido criada.
-    ...                     \nRetorna: \${response} - a resposta recebida.
+    ...                     \nReturn: \${response} - a resposta recebida.
 
     [Arguments]             ${endpoint}    ${json}    ${headers}=&{EMPTY}
     ${response}=           PUT On Session    serverest    ${endpoint}    json=${json}    headers=${headers}    expected_status=any
     [Return]                ${response}
 
 
+Obter Dados Login
+    [Documentation]         Obtém os campos de email e password de um usuário existente,
+    ...                     a partir de sua id.
+    ...                     \nReturn: \&{dados_login}
+    [Arguments]             ${id_usuario}
+    ${response}             Enviar GET    /usuarios/${id_usuario}
+    &{dados_login}          Create Dictionary    email=${response.json()["email"]}
+    ...                                          password=${response.json()["password"]}
+    [Return]                &{dados_login}
+
 Fazer Login
-    [Documentation]         Realiza login com os dados de login informados.
+    [Documentation]         Realiza login com o usuário da id informada.
     ...                     Faz validações dentro da keyword.
     ...                     \nReturn: \${token_auth} -- o token de autenticação do usuário logado.
-    [Arguments]             ${login}
+    [Arguments]             ${id_usuario}
+    &{login}                Obter Dados Login    ${id_usuario}
     ${response}=            Enviar POST    /login    ${login}
     Validar Login           ${response}
     [Return]                ${response.json()["authorization"]}
@@ -75,14 +87,28 @@ Validar Login
     Validar Mensagem        Login realizado com sucesso    ${response}
     Should Not Be Empty     ${response.json()["authorization"]}
 
-Cadastrar Usuario
+Cadastrar Usuario Estatico
     [Documentation]               Cadastra um novo usuário com os dados json informados.
     ...                           Faz validações dentro da keyword.
     ...                           \nReturn: \${id} -- a id do usuário cadastrado
     [Arguments]                   ${dados_usuario}
-    ${response}=                  Enviar POST    /usuarios    ${dados_usuario}
+    ${response}                   Enviar POST    /usuarios    ${dados_usuario}
     Validar Usuario Cadastrado    ${response}
     [Return]                      ${response.json()["_id"]}
+
+Cadastrar Usuario Dinamico
+    [Documentation]               Cadastra um novo usuário com dados dinâmicos.
+    ...                           Faz validações dentro da keyword.
+    ...                           \nReturn: \${id} -- a id do usuário cadastrado
+    [Arguments]                   ${administrador}=true
+    ${nome}                       FakerLibrary.Name
+    ${email}                      FakerLibrary.Email
+    ${password}                   FakerLibrary.Password
+    ${dados_usuario}              Create Dictionary    nome=${nome}    email=${email}
+    ...                           password=${password}    administrador=${administrador}
+    ${id}                         Cadastrar Usuario Estatico    ${dados_usuario}
+    [Return]                      ${id}
+
 
 Validar Usuario Cadastrado
     [Documentation]               Valida se um usuário foi cadastrado com sucesso.
@@ -104,15 +130,29 @@ Validar Usuario Deletado
     Validar Status Code           200    ${response}
     Validar Mensagem              Registro excluído com sucesso    ${response}
 
-Cadastrar Produto
+Cadastrar Produto Estatico
     [Documentation]               Cadastra um novo produto com os dados json informados.
     ...                           Faz validações dentro da keyword.
     ...                           \nReturn: \${id} -- a id do produto cadastrado
     [Arguments]                   ${dados_produto}    ${token_auth}
-    &{headers}=                   Create Dictionary    Authorization=${token_auth}
-    ${response}=                  Enviar POST    /produtos    ${dados_produto}    headers=${headers}
+    &{headers}                    Create Dictionary    Authorization=${token_auth}
+    ${response}                   Enviar POST    /produtos    ${dados_produto}    headers=${headers}
     Validar Produto Cadastrado    ${response}
     [Return]                      ${response.json()["_id"]}
+
+Cadastrar Produto Dinamico
+    [Documentation]               Cadastra um novo produto com dados dinâmicos.
+    ...                           Faz validações dentro da keyword.
+    ...                           \nReturn: \${id} -- a id do produto cadastrado
+    [Arguments]                   ${token_auth}    ${quantidade}=100
+    ${nome}                       FakerLibrary.Sentence    nb_words=4
+    ${preco}                      FakerLibrary.Random Int    min=1    max=9999
+    ${descricao}                  FakerLibrary.Sentence    nb_words=10
+    &{dados_produto}              Create Dictionary    nome=${nome}    preco=${preco}
+    ...                           descricao=${descricao}    quantidade=${quantidade}
+    ${id}                         Cadastrar Produto Estatico    ${dados_produto}    ${token_auth}
+    [Return]                      ${id}
+
 
 Validar Produto Cadastrado
     [Documentation]               Valida se um produto foi cadastrado com sucesso.

@@ -36,11 +36,11 @@ CT-P02: GET Buscar Produto Existente 200
     Criar Sessao
     ${json}                    Carregar JSON    ${arquivo_json}
 
-    ${id_usuario}              Cadastrar Usuario    ${json["dados_usuarios"]["user_admin"]}
-    ${token_auth}              Fazer Login          ${json["dados_usuarios"]["user_admin_login"]}
+    ${id_usuario}              Cadastrar Usuario Dinamico    administrador=true
+    ${token_auth}              Fazer Login                   ${id_usuario}
 
     ${dados_produto}           Set Variable         ${json["dados_cadastro"]["produto_valido"]}
-    ${id_produto}              Cadastrar Produto    ${dados_produto}    ${token_auth}
+    ${id_produto}              Cadastrar Produto Estatico    ${dados_produto}    ${token_auth}
 
     ##########
     # Teste
@@ -87,9 +87,9 @@ CT-P04: POST Cadastrar Novo Produto 201
     Criar Sessao
     ${json}                    Carregar JSON    ${arquivo_json}
 
-    ${id_usuario}              Cadastrar Usuario    ${json["dados_usuarios"]["user_admin"]}
-    ${token_auth}              Fazer Login          ${json["dados_usuarios"]["user_admin_login"]}
-    &{headers}                 Create Dictionary    Authorization=${token_auth}
+    ${id_usuario}              Cadastrar Usuario Dinamico    administrador=true
+    ${token_auth}              Fazer Login                   ${id_usuario}
+    &{headers}                 Create Dictionary             Authorization=${token_auth}
     
     ${dados_produto}           Set Variable    ${json["dados_cadastro"]["produto_valido"]}
 
@@ -124,11 +124,11 @@ CT-P05: POST Tentar Cadastrar Produto Com Nome Repetido 400
     Criar Sessao
     ${json}                  Carregar JSON        ${arquivo_json}
 
-    ${id_usuario}            Cadastrar Usuario    ${json["dados_usuarios"]["user_admin"]}
-    ${token_auth}            Fazer Login          ${json["dados_usuarios"]["user_admin_login"]}
-    &{headers}               Create Dictionary    Authorization=${token_auth}
+    ${id_usuario}            Cadastrar Usuario Dinamico    administrador=true
+    ${token_auth}            Fazer Login                   ${id_usuario}
+    &{headers}               Create Dictionary             Authorization=${token_auth}
 
-    ${id_nome_repetido}      Cadastrar Produto    ${json["dados_cadastro"]["produto_valido"]}    ${token_auth}
+    ${id_nome_repetido}      Cadastrar Produto Estatico    ${json["dados_cadastro"]["produto_valido"]}    ${token_auth}
 
     ${dados_produto}         Set Variable         ${json["dados_cadastro"]["produto_nome_repetido"]}
 
@@ -172,9 +172,9 @@ CT-P07: POST Tentar Cadastrar Produto Sem Ser Administrador 403
     Criar Sessao
     ${json}                Carregar JSON    ${arquivo_json}
 
-    ${id_usuario}          Cadastrar Usuario    ${json["dados_usuarios"]["user_padrao"]}
-    ${token_auth}          Fazer Login          ${json["dados_usuarios"]["user_padrao_login"]}
-    &{headers}             Create Dictionary    Authorization=${token_auth}
+    ${id_usuario}          Cadastrar Usuario Dinamico    administrador=false
+    ${token_auth}          Fazer Login                   ${id_usuario}
+    &{headers}             Create Dictionary             Authorization=${token_auth}
 
     ${dados_produto}       Set Variable         ${json["dados_cadastro"]["produto_valido"]}
 
@@ -333,11 +333,11 @@ CT-P16: DELETE Excluir Produto Existente 200
     Criar Sessao
     ${json}                Carregar JSON    ${arquivo_json}
 
-    ${id_usuario}          Cadastrar Usuario    ${json["dados_usuarios"]["user_admin"]}
-    ${token_auth}          Fazer Login          ${json["dados_usuarios"]["user_admin_login"]}
-    &{headers}             Create Dictionary    Authorization=${token_auth}
+    ${id_usuario}          Cadastrar Usuario Dinamico    administrador=true
+    ${token_auth}          Fazer Login                   ${id_usuario}
+    &{headers}             Create Dictionary             Authorization=${token_auth}
 
-    ${id_produto}          Cadastrar Produto    ${json["dados_cadastro"]["produto_valido"]}    ${token_auth}
+    ${id_produto}          Cadastrar Produto Dinamico    ${token_auth}
 
     ##########
     # Teste
@@ -365,9 +365,9 @@ CT-P17: DELETE Tentar Excluir Produto Inexistente 200
     Criar Sessao
     ${json}                Carregar JSON    ${arquivo_json}
 
-    ${id_usuario}          Cadastrar Usuario    ${json["dados_usuarios"]["user_admin"]}
-    ${token_auth}          Fazer Login          ${json["dados_usuarios"]["user_admin_login"]}
-    &{headers}             Create Dictionary    Authorization=${token_auth}
+    ${id_usuario}          Cadastrar Usuario Dinamico    administrador=true
+    ${token_auth}          Fazer Login                   ${id_usuario}
+    &{headers}             Create Dictionary             Authorization=${token_auth}
 
     ${id_produto}          Set Variable    naoexiste123
 
@@ -389,16 +389,17 @@ CT-P18: DELETE Tentar Excluir Produto Em Carrinho 400
     ##########
     # Setup
     Criar Sessao
-    ${json}                Carregar JSON    ${arquivo_json}
+    ${json}                   Carregar JSON    ${arquivo_json}
 
-    ${id_usuario}          Cadastrar Usuario    ${json["dados_usuarios"]["user_admin"]}
-    ${token_auth}          Fazer Login          ${json["dados_usuarios"]["user_admin_login"]}
-    &{headers}             Create Dictionary    Authorization=${token_auth}
+    ${id_usuario}             Cadastrar Usuario Dinamico    administrador=true
+    ${token_auth}             Fazer Login                   ${id_usuario}
+    &{headers}                Create Dictionary             Authorization=${token_auth}
 
-    ${dados_produto}       Set Variable         ${json["dados_cadastro"]["produto_valido"]}
-    ${id_produto}          Cadastrar Produto    ${dados_produto}    ${token_auth}
+    ${dados_produto}          Set Variable         ${json["dados_cadastro"]["produto_valido"]}
+    ${id_produto}             Cadastrar Produto Estatico    ${dados_produto}    ${token_auth}
 
-    ${id_carrinho}         Cadastrar Carrinho    ${id_produto}    ${token_auth}
+    ${quantidade_carrinho}    Set Variable    ${3}
+    ${id_carrinho}            Cadastrar Carrinho    ${id_produto}    ${token_auth}    quantidade=${quantidade_carrinho}
 
     ##########
     # Teste
@@ -416,8 +417,11 @@ CT-P18: DELETE Tentar Excluir Produto Em Carrinho 400
     Validar Produto Valido     ${response.json()}
     
     # Dados do produto considerando a quantidade reduzida por ter sido colocado em carrinho
-    &{dados_atualizados}   Create Dictionary    nome=${dados_produto["nome"]}    preco=${dados_produto["preco"]}
-    ...                    descricao=${dados_produto["descricao"]}    quantidade=${${dados_produto["quantidade"]} - 3}
+    &{dados_atualizados}   Create Dictionary    
+    ...                    nome=${dados_produto["nome"]}    
+    ...                    preco=${dados_produto["preco"]}
+    ...                    descricao=${dados_produto["descricao"]}    
+    ...                    quantidade=${${dados_produto["quantidade"]} - ${quantidade_carrinho}}
 
     Validar Produtos Iguais    ${response.json()}    ${dados_atualizados}
 
@@ -436,11 +440,11 @@ CT-P19: DELETE Tentar Excluir Produto Existente Sem Login 401
     Criar Sessao
     ${json}                Carregar JSON    ${arquivo_json}
 
-    ${id_usuario}          Cadastrar Usuario    ${json["dados_usuarios"]["user_admin"]}
-    ${token_auth}          Fazer Login          ${json["dados_usuarios"]["user_admin_login"]}
+    ${id_usuario}          Cadastrar Usuario Dinamico    administrador=true
+    ${token_auth}          Fazer Login                   ${id_usuario}
 
     ${dados_produto}       Set Variable         ${json["dados_cadastro"]["produto_valido"]}
-    ${id_produto}          Cadastrar Produto    ${dados_produto}    ${token_auth}
+    ${id_produto}          Cadastrar Produto Estatico    ${dados_produto}    ${token_auth}
 
     ##########
     # Teste
@@ -471,15 +475,15 @@ CT-P20: DELETE Tentar Excluir Produto Existente Sem Ser Administrador 403
     Criar Sessao
     ${json}                    Carregar JSON    ${arquivo_json}
 
-    ${id_admin}                Cadastrar Usuario    ${json["dados_usuarios"]["user_admin"]}
-    ${token_auth_admin}        Fazer Login          ${json["dados_usuarios"]["user_admin_login"]}
+    ${id_admin}                Cadastrar Usuario Dinamico    administrador=true
+    ${token_auth_admin}        Fazer Login                   ${id_admin}
     
     ${dados_produto}           Set Variable         ${json["dados_cadastro"]["produto_valido"]}
-    ${id_produto}              Cadastrar Produto    ${dados_produto}    ${token_auth_admin}
+    ${id_produto}              Cadastrar Produto Estatico    ${dados_produto}    ${token_auth_admin}
 
-    ${id_user_padrao}          Cadastrar Usuario    ${json["dados_usuarios"]["user_padrao"]}
-    ${token_auth_padrao}       Fazer Login          ${json["dados_usuarios"]["user_padrao_login"]}
-    &{headers}                 Create Dictionary    Authorization=${token_auth_padrao}
+    ${id_user_padrao}          Cadastrar Usuario Dinamico    administrador=false
+    ${token_auth_padrao}       Fazer Login                   ${id_user_padrao}
+    &{headers}                 Create Dictionary             Authorization=${token_auth_padrao}
 
     ##########
     # Teste
@@ -515,12 +519,12 @@ CT-P21: PUT Editar Produto Existente 200
     Criar Sessao
     ${json}                Carregar JSON    ${arquivo_json}
 
-    ${id_usuario}          Cadastrar Usuario    ${json["dados_usuarios"]["user_admin"]}
-    ${token_auth}          Fazer Login          ${json["dados_usuarios"]["user_admin_login"]}
-    &{headers}             Create Dictionary    Authorization=${token_auth}
+    ${id_usuario}          Cadastrar Usuario Dinamico    administrador=true
+    ${token_auth}          Fazer Login                   ${id_usuario}
+    &{headers}             Create Dictionary             Authorization=${token_auth}
 
     ${dados_produto}       Set Variable         ${json["dados_edicao"]["produto_inicial"]}
-    ${id_produto}          Cadastrar Produto    ${dados_produto}    ${token_auth}
+    ${id_produto}          Cadastrar Produto Estatico    ${dados_produto}    ${token_auth}
 
     ${novos_dados}         Set Variable    ${json["dados_edicao"]["edicao_valida"]}
 
@@ -551,9 +555,9 @@ CT-P22: PUT Tentar Editar Produto Inexistente 201
     Criar Sessao
     ${json}                    Carregar JSON    ${arquivo_json}
 
-    ${id_usuario}              Cadastrar Usuario    ${json["dados_usuarios"]["user_admin"]}
-    ${token_auth}              Fazer Login          ${json["dados_usuarios"]["user_admin_login"]}
-    &{headers}                 Create Dictionary    Authorization=${token_auth}
+    ${id_usuario}              Cadastrar Usuario Dinamico    administrador=true
+    ${token_auth}              Fazer Login                   ${id_usuario}
+    &{headers}                 Create Dictionary             Authorization=${token_auth}
 
     ${id_produto}              Set Variable    naoexiste9432
 
@@ -590,16 +594,16 @@ CT-P23: PUT Tentar Editar Produto Existente Com Nome Repetido 400
     Criar Sessao
     ${json}                         Carregar JSON    ${arquivo_json}
 
-    ${id_usuario}                   Cadastrar Usuario    ${json["dados_usuarios"]["user_admin"]}
-    ${token_auth}                   Fazer Login          ${json["dados_usuarios"]["user_admin_login"]}
-    &{headers}                      Create Dictionary    Authorization=${token_auth}
+    ${id_usuario}                   Cadastrar Usuario Dinamico    administrador=true
+    ${token_auth}                   Fazer Login                   ${id_usuario}
+    &{headers}                      Create Dictionary             Authorization=${token_auth}
 
     # Produto do qual o nome repetido será retirado
-    ${id_produto_repetido}          Cadastrar Produto    ${json["dados_edicao"]["produto_nome_repetido"]}    ${token_auth}
+    ${id_produto_repetido}          Cadastrar Produto Estatico    ${json["dados_edicao"]["produto_nome_repetido"]}    ${token_auth}
 
     # Produto que será editado
     ${dados_iniciais}               Set Variable         ${json["dados_edicao"]["produto_inicial"]}
-    ${id_produto_editado}           Cadastrar Produto    ${dados_iniciais}    ${token_auth}
+    ${id_produto_editado}           Cadastrar Produto Estatico    ${dados_iniciais}    ${token_auth}
 
     ${novos_dados}                  Set Variable    ${json["dados_edicao"]["edicao_nome_repetido"]}
 
@@ -633,12 +637,12 @@ CT-P24: PUT Tentar Editar Produto Inexistente Com Nome Repetido 400
     Criar Sessao
     ${json}                         Carregar JSON    ${arquivo_json}
 
-    ${id_usuario}                   Cadastrar Usuario    ${json["dados_usuarios"]["user_admin"]}
-    ${token_auth}                   Fazer Login          ${json["dados_usuarios"]["user_admin_login"]}
-    &{headers}                      Create Dictionary    Authorization=${token_auth}
+    ${id_usuario}                   Cadastrar Usuario Dinamico    administrador=true
+    ${token_auth}                   Fazer Login                   ${id_usuario}
+    &{headers}                      Create Dictionary             Authorization=${token_auth}
 
     # Produto do qual o nome repetido será retirado
-    ${id_produto_repetido}          Cadastrar Produto    ${json["dados_edicao"]["produto_nome_repetido"]}    ${token_auth}
+    ${id_produto_repetido}          Cadastrar Produto Estatico    ${json["dados_edicao"]["produto_nome_repetido"]}    ${token_auth}
 
     # Produto que será editado
     ${id_produto_editado}           Set Variable    naoexiste123
@@ -666,11 +670,11 @@ CT-P25: PUT Tentar Editar Produto Existente Sem Login 401
     Criar Sessao
     ${json}                Carregar JSON    ${arquivo_json}
 
-    ${id_usuario}          Cadastrar Usuario    ${json["dados_usuarios"]["user_admin"]}
-    ${token_auth}          Fazer Login          ${json["dados_usuarios"]["user_admin_login"]}
+    ${id_usuario}          Cadastrar Usuario Dinamico    administrador=true
+    ${token_auth}          Fazer Login                   ${id_usuario}
 
     ${dados_produto}       Set Variable         ${json["dados_edicao"]["produto_inicial"]}
-    ${id_produto}          Cadastrar Produto    ${dados_produto}    ${token_auth}
+    ${id_produto}          Cadastrar Produto Estatico    ${dados_produto}    ${token_auth}
 
     ${novos_dados}         Set Variable    ${json["dados_edicao"]["edicao_valida"]}
 
@@ -725,17 +729,17 @@ CT-P27: PUT Tentar Editar Produto Existente Sem Ser Administrador 403
     Criar Sessao
     ${json}                  Carregar JSON    ${arquivo_json}
 
-    ${id_admin}              Cadastrar Usuario    ${json["dados_usuarios"]["user_admin"]}
-    ${token_auth_admin}      Fazer Login          ${json["dados_usuarios"]["user_admin_login"]}
+    ${id_admin}              Cadastrar Usuario Dinamico    administrador=true
+    ${token_auth_admin}      Fazer Login                   ${id_admin}
 
     ${dados_produto}         Set Variable         ${json["dados_edicao"]["produto_inicial"]}
-    ${id_produto}            Cadastrar Produto    ${dados_produto}    ${token_auth_admin}
+    ${id_produto}            Cadastrar Produto Estatico    ${dados_produto}    ${token_auth_admin}
 
     ${novos_dados}           Set Variable    ${json["dados_edicao"]["edicao_valida"]}
 
-    ${id_user_padrao}        Cadastrar Usuario    ${json["dados_usuarios"]["user_padrao"]}
-    ${token_auth_padrao}     Fazer Login          ${json["dados_usuarios"]["user_padrao_login"]}
-    &{headers}               Create Dictionary    Authorization=${token_auth_padrao}
+    ${id_user_padrao}        Cadastrar Usuario Dinamico    administrador=false
+    ${token_auth_padrao}     Fazer Login                   ${id_user_padrao}
+    &{headers}               Create Dictionary             Authorization=${token_auth_padrao}
 
     ##########
     # Teste
@@ -771,9 +775,9 @@ CT-P28: PUT Tentar Editar Produto Inexistente Sem Ser Administrador 403
 
     ${novos_dados}           Set Variable    ${json["dados_edicao"]["edicao_valida"]}
 
-    ${id_user_padrao}        Cadastrar Usuario    ${json["dados_usuarios"]["user_padrao"]}
-    ${token_auth_padrao}     Fazer Login          ${json["dados_usuarios"]["user_padrao_login"]}
-    &{headers}               Create Dictionary    Authorization=${token_auth_padrao}
+    ${id_user_padrao}        Cadastrar Usuario Dinamico    administrador=false
+    ${token_auth_padrao}     Fazer Login                   ${id_user_padrao}
+    &{headers}               Create Dictionary             Authorization=${token_auth_padrao}
 
     ##########
     # Teste
@@ -1103,9 +1107,9 @@ Tentar Cadastrar Produto
 
     ${dados_produto}        Set Variable    ${json["dados_cadastro"][${json_produto}]}
 
-    ${id_usuario}           Cadastrar Usuario    ${json["dados_usuarios"]["user_admin"]}
-    ${token_auth}           Fazer Login          ${json["dados_usuarios"]["user_admin_login"]}
-    &{headers}              Create Dictionary    Authorization=${token_auth}
+    ${id_usuario}           Cadastrar Usuario Dinamico    administrador=true
+    ${token_auth}           Fazer Login                   ${id_usuario}
+    &{headers}              Create Dictionary             Authorization=${token_auth}
 
     ##########
     # Teste
@@ -1127,11 +1131,11 @@ Tentar Editar Produto Existente
     # Setup
     ${json}                 Carregar JSON    ${arquivo_json}
 
-    ${id_usuario}           Cadastrar Usuario    ${json["dados_usuarios"]["user_admin"]}
-    ${token_auth}           Fazer Login          ${json["dados_usuarios"]["user_admin_login"]}
-    &{headers}              Create Dictionary    Authorization=${token_auth}
+    ${id_usuario}           Cadastrar Usuario Dinamico    administrador=true
+    ${token_auth}           Fazer Login                   ${id_usuario}
+    &{headers}              Create Dictionary             Authorization=${token_auth}
 
-    ${id_produto}           Cadastrar Produto    ${json["dados_edicao"]["produto_inicial"]}    ${token_auth}
+    ${id_produto}           Cadastrar Produto Dinamico    ${token_auth}
 
     ${novos_dados}          Set Variable    ${json["dados_edicao"][${json_edicao}]}
 
@@ -1152,9 +1156,9 @@ Tentar Editar Produto Inexistente
     # Setup
     ${json}                 Carregar JSON    ${arquivo_json}
 
-    ${id_usuario}           Cadastrar Usuario    ${json["dados_usuarios"]["user_admin"]}
-    ${token_auth}           Fazer Login          ${json["dados_usuarios"]["user_admin_login"]}
-    &{headers}              Create Dictionary    Authorization=${token_auth}
+    ${id_usuario}           Cadastrar Usuario Dinamico    administrador=true
+    ${token_auth}           Fazer Login                   ${id_usuario}
+    &{headers}              Create Dictionary             Authorization=${token_auth}
 
     ${id_produto}           Set Variable    naoexiste234
 
@@ -1185,3 +1189,10 @@ Validar Produtos Iguais
     Should Be Equal      ${produto_1["preco"]}    ${produto_2["preco"]}
     Should Be Equal      ${produto_1["descricao"]}    ${produto_2["descricao"]}
     Should Be Equal      ${produto_1["quantidade"]}    ${produto_2["quantidade"]}
+
+Validar Quantidade Produto
+    [Documentation]      Verifica se a quantidade de produtos no estoque é a mesma que a
+    ...                  esperada.
+
+    [Arguments]                    ${esperado}    ${quantidade}
+    Should Be Equal As Integers    ${esperado}    ${quantidade}

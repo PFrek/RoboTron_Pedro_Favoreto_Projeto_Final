@@ -3,13 +3,11 @@
 @echo ==============================================================================
 @echo Iniciando testes do endpoint /login
 
-set tags_validas=POST POSTANDSTATUS-2XX POSTANDSTATUS-4XX
-
 set command=robot -d ./reports
 
 if "%~1" NEQ "" set command=%command% -i %1
 
-set command=%command%  login.robot
+set command=%command% login.robot
 
 %command%
 

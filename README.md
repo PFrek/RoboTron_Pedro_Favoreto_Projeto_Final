@@ -59,11 +59,11 @@ iniciar_testes.bat
 
 # Rodar os testes DELETE do endpoint Produtos
 cd Produtos
-iniciar_testes.bat DELETE
+iniciar_testes.bat delete
 
 # Rodar os testes PUT que contém código de sucesso (2XX) do endpoint Usuarios
 cd Usuarios
-iniciar_testes.bat PUTANDSTATUS-2XX
+iniciar_testes.bat putANDstatus-2xx
 ```
 
 ## Tecnologias utilizadas

@@ -37,12 +37,12 @@ CT-C02: GET Buscar Carrinho Existente 200
     ${json}                Carregar JSON    ${dados_json}
 
     # Criar Usuário
-    ${id_usuario}          Cadastrar Usuario    ${json["dados_usuarios"]["user_admin"]}
-    ${token_auth}          Fazer Login          ${json["dados_usuarios"]["user_admin_login"]}
-    &{headers}             Create Dictionary    Authorization=${token_auth}
+    ${id_usuario}          Cadastrar Usuario Dinamico    administrador=true
+    ${token_auth}          Fazer Login                   ${id_usuario}
+    &{headers}             Create Dictionary             Authorization=${token_auth}
 
     # Criar Produto
-    ${id_produto}          Cadastrar Produto    ${json["dados_cadastro"]["produto_normal"]}    ${token_auth}
+    ${id_produto}          Cadastrar Produto Dinamico    ${token_auth}
 
     # Criar Carrinho
     &{produto}             Create Dictionary    idProduto=${id_produto}    quantidade=${3}
@@ -100,13 +100,13 @@ CT-C04: POST Cadastrar Carrinho Como Administrador 201
     ${json}                Carregar JSON    ${dados_json}
 
     # Criar Usuário
-    ${id_usuario}          Cadastrar Usuario    ${json["dados_usuarios"]["user_admin"]}
-    ${token_auth}          Fazer Login          ${json["dados_usuarios"]["user_admin_login"]}
-    &{headers}             Create Dictionary    Authorization=${token_auth}
+    ${id_usuario}          Cadastrar Usuario Dinamico    administrador=true
+    ${token_auth}          Fazer Login                   ${id_usuario}
+    &{headers}             Create Dictionary             Authorization=${token_auth}
 
     # Criar Produtos
-    ${id_produto_1}        Cadastrar Produto    ${json["dados_cadastro"]["produto_normal"]}    ${token_auth}
-    ${id_produto_2}        Cadastrar Produto    ${json["dados_cadastro"]["produto_pouca_quantidade"]}    ${token_auth}
+    ${id_produto_1}        Cadastrar Produto Dinamico    ${token_auth}
+    ${id_produto_2}        Cadastrar Produto Dinamico    ${token_auth}
 
     # Criar dados do Carrinho
     &{produto_1}           Create Dictionary    idProduto=${id_produto_1}    quantidade=${3}
@@ -149,16 +149,16 @@ CT-C05: POST Cadastrar Carrinho Como Usuario Padrao 201
     ${json}                Carregar JSON    ${dados_json}
 
     # Criar usuários
-    ${id_user_admin}       Cadastrar Usuario    ${json["dados_usuarios"]["user_admin"]}
-    ${token_auth_admin}    Fazer Login          ${json["dados_usuarios"]["user_admin_login"]}
+    ${id_user_admin}       Cadastrar Usuario Dinamico    administrador=true
+    ${token_auth_admin}    Fazer Login                   ${id_user_admin}
 
-    ${id_user_padrao}      Cadastrar Usuario    ${json["dados_usuarios"]["user_padrao"]}
-    ${token_auth_padrao}   Fazer Login          ${json["dados_usuarios"]["user_padrao_login"]}
-    &{headers}             Create Dictionary    Authorization=${token_auth_padrao}
+    ${id_user_padrao}      Cadastrar Usuario Dinamico    administrador=false
+    ${token_auth_padrao}   Fazer Login                   ${id_user_padrao}
+    &{headers}             Create Dictionary             Authorization=${token_auth_padrao}
     
     # Criar produtos
-    ${id_produto_1}        Cadastrar Produto    ${json["dados_cadastro"]["produto_normal"]}    ${token_auth_admin}
-    ${id_produto_2}        Cadastrar Produto    ${json["dados_cadastro"]["produto_pouca_quantidade"]}    ${token_auth_admin}
+    ${id_produto_1}        Cadastrar Produto Dinamico    ${token_auth_admin}
+    ${id_produto_2}        Cadastrar Produto Dinamico    ${token_auth_admin}
 
     # Criar dados do Carrinho
     &{produto_1}           Create Dictionary    idProduto=${id_produto_1}    quantidade=${3}
@@ -202,12 +202,12 @@ CT-C06: POST Tentar Cadastrar Carrinho Com Produto Duplicado 400
     ${json}                Carregar JSON    ${dados_json}
 
     # Criar usuário
-    ${id_usuario}          Cadastrar Usuario    ${json["dados_usuarios"]["user_admin"]}
-    ${token_auth}          Fazer Login          ${json["dados_usuarios"]["user_admin_login"]}
-    &{headers}             Create Dictionary    Authorization=${token_auth}
+    ${id_usuario}          Cadastrar Usuario Dinamico    administrador=true
+    ${token_auth}          Fazer Login                   ${id_usuario}
+    &{headers}             Create Dictionary             Authorization=${token_auth}
 
     # Criar produto
-    ${id_produto}          Cadastrar Produto    ${json["dados_cadastro"]["produto_normal"]}    ${token_auth}
+    ${id_produto}          Cadastrar Produto Dinamico    ${token_auth}
 
     # Criar dados do Carrinho
     &{produto_1}           Create Dictionary    idProduto=${id_produto}    quantidade=${3}
@@ -237,13 +237,13 @@ CT-C07: POST Tentar Cadastrar Mais De Um Carrinho Com Um Usuario 400
     ${json}                Carregar JSON    ${dados_json}
 
     # Criar usuário
-    ${id_usuario}          Cadastrar Usuario    ${json["dados_usuarios"]["user_admin"]}
-    ${token_auth}          Fazer Login          ${json["dados_usuarios"]["user_admin_login"]}
-    &{headers}             Create Dictionary    Authorization=${token_auth}
+    ${id_usuario}          Cadastrar Usuario Dinamico    administrador=true
+    ${token_auth}          Fazer Login                   ${id_usuario}
+    &{headers}             Create Dictionary             Authorization=${token_auth}
 
     # Criar produtos
-    ${id_produto_1}        Cadastrar Produto    ${json["dados_cadastro"]["produto_normal"]}    ${token_auth}
-    ${id_produto_2}        Cadastrar Produto    ${json["dados_cadastro"]["produto_pouca_quantidade"]}    ${token_auth}
+    ${id_produto_1}        Cadastrar Produto Dinamico    ${token_auth}
+    ${id_produto_2}        Cadastrar Produto Dinamico    ${token_auth}
 
     # Criar dados dos Carrinhos 
     &{produto_1}           Create Dictionary    idProduto=${id_produto_1}    quantidade=${3}
@@ -281,9 +281,9 @@ CT-C08: POST Tentar Cadastrar Um Carrinho Com Produto Inexistente 400
     ${json}                Carregar JSON    ${dados_json}
 
     # Criar Usuário
-    ${id_usuario}          Cadastrar Usuario    ${json["dados_usuarios"]["user_admin"]}
-    ${token_auth}          Fazer Login          ${json["dados_usuarios"]["user_admin_login"]}
-    &{headers}             Create Dictionary    Authorization=${token_auth}
+    ${id_usuario}          Cadastrar Usuario Dinamico    administrador=true
+    ${token_auth}          Fazer Login                   ${id_usuario}
+    &{headers}             Create Dictionary             Authorization=${token_auth}
 
     # Id de produto inexistente
     ${id_produto_1}        Set Variable    naoexiste123
@@ -314,12 +314,12 @@ CT-C09: POST Tentar Cadastrar Carrinho Sem Quantidade De Produto Suficiente 400
     ${json}                Carregar JSON    ${dados_json}
 
     # Criar Usuário
-    ${id_usuario}          Cadastrar Usuario    ${json["dados_usuarios"]["user_admin"]}
-    ${token_auth}          Fazer Login          ${json["dados_usuarios"]["user_admin_login"]}
-    &{headers}             Create Dictionary    Authorization=${token_auth}
+    ${id_usuario}          Cadastrar Usuario Dinamico    administrador=true
+    ${token_auth}          Fazer Login                   ${id_usuario}
+    &{headers}             Create Dictionary             Authorization=${token_auth}
 
     # Criar Produto
-    ${id_produto}          Cadastrar Produto    ${json["dados_cadastro"]["produto_pouca_quantidade"]}    ${token_auth}
+    ${id_produto}          Cadastrar Produto Dinamico    ${token_auth}    quantidade=${5}
 
     # Criar dados do Carrinho
     &{produto}             Create Dictionary    idProduto=${id_produto}    quantidade=${100}
@@ -348,11 +348,11 @@ CT-C10: POST Tentar Cadastrar Carrinho Sem Login 401
     ${json}                Carregar JSON    ${dados_json}
 
     # Criar Usuário
-    ${id_usuario}          Cadastrar Usuario    ${json["dados_usuarios"]["user_admin"]}
-    ${token_auth}          Fazer Login          ${json["dados_usuarios"]["user_admin_login"]}
+    ${id_usuario}          Cadastrar Usuario Dinamico    administrador=true
+    ${token_auth}          Fazer Login                   ${id_usuario}
 
     # Criar Produto
-    ${id_produto}          Cadastrar Produto    ${json["dados_cadastro"]["produto_normal"]}    ${token_auth}
+    ${id_produto}          Cadastrar Produto Dinamico    ${token_auth}
 
     # Criar dados do Carrinho
     &{produto}             Create Dictionary    idProduto=${id_produto}    quantidade=${3}
@@ -385,9 +385,9 @@ CT-C11: POST Tentar Cadastrar Carrinho Com IdProduto Em Branco 400
     ${json}                Carregar JSON    ${dados_json}
 
     # Criar Usuário
-    ${id_usuario}          Cadastrar Usuario    ${json["dados_usuarios"]["user_admin"]}
-    ${token_auth}          Fazer Login          ${json["dados_usuarios"]["user_admin_login"]}
-    &{headers}             Create Dictionary    Authorization=${token_auth}
+    ${id_usuario}          Cadastrar Usuario Dinamico    administrador=true
+    ${token_auth}          Fazer Login                   ${id_usuario}
+    &{headers}             Create Dictionary             Authorization=${token_auth}
 
     # Criar dados do Carrinho
     &{produto}             Create Dictionary    idProduto=""    quantidade=${100}
@@ -415,9 +415,9 @@ CT-C12: POST Tentar Cadastrar Carrinho Sem IdProduto 400
     ${json}                Carregar JSON    ${dados_json}
 
     # Criar Usuário
-    ${id_usuario}          Cadastrar Usuario    ${json["dados_usuarios"]["user_admin"]}
-    ${token_auth}          Fazer Login          ${json["dados_usuarios"]["user_admin_login"]}
-    &{headers}             Create Dictionary    Authorization=${token_auth}
+    ${id_usuario}          Cadastrar Usuario Dinamico    administrador=true
+    ${token_auth}          Fazer Login                   ${id_usuario}
+    &{headers}             Create Dictionary             Authorization=${token_auth}
 
     # Criar dados do Carrinho
     &{produto}             Create Dictionary    quantidade=${100}
@@ -445,12 +445,12 @@ CT-C13: POST Tentar Cadastrar Carrinho Com Quantidade Em Branco 400
     ${json}                Carregar JSON    ${dados_json}
 
     # Criar Usuário
-    ${id_usuario}          Cadastrar Usuario    ${json["dados_usuarios"]["user_admin"]}
-    ${token_auth}          Fazer Login          ${json["dados_usuarios"]["user_admin_login"]}
-    &{headers}             Create Dictionary    Authorization=${token_auth}
+    ${id_usuario}          Cadastrar Usuario Dinamico    administrador=true
+    ${token_auth}          Fazer Login                   ${id_usuario}
+    &{headers}             Create Dictionary             Authorization=${token_auth}
 
     # Criar Produto
-    ${id_produto}          Cadastrar Produto    ${json["dados_cadastro"]["produto_normal"]}    ${token_auth}
+    ${id_produto}          Cadastrar Produto Dinamico    ${token_auth}
 
     # Criar dados do Carrinho
     &{produto}             Create Dictionary    idProduto=${id_produto}    quantidade=""
@@ -479,12 +479,12 @@ CT-C14: POST Tentar Cadastrar Carrinho Sem Quantidade 400
     ${json}                Carregar JSON    ${dados_json}
 
     # Criar Usuário
-    ${id_usuario}          Cadastrar Usuario    ${json["dados_usuarios"]["user_admin"]}
-    ${token_auth}          Fazer Login          ${json["dados_usuarios"]["user_admin_login"]}
-    &{headers}             Create Dictionary    Authorization=${token_auth}
+    ${id_usuario}          Cadastrar Usuario Dinamico    administrador=true
+    ${token_auth}          Fazer Login                   ${id_usuario}
+    &{headers}             Create Dictionary             Authorization=${token_auth}
 
     # Criar Produto
-    ${id_produto}          Cadastrar Produto    ${json["dados_cadastro"]["produto_normal"]}    ${token_auth}
+    ${id_produto}          Cadastrar Produto Dinamico    ${token_auth}
 
     # Criar dados do Carrinho
     &{produto}             Create Dictionary    idProduto=${id_produto}
@@ -517,16 +517,17 @@ CT-C15: DELETE Concluir Compra Com Carrinho Existente 200
     ${json}                   Carregar JSON    ${dados_json}
 
     # Criar Usuário
-    ${id_usuario}             Cadastrar Usuario    ${json["dados_usuarios"]["user_admin"]}
-    ${token_auth}             Fazer Login          ${json["dados_usuarios"]["user_admin_login"]}
-    &{headers}                Create Dictionary    Authorization=${token_auth}
+    ${id_usuario}             Cadastrar Usuario Dinamico    administrador=true
+    ${token_auth}             Fazer Login                   ${id_usuario}
+    &{headers}                Create Dictionary             Authorization=${token_auth}
 
     # Criar Produto
-    ${id_produto}             Cadastrar Produto    ${json["dados_cadastro"]["produto_normal"]}    ${token_auth}
-    ${quantidade_estoque}     Set Variable         ${json["dados_cadastro"]["produto_normal"]["quantidade"]}
+    ${quantidade_estoque}     Set Variable         ${100}
+    ${id_produto}             Cadastrar Produto Dinamico    ${token_auth}    quantidade=${quantidade_estoque}
+    
 
     # Criar Carrinho
-    ${quantidade_carrinho}    Set Variable    ${3}
+    ${quantidade_carrinho}    Set Variable         ${3}
     ${id_carrinho}            Cadastrar Carrinho    ${id_produto}    ${token_auth}    ${quantidade_carrinho}
 
     ##########
@@ -563,16 +564,16 @@ CT-C16: DELETE Cancelar Compra Com Carrinho Existente 200
     ${json}                   Carregar JSON    ${dados_json}
 
     # Criar Usuário
-    ${id_usuario}             Cadastrar Usuario    ${json["dados_usuarios"]["user_admin"]}
-    ${token_auth}             Fazer Login          ${json["dados_usuarios"]["user_admin_login"]}
-    &{headers}                Create Dictionary    Authorization=${token_auth}
+    ${id_usuario}             Cadastrar Usuario Dinamico    administrador=true
+    ${token_auth}             Fazer Login                   ${id_usuario}
+    &{headers}                Create Dictionary             Authorization=${token_auth}
 
     # Criar Produto
-    ${id_produto}             Cadastrar Produto    ${json["dados_cadastro"]["produto_normal"]}    ${token_auth}
-    ${quantidade_estoque}     Set Variable         ${json["dados_cadastro"]["produto_normal"]["quantidade"]}
+    ${quantidade_estoque}     Set Variable         ${100}
+    ${id_produto}             Cadastrar Produto Dinamico    ${token_auth}    quantidade=${quantidade_estoque}
 
     # Criar Carrinho
-    ${quantidade_carrinho}    Set Variable    ${3}
+    ${quantidade_carrinho}    Set Variable         ${3}
     ${id_carrinho}            Cadastrar Carrinho    ${id_produto}    ${token_auth}    ${quantidade_carrinho}
 
     ##########
@@ -609,9 +610,9 @@ CT-C17: DELETE Tentar Concluir Compra Sem Carrinho 200
     ${json}                Carregar JSON    ${dados_json}
 
     # Criar Usuário
-    ${id_usuario}          Cadastrar Usuario    ${json["dados_usuarios"]["user_admin"]}
-    ${token_auth}          Fazer Login    ${json["dados_usuarios"]["user_admin_login"]}
-    &{headers}             Create Dictionary    Authorization=${token_auth}
+    ${id_usuario}          Cadastrar Usuario Dinamico    administrador=true
+    ${token_auth}          Fazer Login                   ${id_usuario}
+    &{headers}             Create Dictionary             Authorization=${token_auth}
 
     ##########
     # Teste
@@ -634,9 +635,9 @@ CT-C18: DELETE Tentar Cancelar Compra Sem Carrinho 200
     ${json}                Carregar JSON    ${dados_json}
 
     # Criar Usuário
-    ${id_usuario}          Cadastrar Usuario    ${json["dados_usuarios"]["user_admin"]}
-    ${token_auth}          Fazer Login    ${json["dados_usuarios"]["user_admin_login"]}
-    &{headers}             Create Dictionary    Authorization=${token_auth}
+    ${id_usuario}          Cadastrar Usuario Dinamico    administrador=true
+    ${token_auth}          Fazer Login                   ${id_usuario}
+    &{headers}             Create Dictionary             Authorization=${token_auth}
     
     ##########
     # Teste
