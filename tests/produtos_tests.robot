@@ -1,12 +1,9 @@
 * Settings *
-Documentation    Arquivo contendo os testes para o endpoint /produtos da API ServeRest.
-Library          RequestsLibrary
-Resource         ../keywords_comuns.robot
+Documentation    Arquivo contendo os casos de teste para o endpoint /produtos.
+Resource         ../keywords/produtos_keywords.robot
 
-
-* Variables *
-${arquivo_json}         produtos_dados.json
-
+Suite Setup      Run Keywords    Criar Sessao
+...              AND             Carregar JSON    ${produtos_json}
 
 * Test Cases *
 #########################
@@ -16,10 +13,6 @@ ${arquivo_json}         produtos_dados.json
 CT-P01: GET Todos Os Produtos 200
     [Documentation]        Teste de listar todos os produtos com sucesso.
     [Tags]                 GET    STATUS-2XX
-    ##########
-    # Setup
-    Criar Sessao
-
     ##########
     # Teste
     ${response}            Enviar GET    /produtos
@@ -33,14 +26,12 @@ CT-P02: GET Buscar Produto Existente 200
     [Tags]                 GET    STATUS-2XX
     ##########
     # Setup
-    Criar Sessao
-    ${json}                    Carregar JSON    ${arquivo_json}
+    &{dados_usuario}           Criar Dados Usuario Dinamico    administrador=true
+    ${id_usuario}              Cadastrar Usuario               ${dados_usuario}
+    ${token_auth}              Fazer Login                     ${id_usuario}
 
-    ${id_usuario}              Cadastrar Usuario Dinamico    administrador=true
-    ${token_auth}              Fazer Login                   ${id_usuario}
-
-    ${dados_produto}           Set Variable         ${json["dados_cadastro"]["produto_valido"]}
-    ${id_produto}              Cadastrar Produto Estatico    ${dados_produto}    ${token_auth}
+    ${dados_produto}           Set Variable                    ${json["dados_cadastro"]["produto_valido"]}
+    ${id_produto}              Cadastrar Produto               ${dados_produto}    ${token_auth}
 
     ##########
     # Teste
@@ -63,8 +54,6 @@ CT-P03: GET Tentar Buscar Produto Inexistente 400
     [Tags]                 GET    STATUS-4XX
     ##########
     # Setup
-    Criar Sessao
-
     ${id_produto}          Set Variable    naoexiste123
 
     ##########
@@ -84,12 +73,10 @@ CT-P04: POST Cadastrar Novo Produto 201
     [Tags]                POST    STATUS-2XX
     ##########
     # Setup
-    Criar Sessao
-    ${json}                    Carregar JSON    ${arquivo_json}
-
-    ${id_usuario}              Cadastrar Usuario Dinamico    administrador=true
-    ${token_auth}              Fazer Login                   ${id_usuario}
-    &{headers}                 Create Dictionary             Authorization=${token_auth}
+    &{dados_usuario}           Criar Dados Usuario Dinamico    administrador=true
+    ${id_usuario}              Cadastrar Usuario               ${dados_usuario}
+    ${token_auth}              Fazer Login                     ${id_usuario}
+    &{headers}                 Create Dictionary               Authorization=${token_auth}
     
     ${dados_produto}           Set Variable    ${json["dados_cadastro"]["produto_valido"]}
 
@@ -121,16 +108,14 @@ CT-P05: POST Tentar Cadastrar Produto Com Nome Repetido 400
     [Tags]                   POST    STATUS-4XX
     ##########
     # Setup
-    Criar Sessao
-    ${json}                  Carregar JSON        ${arquivo_json}
+    &{dados_usuario}         Criar Dados Usuario Dinamico    administrador=true
+    ${id_usuario}            Cadastrar Usuario               ${dados_usuario}
+    ${token_auth}            Fazer Login                     ${id_usuario}
+    &{headers}               Create Dictionary               Authorization=${token_auth}
 
-    ${id_usuario}            Cadastrar Usuario Dinamico    administrador=true
-    ${token_auth}            Fazer Login                   ${id_usuario}
-    &{headers}               Create Dictionary             Authorization=${token_auth}
+    ${id_nome_repetido}      Cadastrar Produto               ${json["dados_cadastro"]["produto_valido"]}    ${token_auth}
 
-    ${id_nome_repetido}      Cadastrar Produto Estatico    ${json["dados_cadastro"]["produto_valido"]}    ${token_auth}
-
-    ${dados_produto}         Set Variable         ${json["dados_cadastro"]["produto_nome_repetido"]}
+    ${dados_produto}         Set Variable                    ${json["dados_cadastro"]["produto_nome_repetido"]}
 
     ##########
     # Teste
@@ -150,9 +135,6 @@ CT-P06: POST Tentar Cadastrar Produto Sem Login 401
     [Tags]                 POST    STATUS-4XX
     ##########
     # Setup
-    Criar Sessao
-    ${json}                Carregar JSON    ${arquivo_json}
-
     ${dados_produto}       Set Variable     ${json["dados_cadastro"]["produto_valido"]}
 
     ##########
@@ -169,12 +151,10 @@ CT-P07: POST Tentar Cadastrar Produto Sem Ser Administrador 403
     [Tags]                 POST    STATUS-4XX
     ##########
     # Setup
-    Criar Sessao
-    ${json}                Carregar JSON    ${arquivo_json}
-
-    ${id_usuario}          Cadastrar Usuario Dinamico    administrador=false
-    ${token_auth}          Fazer Login                   ${id_usuario}
-    &{headers}             Create Dictionary             Authorization=${token_auth}
+    &{dados_usuario}       Criar Dados Usuario Dinamico    administrador=false
+    ${id_usuario}          Cadastrar Usuario               ${dados_usuario}
+    ${token_auth}          Fazer Login                     ${id_usuario}
+    &{headers}             Create Dictionary               Authorization=${token_auth}
 
     ${dados_produto}       Set Variable         ${json["dados_cadastro"]["produto_valido"]}
 
@@ -198,8 +178,6 @@ CT-P08: POST Tentar Cadastrar Produto Com Nome Em Branco 400
     [Tags]                 POST    STATUS-4XX
     ####################
     # Setup & Teste
-    Criar Sessao
-    
     ${response}    ${id_usuario}     Tentar Cadastrar Produto    "produto_nome_em_branco"
     Validar Status Code              400    ${response}
     Log To Console                   ${response.json()}
@@ -214,8 +192,6 @@ CT-P09: POST Tentar Cadastrar Produto Sem Nome 400
     [Tags]                 POST    STATUS-4XX
     ####################
     # Setup & Teste
-    Criar Sessao
-
     ${response}    ${id_usuario}     Tentar Cadastrar Produto    "produto_sem_nome"
     Validar Status Code              400    ${response}
     Log To Console                   ${response.json()}
@@ -229,9 +205,7 @@ CT-P10: POST Tentar Cadastrar Produto Com Preco Em Branco 400
     [Documentation]        Teste para tentativa de cadastro de produto com preco em branco.
     [Tags]                 POST    STATUS-4XX
     ####################
-    # Setup & Teste
-    Criar Sessao
-    
+    # Setup & Teste  
     ${response}    ${id_usuario}     Tentar Cadastrar Produto    "produto_preco_em_branco"
     Validar Status Code              400    ${response}
     Log To Console                   ${response.json()}
@@ -246,8 +220,6 @@ CT-P11: POST Tentar Cadastrar Produto Sem Preco 400
     [Tags]                 POST    STATUS-4XX
     ####################
     # Setup & Teste
-    Criar Sessao
-
     ${response}    ${id_usuario}     Tentar Cadastrar Produto    "produto_sem_preco"
     Validar Status Code              400    ${response}
     Log To Console                   ${response.json()}
@@ -262,8 +234,6 @@ CT-P12: POST Tentar Cadastrar Produto Com Descricao Em Branco 400
     [Tags]                 POST    STATUS-4XX
     ####################
     # Setup & Teste
-    Criar Sessao
-    
     ${response}    ${id_usuario}     Tentar Cadastrar Produto    "produto_descricao_em_branco"
     Validar Status Code              400    ${response}
     Log To Console                   ${response.json()}
@@ -278,8 +248,6 @@ CT-P13: POST Tentar Cadastrar Produto Sem Descricao 400
     [Tags]                 POST    STATUS-4XX
     ####################
     # Setup & Teste
-    Criar Sessao
-
     ${response}    ${id_usuario}     Tentar Cadastrar Produto    "produto_sem_descricao"
     Validar Status Code              400    ${response}
     Log To Console                   ${response.json()}
@@ -294,8 +262,6 @@ CT-P14: POST Tentar Cadastrar Produto Com Quantidade Em Branco 400
     [Tags]                 POST    STATUS-4XX
     ####################
     # Setup & Teste
-    Criar Sessao
-    
     ${response}    ${id_usuario}     Tentar Cadastrar Produto    "produto_quantidade_em_branco"
     Validar Status Code              400    ${response}
     Log To Console                   ${response.json()}
@@ -310,8 +276,6 @@ CT-P15: POST Tentar Cadastrar Produto Sem Quantidade 400
     [Tags]                 POST    STATUS-4XX
     ####################
     # Setup & Teste
-    Criar Sessao
-
     ${response}    ${id_usuario}     Tentar Cadastrar Produto    "produto_sem_quantidade"
     Validar Status Code              400    ${response}
     Log To Console                   ${response.json()}
@@ -330,14 +294,13 @@ CT-P16: DELETE Excluir Produto Existente 200
     [Tags]                 DELETE    STATUS-2XX
     ##########
     # Setup
-    Criar Sessao
-    ${json}                Carregar JSON    ${arquivo_json}
+    &{dados_usuario}       Criar Dados Usuario Dinamico    administrador=true
+    ${id_usuario}          Cadastrar Usuario               ${dados_usuario}
+    ${token_auth}          Fazer Login                     ${id_usuario}
+    &{headers}             Create Dictionary               Authorization=${token_auth}
 
-    ${id_usuario}          Cadastrar Usuario Dinamico    administrador=true
-    ${token_auth}          Fazer Login                   ${id_usuario}
-    &{headers}             Create Dictionary             Authorization=${token_auth}
-
-    ${id_produto}          Cadastrar Produto Dinamico    ${token_auth}
+    &{dados_produto}       Criar Dados Produto Dinamico
+    ${id_produto}          Cadastrar Produto               ${dados_produto}    ${token_auth}
 
     ##########
     # Teste
@@ -362,12 +325,10 @@ CT-P17: DELETE Tentar Excluir Produto Inexistente 200
     [Tags]                 DELETE    STATUS-2XX
     ##########
     # Setup
-    Criar Sessao
-    ${json}                Carregar JSON    ${arquivo_json}
-
-    ${id_usuario}          Cadastrar Usuario Dinamico    administrador=true
-    ${token_auth}          Fazer Login                   ${id_usuario}
-    &{headers}             Create Dictionary             Authorization=${token_auth}
+    &{dados_usuario}       Criar Dados Usuario Dinamico    administrador=true
+    ${id_usuario}          Cadastrar Usuario               ${dados_usuario}
+    ${token_auth}          Fazer Login                     ${id_usuario}
+    &{headers}             Create Dictionary               Authorization=${token_auth}
 
     ${id_produto}          Set Variable    naoexiste123
 
@@ -388,15 +349,13 @@ CT-P18: DELETE Tentar Excluir Produto Em Carrinho 400
     [Tags]                 DELETE    STATUS-4XX
     ##########
     # Setup
-    Criar Sessao
-    ${json}                   Carregar JSON    ${arquivo_json}
+    &{dados_usuario}          Criar Dados Usuario Dinamico    administrador=true
+    ${id_usuario}             Cadastrar Usuario               ${dados_usuario}
+    ${token_auth}             Fazer Login                     ${id_usuario}
+    &{headers}                Create Dictionary               Authorization=${token_auth}
 
-    ${id_usuario}             Cadastrar Usuario Dinamico    administrador=true
-    ${token_auth}             Fazer Login                   ${id_usuario}
-    &{headers}                Create Dictionary             Authorization=${token_auth}
-
-    ${dados_produto}          Set Variable         ${json["dados_cadastro"]["produto_valido"]}
-    ${id_produto}             Cadastrar Produto Estatico    ${dados_produto}    ${token_auth}
+    ${dados_produto}          Set Variable                    ${json["dados_cadastro"]["produto_valido"]}
+    ${id_produto}             Cadastrar Produto               ${dados_produto}    ${token_auth}
 
     ${quantidade_carrinho}    Set Variable    ${3}
     ${id_carrinho}            Cadastrar Carrinho    ${id_produto}    ${token_auth}    quantidade=${quantidade_carrinho}
@@ -437,14 +396,12 @@ CT-P19: DELETE Tentar Excluir Produto Existente Sem Login 401
     [Tags]                 DELETE    STATUS-4XX
     ##########
     # Setup
-    Criar Sessao
-    ${json}                Carregar JSON    ${arquivo_json}
+    &{dados_usuario}       Criar Dados Usuario Dinamico    administrador=true
+    ${id_usuario}          Cadastrar Usuario               ${dados_usuario}
+    ${token_auth}          Fazer Login                     ${id_usuario}
 
-    ${id_usuario}          Cadastrar Usuario Dinamico    administrador=true
-    ${token_auth}          Fazer Login                   ${id_usuario}
-
-    ${dados_produto}       Set Variable         ${json["dados_cadastro"]["produto_valido"]}
-    ${id_produto}          Cadastrar Produto Estatico    ${dados_produto}    ${token_auth}
+    ${dados_produto}       Set Variable                    ${json["dados_cadastro"]["produto_valido"]}
+    ${id_produto}          Cadastrar Produto               ${dados_produto}    ${token_auth}
 
     ##########
     # Teste
@@ -472,18 +429,17 @@ CT-P20: DELETE Tentar Excluir Produto Existente Sem Ser Administrador 403
     [Tags]                 DELETE    STATUS-4XX
     ##########
     # Setup
-    Criar Sessao
-    ${json}                    Carregar JSON    ${arquivo_json}
-
-    ${id_admin}                Cadastrar Usuario Dinamico    administrador=true
-    ${token_auth_admin}        Fazer Login                   ${id_admin}
+    &{dados_usuario}           Criar Dados Usuario Dinamico    administrador=true
+    ${id_user_admin}           Cadastrar Usuario               ${dados_usuario}
+    ${token_auth_admin}        Fazer Login                     ${id_user_admin}
     
-    ${dados_produto}           Set Variable         ${json["dados_cadastro"]["produto_valido"]}
-    ${id_produto}              Cadastrar Produto Estatico    ${dados_produto}    ${token_auth_admin}
+    ${dados_produto}           Set Variable                    ${json["dados_cadastro"]["produto_valido"]}
+    ${id_produto}              Cadastrar Produto               ${dados_produto}    ${token_auth_admin}
 
-    ${id_user_padrao}          Cadastrar Usuario Dinamico    administrador=false
-    ${token_auth_padrao}       Fazer Login                   ${id_user_padrao}
-    &{headers}                 Create Dictionary             Authorization=${token_auth_padrao}
+    &{dados_usuario}           Criar Dados Usuario Dinamico    administrador=false
+    ${id_user_padrao}          Cadastrar Usuario               ${dados_usuario}
+    ${token_auth_padrao}       Fazer Login                     ${id_user_padrao}
+    &{headers}                 Create Dictionary               Authorization=${token_auth_padrao}
 
     ##########
     # Teste
@@ -504,7 +460,7 @@ CT-P20: DELETE Tentar Excluir Produto Existente Sem Ser Administrador 403
     # Limpeza dos dados
     [Teardown]                 Run Keywords    Deletar Produto    ${id_produto}    ${token_auth_admin}
     ...                        AND             Deletar Usuario    ${id_user_padrao}
-    ...                        AND             Deletar Usuario    ${id_admin}
+    ...                        AND             Deletar Usuario    ${id_user_admin}
 
 
 #########################
@@ -516,15 +472,13 @@ CT-P21: PUT Editar Produto Existente 200
     [Tags]                 PUT    STATUS-2XX
     ##########
     # Setup
-    Criar Sessao
-    ${json}                Carregar JSON    ${arquivo_json}
+    &{dados_usuario}       Criar Dados Usuario Dinamico    administrador=true
+    ${id_usuario}          Cadastrar Usuario               ${dados_usuario}
+    ${token_auth}          Fazer Login                     ${id_usuario}
+    &{headers}             Create Dictionary               Authorization=${token_auth}
 
-    ${id_usuario}          Cadastrar Usuario Dinamico    administrador=true
-    ${token_auth}          Fazer Login                   ${id_usuario}
-    &{headers}             Create Dictionary             Authorization=${token_auth}
-
-    ${dados_produto}       Set Variable         ${json["dados_edicao"]["produto_inicial"]}
-    ${id_produto}          Cadastrar Produto Estatico    ${dados_produto}    ${token_auth}
+    ${dados_produto}       Set Variable                    ${json["dados_edicao"]["produto_inicial"]}
+    ${id_produto}          Cadastrar Produto               ${dados_produto}    ${token_auth}
 
     ${novos_dados}         Set Variable    ${json["dados_edicao"]["edicao_valida"]}
 
@@ -552,12 +506,10 @@ CT-P22: PUT Tentar Editar Produto Inexistente 201
     [Tags]                 PUT    STATUS-2XX
     ##########
     # Setup
-    Criar Sessao
-    ${json}                    Carregar JSON    ${arquivo_json}
-
-    ${id_usuario}              Cadastrar Usuario Dinamico    administrador=true
-    ${token_auth}              Fazer Login                   ${id_usuario}
-    &{headers}                 Create Dictionary             Authorization=${token_auth}
+    &{dados_usuario}           Criar Dados Usuario Dinamico    administrador=true
+    ${id_usuario}              Cadastrar Usuario               ${dados_usuario}
+    ${token_auth}              Fazer Login                     ${id_usuario}
+    &{headers}                 Create Dictionary               Authorization=${token_auth}
 
     ${id_produto}              Set Variable    naoexiste9432
 
@@ -591,19 +543,17 @@ CT-P23: PUT Tentar Editar Produto Existente Com Nome Repetido 400
     [Tags]                 PUT    STATUS-4XX
     ##########
     # Setup
-    Criar Sessao
-    ${json}                         Carregar JSON    ${arquivo_json}
-
-    ${id_usuario}                   Cadastrar Usuario Dinamico    administrador=true
-    ${token_auth}                   Fazer Login                   ${id_usuario}
-    &{headers}                      Create Dictionary             Authorization=${token_auth}
+    &{dados_usuario}                Criar Dados Usuario Dinamico    administrador=true
+    ${id_usuario}                   Cadastrar Usuario               ${dados_usuario}
+    ${token_auth}                   Fazer Login                     ${id_usuario}
+    &{headers}                      Create Dictionary               Authorization=${token_auth}
 
     # Produto do qual o nome repetido será retirado
-    ${id_produto_repetido}          Cadastrar Produto Estatico    ${json["dados_edicao"]["produto_nome_repetido"]}    ${token_auth}
+    ${id_produto_repetido}          Cadastrar Produto               ${json["dados_edicao"]["produto_nome_repetido"]}    ${token_auth}
 
     # Produto que será editado
-    ${dados_iniciais}               Set Variable         ${json["dados_edicao"]["produto_inicial"]}
-    ${id_produto_editado}           Cadastrar Produto Estatico    ${dados_iniciais}    ${token_auth}
+    ${dados_iniciais}               Set Variable                    ${json["dados_edicao"]["produto_inicial"]}
+    ${id_produto_editado}           Cadastrar Produto               ${dados_iniciais}    ${token_auth}
 
     ${novos_dados}                  Set Variable    ${json["dados_edicao"]["edicao_nome_repetido"]}
 
@@ -634,15 +584,13 @@ CT-P24: PUT Tentar Editar Produto Inexistente Com Nome Repetido 400
     [Tags]                 PUT    STATUS-4XX
     ##########
     # Setup
-    Criar Sessao
-    ${json}                         Carregar JSON    ${arquivo_json}
-
-    ${id_usuario}                   Cadastrar Usuario Dinamico    administrador=true
-    ${token_auth}                   Fazer Login                   ${id_usuario}
-    &{headers}                      Create Dictionary             Authorization=${token_auth}
+    &{dados_usuario}                Criar Dados Usuario Dinamico    administrador=true
+    ${id_usuario}                   Cadastrar Usuario               ${dados_usuario}
+    ${token_auth}                   Fazer Login                     ${id_usuario}
+    &{headers}                      Create Dictionary               Authorization=${token_auth}
 
     # Produto do qual o nome repetido será retirado
-    ${id_produto_repetido}          Cadastrar Produto Estatico    ${json["dados_edicao"]["produto_nome_repetido"]}    ${token_auth}
+    ${id_produto_repetido}          Cadastrar Produto               ${json["dados_edicao"]["produto_nome_repetido"]}    ${token_auth}
 
     # Produto que será editado
     ${id_produto_editado}           Set Variable    naoexiste123
@@ -667,14 +615,12 @@ CT-P25: PUT Tentar Editar Produto Existente Sem Login 401
     [Tags]                 PUT    STATUS-4XX
     ##########
     # Setup
-    Criar Sessao
-    ${json}                Carregar JSON    ${arquivo_json}
+    &{dados_usuario}       Criar Dados Usuario Dinamico    administrador=true
+    ${id_usuario}          Cadastrar Usuario               ${dados_usuario}
+    ${token_auth}          Fazer Login                     ${id_usuario}
 
-    ${id_usuario}          Cadastrar Usuario Dinamico    administrador=true
-    ${token_auth}          Fazer Login                   ${id_usuario}
-
-    ${dados_produto}       Set Variable         ${json["dados_edicao"]["produto_inicial"]}
-    ${id_produto}          Cadastrar Produto Estatico    ${dados_produto}    ${token_auth}
+    ${dados_produto}       Set Variable                    ${json["dados_edicao"]["produto_inicial"]}
+    ${id_produto}          Cadastrar Produto               ${dados_produto}    ${token_auth}
 
     ${novos_dados}         Set Variable    ${json["dados_edicao"]["edicao_valida"]}
 
@@ -704,9 +650,6 @@ CT-P26: PUT Tentar Editar Produto Inexistente Sem Login 401
     [Tags]                 PUT    STATUS-4XX
     ##########
     # Setup
-    Criar Sessao
-    ${json}                Carregar JSON    ${arquivo_json}
-
     ${id_produto}          Set Variable    naoexiste1412
 
     ${novos_dados}         Set Variable    ${json["dados_edicao"]["edicao_valida"]}
@@ -726,20 +669,19 @@ CT-P27: PUT Tentar Editar Produto Existente Sem Ser Administrador 403
     [Tags]                 PUT    STATUS-4XX
     ##########
     # Setup
-    Criar Sessao
-    ${json}                  Carregar JSON    ${arquivo_json}
+    &{dados_usuario}         Criar Dados Usuario Dinamico    administrador=true
+    ${id_user_admin}         Cadastrar Usuario               ${dados_usuario}
+    ${token_auth_admin}      Fazer Login                     ${id_user_admin}
 
-    ${id_admin}              Cadastrar Usuario Dinamico    administrador=true
-    ${token_auth_admin}      Fazer Login                   ${id_admin}
-
-    ${dados_produto}         Set Variable         ${json["dados_edicao"]["produto_inicial"]}
-    ${id_produto}            Cadastrar Produto Estatico    ${dados_produto}    ${token_auth_admin}
+    ${dados_produto}         Set Variable                    ${json["dados_edicao"]["produto_inicial"]}
+    ${id_produto}            Cadastrar Produto               ${dados_produto}    ${token_auth_admin}
 
     ${novos_dados}           Set Variable    ${json["dados_edicao"]["edicao_valida"]}
 
-    ${id_user_padrao}        Cadastrar Usuario Dinamico    administrador=false
-    ${token_auth_padrao}     Fazer Login                   ${id_user_padrao}
-    &{headers}               Create Dictionary             Authorization=${token_auth_padrao}
+    &{dados_usuario}         Criar Dados Usuario Dinamico    administrador=false
+    ${id_user_padrao}        Cadastrar Usuario               ${dados_usuario}
+    ${token_auth_padrao}     Fazer Login                     ${id_user_padrao}
+    &{headers}               Create Dictionary               Authorization=${token_auth_padrao}
 
     ##########
     # Teste
@@ -760,7 +702,7 @@ CT-P27: PUT Tentar Editar Produto Existente Sem Ser Administrador 403
     # Limpeza dos dados
     [Teardown]             Run Keywords    Deletar Produto    ${id_produto}    ${token_auth_admin}
     ...                    AND             Deletar Usuario    ${id_user_padrao}
-    ...                    AND             Deletar Usuario    ${id_admin}
+    ...                    AND             Deletar Usuario    ${id_user_admin}
 
 
 CT-P28: PUT Tentar Editar Produto Inexistente Sem Ser Administrador 403
@@ -768,16 +710,14 @@ CT-P28: PUT Tentar Editar Produto Inexistente Sem Ser Administrador 403
     [Tags]                 PUT    STATUS-4XX
     ##########
     # Setup
-    Criar Sessao
-    ${json}                  Carregar JSON    ${arquivo_json}
-
     ${id_produto}            Set Variable    naoexiste10312
 
     ${novos_dados}           Set Variable    ${json["dados_edicao"]["edicao_valida"]}
 
-    ${id_user_padrao}        Cadastrar Usuario Dinamico    administrador=false
-    ${token_auth_padrao}     Fazer Login                   ${id_user_padrao}
-    &{headers}               Create Dictionary             Authorization=${token_auth_padrao}
+    &{dados_usuario}         Criar Dados Usuario Dinamico    administrador=false
+    ${id_user_padrao}        Cadastrar Usuario               ${dados_usuario}
+    ${token_auth_padrao}     Fazer Login                     ${id_user_padrao}
+    &{headers}               Create Dictionary               Authorization=${token_auth_padrao}
 
     ##########
     # Teste
@@ -800,8 +740,6 @@ CT-P29: PUT Tentar Editar Produto Existente Com Nome Em Branco 400
     [Tags]             PUT    STATUS-4XX
     ####################
     # Setup & Teste
-    Criar Sessao
-
     ${response}    ${id_usuario}    ${id_produto}    ${token_auth} 
     ...    Tentar Editar Produto Existente    "edicao_nome_em_branco"
 
@@ -819,8 +757,6 @@ CT-P30: PUT Tentar Editar Produto Inexistente Com Nome Em Branco 400
     [Tags]             PUT    STATUS-4XX
     ####################
     # Setup & Teste
-    Criar Sessao
-
     ${response}    ${id_usuario}
     ...    Tentar Editar Produto Inexistente    "edicao_nome_em_branco"
 
@@ -837,8 +773,6 @@ CT-P31: PUT Tentar Editar Produto Existente Sem Nome 400
     [Tags]             PUT    STATUS-4XX
     ####################
     # Setup & Teste
-    Criar Sessao
-
     ${response}    ${id_usuario}    ${id_produto}    ${token_auth} 
     ...    Tentar Editar Produto Existente    "edicao_sem_nome"
 
@@ -856,8 +790,6 @@ CT-P32: PUT Tentar Editar Produto Inexistente Sem Nome 400
     [Tags]             PUT    STATUS-4XX
     ####################
     # Setup & Teste
-    Criar Sessao
-
     ${response}    ${id_usuario}
     ...    Tentar Editar Produto Inexistente    "edicao_sem_nome"
 
@@ -873,8 +805,6 @@ CT-P33: PUT Tentar Editar Produto Existente Com Preco Em Branco 400
     [Tags]             PUT    STATUS-4XX
     ####################
     # Setup & Teste
-    Criar Sessao
-
     ${response}    ${id_usuario}    ${id_produto}    ${token_auth}
     ...    Tentar Editar Produto Existente    "edicao_preco_em_branco"
 
@@ -892,8 +822,6 @@ CT-P34: PUT Tentar Editar Produto Inexistente Com Preco Em Branco 400
     [Tags]             PUT    STATUS-4XX
     ####################
     # Setup & Teste
-    Criar Sessao
-
     ${response}    ${id_usuario}
     ...    Tentar Editar Produto Inexistente    "edicao_preco_em_branco"
 
@@ -910,8 +838,6 @@ CT-P35: PUT Tentar Editar Produto Existente Sem Preco 400
     [Tags]             PUT    STATUS-4XX
     ####################
     # Setup & Teste
-    Criar Sessao
-
     ${response}    ${id_usuario}    ${id_produto}    ${token_auth}
     ...    Tentar Editar Produto Existente    "edicao_sem_preco"
 
@@ -929,8 +855,6 @@ CT-P36: PUT Tentar Editar Produto Inexistente Sem Preco 400
     [Tags]             PUT    STATUS-4XX
     ####################
     # Setup & Teste
-    Criar Sessao
-
     ${response}    ${id_usuario} 
     ...    Tentar Editar Produto Inexistente    "edicao_sem_preco"
 
@@ -947,8 +871,6 @@ CT-P37: PUT Tentar Editar Produto Existente Com Descricao Em Branco 400
     [Tags]             PUT    STATUS-4XX
     ####################
     # Setup & Teste
-    Criar Sessao
-
     ${response}    ${id_usuario}    ${id_produto}    ${token_auth} 
     ...    Tentar Editar Produto Existente    "edicao_descricao_em_branco"
 
@@ -966,8 +888,6 @@ CT-P38: PUT Tentar Editar Produto Inexistente Com Descricao Em Branco 400
     [Tags]             PUT    STATUS-4XX
     ####################
     # Setup & Teste
-    Criar Sessao
-
     ${response}    ${id_usuario} 
     ...    Tentar Editar Produto Inexistente    "edicao_descricao_em_branco"
 
@@ -984,8 +904,6 @@ CT-P39: PUT Tentar Editar Produto Existente Sem Descricao 400
     [Tags]             PUT    STATUS-4XX
     ####################
     # Setup & Teste
-    Criar Sessao
-
     ${response}    ${id_usuario}    ${id_produto}    ${token_auth} 
     ...    Tentar Editar Produto Existente    "edicao_sem_descricao"
 
@@ -1003,8 +921,6 @@ CT-P40: PUT Tentar Editar Produto Inexistente Sem Descricao 400
     [Tags]             PUT    STATUS-4XX
     ####################
     # Setup & Teste
-    Criar Sessao
-
     ${response}    ${id_usuario}
     ...    Tentar Editar Produto Inexistente    "edicao_sem_descricao"
 
@@ -1021,8 +937,6 @@ CT-P41: PUT Tentar Editar Produto Existente Com Quantidade Em Branco 400
     [Tags]             PUT    STATUS-4XX
     ####################
     # Setup & Teste
-    Criar Sessao
-
     ${response}    ${id_usuario}    ${id_produto}    ${token_auth} 
     ...    Tentar Editar Produto Existente    "edicao_quantidade_em_branco"
 
@@ -1040,8 +954,6 @@ CT-P42: PUT Tentar Editar Produto Inexistente Com Quantidade Em Branco 400
     [Tags]             PUT    STATUS-4XX
     ####################
     # Setup & Teste
-    Criar Sessao
-
     ${response}    ${id_usuario}
     ...    Tentar Editar Produto Inexistente    "edicao_quantidade_em_branco"
 
@@ -1058,8 +970,6 @@ CT-P43: PUT Tentar Editar Produto Existente Sem Quantidade 400
     [Tags]             PUT    STATUS-4XX
     ####################
     # Setup & Teste
-    Criar Sessao
-
     ${response}    ${id_usuario}    ${id_produto}    ${token_auth} 
     ...    Tentar Editar Produto Existente    "edicao_sem_quantidade"
 
@@ -1077,8 +987,6 @@ CT-P44: PUT Tentar Editar Produto Inexistente Sem Quantidade 400
     [Tags]             PUT    STATUS-4XX
     ####################
     # Setup & Teste
-    Criar Sessao
-
     ${response}    ${id_usuario} 
     ...    Tentar Editar Produto Inexistente    "edicao_sem_quantidade"
 
@@ -1091,108 +999,3 @@ CT-P44: PUT Tentar Editar Produto Inexistente Sem Quantidade 400
 
 
 ##########################################################################################
-
-* Keywords *
-
-Tentar Cadastrar Produto
-    [Documentation]         Realiza uma tentativa de cadastro de produto com os dados json informados.
-    ...                     Não faz validações dentro da keyword.
-    ...                     \nCria um usuário administrador para login, e que precisa ser excluído manualmente.
-    ...                     \nReturn: \${response} -- a resposta da tentativa de cadastro de usuário.
-    ...                     \n\${id_usuario} -- a id do usuário criado para login.
-    [Arguments]             ${json_produto}
-    ##########
-    # Setup
-    ${json}                 Carregar JSON    ${arquivo_json}
-
-    ${dados_produto}        Set Variable    ${json["dados_cadastro"][${json_produto}]}
-
-    ${id_usuario}           Cadastrar Usuario Dinamico    administrador=true
-    ${token_auth}           Fazer Login                   ${id_usuario}
-    &{headers}              Create Dictionary             Authorization=${token_auth}
-
-    ##########
-    # Teste
-    ${response}             Enviar POST    /produtos    ${dados_produto}    headers=${headers}
-
-    [Return]                ${response}    ${id_usuario}
-
-Tentar Editar Produto Existente
-    [Documentation]         Realiza uma tentativa de edição de produto existente com os dados json informados.
-    ...                     Não faz validações dentro da keyword.
-    ...                     \nCria um usuário administrador para login, e que precisa ser excluído manualmente.
-    ...                     \nCria um produto que será editado, e que precisa ser excluído manualmente.
-    ...                     \nReturn: \${response} -- a resposta da tentativa de edição de produto.
-    ...                     \n\${id_usuario} -- a id do usuário criado para login.
-    ...                     \n\${id_produto} -- a id do produto criado para edição.
-    ...                     \n\${token_auth} -- a token de autorização do usuário logado.
-    [Arguments]             ${json_edicao}
-    ##########
-    # Setup
-    ${json}                 Carregar JSON    ${arquivo_json}
-
-    ${id_usuario}           Cadastrar Usuario Dinamico    administrador=true
-    ${token_auth}           Fazer Login                   ${id_usuario}
-    &{headers}              Create Dictionary             Authorization=${token_auth}
-
-    ${id_produto}           Cadastrar Produto Dinamico    ${token_auth}
-
-    ${novos_dados}          Set Variable    ${json["dados_edicao"][${json_edicao}]}
-
-    ##########
-    # Teste
-    ${response}             Enviar PUT    /produtos/${id_produto}    ${novos_dados}    headers=${headers}
-
-    [Return]                ${response}    ${id_usuario}    ${id_produto}    ${token_auth}
-
-Tentar Editar Produto Inexistente
-    [Documentation]         Realiza uma tentativa de edição de produto inexistente com os dados json informados.
-    ...                     Não faz validações dentro da keyword.
-    ...                     \nCria um usuário administrador para login, e que precisa ser excluído manualmente.
-    ...                     \nReturn: \${response} -- a resposta da tentativa de edição de produto.
-    ...                     \n\${id_usuario} -- a id do usuário criado para login.
-    [Arguments]             ${json_edicao}
-    ##########
-    # Setup
-    ${json}                 Carregar JSON    ${arquivo_json}
-
-    ${id_usuario}           Cadastrar Usuario Dinamico    administrador=true
-    ${token_auth}           Fazer Login                   ${id_usuario}
-    &{headers}              Create Dictionary             Authorization=${token_auth}
-
-    ${id_produto}           Set Variable    naoexiste234
-
-    ${novos_dados}          Set Variable    ${json["dados_edicao"][${json_edicao}]}
-
-    ##########
-    # Teste
-    ${response}             Enviar PUT    /produtos/${id_produto}    ${novos_dados}    headers=${headers}
-
-    [Return]                ${response}    ${id_usuario}
-
-Validar Produto Valido
-    [Documentation]      Verifica se o produto contém todos os campos exigidos pela ServeRest.
-    [Arguments]          ${produto}
-    Should Not Be Empty        ${produto["nome"]}
-    Should Be True             ${produto["preco"]} >= 0
-    Should Not Be Empty        ${produto["descricao"]}
-    Should Be True             ${produto["quantidade"]} >= 0
-    Should Not Be Empty        ${produto["_id"]}
-
-
-Validar Produtos Iguais
-    [Documentation]      Verifica se dois produtos serverest possuem todos os campos iguais.
-    ...                  Ignora o campo de '_id'.
-
-    [Arguments]          ${produto_1}    ${produto_2}
-    Should Be Equal      ${produto_1["nome"]}    ${produto_2["nome"]}
-    Should Be Equal      ${produto_1["preco"]}    ${produto_2["preco"]}
-    Should Be Equal      ${produto_1["descricao"]}    ${produto_2["descricao"]}
-    Should Be Equal      ${produto_1["quantidade"]}    ${produto_2["quantidade"]}
-
-Validar Quantidade Produto
-    [Documentation]      Verifica se a quantidade de produtos no estoque é a mesma que a
-    ...                  esperada.
-
-    [Arguments]                    ${esperado}    ${quantidade}
-    Should Be Equal As Integers    ${esperado}    ${quantidade}

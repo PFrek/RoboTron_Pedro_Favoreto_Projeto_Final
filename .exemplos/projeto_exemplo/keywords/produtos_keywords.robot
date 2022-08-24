@@ -1,6 +1,6 @@
 * Settings *
 Documentation        Keywords e variáveis para Ações do endpoint de produtos.
-
+Resource             ../support/base.robot
 
 * Keywords *
 POST Endpoint /produtos

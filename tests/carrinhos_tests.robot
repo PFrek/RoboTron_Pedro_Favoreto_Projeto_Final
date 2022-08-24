@@ -1,12 +1,8 @@
 * Settings *
-Documentation    Arquivo contendo os testes para o endpoint /carrinhos da API ServeRest.
-Library          RequestsLibrary
-Library          Collections    # Append To List
-Resource         ../keywords_comuns.robot
+Documentation    Arquivo contendo os casos de teste para o endpoint /carrinhos.
+Resource         ../keywords/carrinhos_keywords.robot
 
-
-* Variables *
-${dados_json}         carrinhos_dados.json
+Suite Setup      Criar Sessao
 
 * Test Cases *
 #########################
@@ -16,10 +12,6 @@ ${dados_json}         carrinhos_dados.json
 CT-C01: GET Todos Os Carrinhos 200
     [Documentation]        Teste de listar todos os carrinhos com sucesso.
     [Tags]                 GET    STATUS-2XX
-    ##########
-    # Setup
-    Criar Sessao
-
     ##########
     # Teste
     ${response}            Enviar GET    /carrinhos
@@ -33,16 +25,16 @@ CT-C02: GET Buscar Carrinho Existente 200
     [Tags]                GET    STATUS-2XX
     ##########
     # Setup
-    Criar Sessao
-    
 
     # Criar Usuário
-    ${id_usuario}          Cadastrar Usuario Dinamico    administrador=true
-    ${token_auth}          Fazer Login                   ${id_usuario}
-    &{headers}             Create Dictionary             Authorization=${token_auth}
+    &{dados_usuario}       Criar Dados Usuario Dinamico    administrador=true
+    ${id_usuario}          Cadastrar Usuario               ${dados_usuario}
+    ${token_auth}          Fazer Login                     ${id_usuario}
+    &{headers}             Create Dictionary               Authorization=${token_auth}
 
     # Criar Produto
-    ${id_produto}          Cadastrar Produto Dinamico    ${token_auth}
+    &{dados_produto}       Criar Dados Produto Dinamico
+    ${id_produto}          Cadastrar Produto               ${dados_produto}    ${token_auth}
 
     # Criar Carrinho
     &{produto}             Create Dictionary    idProduto=${id_produto}    quantidade=${3}
@@ -74,9 +66,6 @@ CT-C03: GET Buscar Carrinho Inexistente 400
     [Tags]                GET    STATUS-4XX
     ##########
     # Setup
-    Criar Sessao
-    
-
     ${id_carrinho}         Set Variable    naoexiste9283
 
     ##########
@@ -96,17 +85,18 @@ CT-C04: POST Cadastrar Carrinho Como Administrador 201
     [Tags]                 POST    STATUS-2XX
     ##########
     # Setup
-    Criar Sessao
-    
 
     # Criar Usuário
-    ${id_usuario}          Cadastrar Usuario Dinamico    administrador=true
-    ${token_auth}          Fazer Login                   ${id_usuario}
-    &{headers}             Create Dictionary             Authorization=${token_auth}
+    &{dados_usuario}       Criar Dados Usuario Dinamico    administrador=true
+    ${id_usuario}          Cadastrar Usuario               ${dados_usuario}
+    ${token_auth}          Fazer Login                     ${id_usuario}
+    &{headers}             Create Dictionary               Authorization=${token_auth}
 
     # Criar Produtos
-    ${id_produto_1}        Cadastrar Produto Dinamico    ${token_auth}
-    ${id_produto_2}        Cadastrar Produto Dinamico    ${token_auth}
+    &{dados_produto_1}     Criar Dados Produto Dinamico
+    ${id_produto_1}        Cadastrar Produto               ${dados_produto_1}    ${token_auth}
+    &{dados_produto_2}     Criar Dados Produto Dinamico
+    ${id_produto_2}        Cadastrar Produto               ${dados_produto_2}    ${token_auth}
 
     # Criar dados do Carrinho
     &{produto_1}           Create Dictionary    idProduto=${id_produto_1}    quantidade=${3}
@@ -145,20 +135,22 @@ CT-C05: POST Cadastrar Carrinho Como Usuario Padrao 201
     [Tags]                 POST    STATUS-2XX
     ##########
     # Setup
-    Criar Sessao
-    
 
     # Criar usuários
-    ${id_user_admin}       Cadastrar Usuario Dinamico    administrador=true
-    ${token_auth_admin}    Fazer Login                   ${id_user_admin}
+    &{dados_usuario}       Criar Dados Usuario Dinamico    administrador=true
+    ${id_user_admin}       Cadastrar Usuario               ${dados_usuario}
+    ${token_auth_admin}    Fazer Login                     ${id_user_admin}
 
-    ${id_user_padrao}      Cadastrar Usuario Dinamico    administrador=false
-    ${token_auth_padrao}   Fazer Login                   ${id_user_padrao}
-    &{headers}             Create Dictionary             Authorization=${token_auth_padrao}
+    &{dados_usuario}       Criar Dados Usuario Dinamico    administrador=false
+    ${id_user_padrao}      Cadastrar Usuario               ${dados_usuario}
+    ${token_auth_padrao}   Fazer Login                     ${id_user_padrao}
+    &{headers}             Create Dictionary               Authorization=${token_auth_padrao}
     
     # Criar produtos
-    ${id_produto_1}        Cadastrar Produto Dinamico    ${token_auth_admin}
-    ${id_produto_2}        Cadastrar Produto Dinamico    ${token_auth_admin}
+    &{dados_produto_1}     Criar Dados Produto Dinamico
+    ${id_produto_1}        Cadastrar Produto               ${dados_produto_1}    ${token_auth_admin}
+    &{dados_produto_2}     Criar Dados Produto Dinamico
+    ${id_produto_2}        Cadastrar Produto               ${dados_produto_2}    ${token_auth_admin}
 
     # Criar dados do Carrinho
     &{produto_1}           Create Dictionary    idProduto=${id_produto_1}    quantidade=${3}
@@ -198,16 +190,16 @@ CT-C06: POST Tentar Cadastrar Carrinho Com Produto Duplicado 400
     [Tags]                 POST    STATUS-4XX
     ##########
     # Setup
-    Criar Sessao
-    
 
     # Criar usuário
-    ${id_usuario}          Cadastrar Usuario Dinamico    administrador=true
-    ${token_auth}          Fazer Login                   ${id_usuario}
-    &{headers}             Create Dictionary             Authorization=${token_auth}
+    &{dados_usuario}       Criar Dados Usuario Dinamico    administrador=true
+    ${id_usuario}          Cadastrar Usuario               ${dados_usuario}
+    ${token_auth}          Fazer Login                     ${id_usuario}
+    &{headers}             Create Dictionary               Authorization=${token_auth}
 
     # Criar produto
-    ${id_produto}          Cadastrar Produto Dinamico    ${token_auth}
+    &{dados_produto}       Criar Dados Produto Dinamico
+    ${id_produto}          Cadastrar Produto               ${dados_produto}    ${token_auth}
 
     # Criar dados do Carrinho
     &{produto_1}           Create Dictionary    idProduto=${id_produto}    quantidade=${3}
@@ -233,17 +225,18 @@ CT-C07: POST Tentar Cadastrar Mais De Um Carrinho Com Um Usuario 400
     [Tags]                 POST    STATUS-4XX
     ##########
     # Setup
-    Criar Sessao
-    
 
     # Criar usuário
-    ${id_usuario}          Cadastrar Usuario Dinamico    administrador=true
-    ${token_auth}          Fazer Login                   ${id_usuario}
-    &{headers}             Create Dictionary             Authorization=${token_auth}
+    &{dados_usuario}       Criar Dados Usuario Dinamico    administrador=true
+    ${id_usuario}          Cadastrar Usuario               ${dados_usuario}
+    ${token_auth}          Fazer Login                     ${id_usuario}
+    &{headers}             Create Dictionary               Authorization=${token_auth}
 
     # Criar produtos
-    ${id_produto_1}        Cadastrar Produto Dinamico    ${token_auth}
-    ${id_produto_2}        Cadastrar Produto Dinamico    ${token_auth}
+    &{dados_produto_1}     Criar Dados Produto Dinamico
+    ${id_produto_1}        Cadastrar Produto               ${dados_produto_1}    ${token_auth}
+    &{dados_produto_2}     Criar Dados Produto Dinamico
+    ${id_produto_2}        Cadastrar Produto               ${dados_produto_2}    ${token_auth}
 
     # Criar dados dos Carrinhos 
     &{produto_1}           Create Dictionary    idProduto=${id_produto_1}    quantidade=${3}
@@ -277,13 +270,12 @@ CT-C08: POST Tentar Cadastrar Um Carrinho Com Produto Inexistente 400
     [Tags]                 POST    STATUS-4XX
     ##########
     # Setup
-    Criar Sessao
-    
 
     # Criar Usuário
-    ${id_usuario}          Cadastrar Usuario Dinamico    administrador=true
-    ${token_auth}          Fazer Login                   ${id_usuario}
-    &{headers}             Create Dictionary             Authorization=${token_auth}
+    &{dados_usuario}       Criar Dados Usuario Dinamico    administrador=true
+    ${id_usuario}          Cadastrar Usuario               ${dados_usuario}
+    ${token_auth}          Fazer Login                     ${id_usuario}
+    &{headers}             Create Dictionary               Authorization=${token_auth}
 
     # Id de produto inexistente
     ${id_produto_1}        Set Variable    naoexiste123
@@ -310,16 +302,16 @@ CT-C09: POST Tentar Cadastrar Carrinho Sem Quantidade De Produto Suficiente 400
     [Tags]                 POST    STATUS-4XX
     ##########
     # Setup
-    Criar Sessao
-    
 
     # Criar Usuário
-    ${id_usuario}          Cadastrar Usuario Dinamico    administrador=true
-    ${token_auth}          Fazer Login                   ${id_usuario}
-    &{headers}             Create Dictionary             Authorization=${token_auth}
+    &{dados_usuario}       Criar Dados Usuario Dinamico    administrador=true
+    ${id_usuario}          Cadastrar Usuario               ${dados_usuario}
+    ${token_auth}          Fazer Login                     ${id_usuario}
+    &{headers}             Create Dictionary               Authorization=${token_auth}
 
     # Criar Produto
-    ${id_produto}          Cadastrar Produto Dinamico    ${token_auth}    quantidade=${5}
+    &{dados_produto}       Criar Dados Produto Dinamico    quantidade=${5}
+    ${id_produto}          Cadastrar Produto               ${dados_produto}    ${token_auth}
 
     # Criar dados do Carrinho
     &{produto}             Create Dictionary    idProduto=${id_produto}    quantidade=${100}
@@ -344,15 +336,15 @@ CT-C10: POST Tentar Cadastrar Carrinho Sem Login 401
     [Tags]                 POST    STATUS-4XX
     ##########
     # Setup
-    Criar Sessao
-    
 
     # Criar Usuário
-    ${id_usuario}          Cadastrar Usuario Dinamico    administrador=true
-    ${token_auth}          Fazer Login                   ${id_usuario}
+    &{dados_usuario}       Criar Dados Usuario Dinamico    administrador=true
+    ${id_usuario}          Cadastrar Usuario               ${dados_usuario}
+    ${token_auth}          Fazer Login                     ${id_usuario}
 
     # Criar Produto
-    ${id_produto}          Cadastrar Produto Dinamico    ${token_auth}
+    &{dados_produto}       Criar Dados Produto Dinamico
+    ${id_produto}          Cadastrar Produto               ${dados_produto}    ${token_auth}
 
     # Criar dados do Carrinho
     &{produto}             Create Dictionary    idProduto=${id_produto}    quantidade=${3}
@@ -381,13 +373,12 @@ CT-C11: POST Tentar Cadastrar Carrinho Com IdProduto Em Branco 400
     [Tags]                 POST    STATUS-4XX
     ##########
     # Setup
-    Criar Sessao
-    
 
     # Criar Usuário
-    ${id_usuario}          Cadastrar Usuario Dinamico    administrador=true
-    ${token_auth}          Fazer Login                   ${id_usuario}
-    &{headers}             Create Dictionary             Authorization=${token_auth}
+    &{dados_usuario}       Criar Dados Usuario Dinamico    administrador=true
+    ${id_usuario}          Cadastrar Usuario               ${dados_usuario}
+    ${token_auth}          Fazer Login                     ${id_usuario}
+    &{headers}             Create Dictionary               Authorization=${token_auth}
 
     # Criar dados do Carrinho
     &{produto}             Create Dictionary    idProduto=""    quantidade=${100}
@@ -410,14 +401,13 @@ CT-C12: POST Tentar Cadastrar Carrinho Sem IdProduto 400
     [Documentation]        Teste de cadastrar novo carrinho sem campo de idProduto.
     [Tags]                 POST    STATUS-4XX
     ##########
-    # Setup
-    Criar Sessao
-    
+    # Setup 
 
     # Criar Usuário
-    ${id_usuario}          Cadastrar Usuario Dinamico    administrador=true
-    ${token_auth}          Fazer Login                   ${id_usuario}
-    &{headers}             Create Dictionary             Authorization=${token_auth}
+    &{dados_usuario}       Criar Dados Usuario Dinamico    administrador=true
+    ${id_usuario}          Cadastrar Usuario               ${dados_usuario}
+    ${token_auth}          Fazer Login                     ${id_usuario}
+    &{headers}             Create Dictionary               Authorization=${token_auth}
 
     # Criar dados do Carrinho
     &{produto}             Create Dictionary    quantidade=${100}
@@ -441,16 +431,16 @@ CT-C13: POST Tentar Cadastrar Carrinho Com Quantidade Em Branco 400
     [Tags]                 POST    STATUS-4XX
     ##########
     # Setup
-    Criar Sessao
-    
 
     # Criar Usuário
-    ${id_usuario}          Cadastrar Usuario Dinamico    administrador=true
-    ${token_auth}          Fazer Login                   ${id_usuario}
-    &{headers}             Create Dictionary             Authorization=${token_auth}
+    &{dados_usuario}       Criar Dados Usuario Dinamico    administrador=true
+    ${id_usuario}          Cadastrar Usuario               ${dados_usuario}
+    ${token_auth}          Fazer Login                     ${id_usuario}
+    &{headers}             Create Dictionary               Authorization=${token_auth}
 
     # Criar Produto
-    ${id_produto}          Cadastrar Produto Dinamico    ${token_auth}
+    &{dados_produto}       Criar Dados Produto Dinamico
+    ${id_produto}          Cadastrar Produto               ${dados_produto}    ${token_auth}
 
     # Criar dados do Carrinho
     &{produto}             Create Dictionary    idProduto=${id_produto}    quantidade=""
@@ -475,16 +465,16 @@ CT-C14: POST Tentar Cadastrar Carrinho Sem Quantidade 400
     [Tags]                 POST    STATUS-4XX
     ##########
     # Setup
-    Criar Sessao
-    
 
     # Criar Usuário
-    ${id_usuario}          Cadastrar Usuario Dinamico    administrador=true
-    ${token_auth}          Fazer Login                   ${id_usuario}
-    &{headers}             Create Dictionary             Authorization=${token_auth}
+    &{dados_usuario}       Criar Dados Usuario Dinamico    administrador=true
+    ${id_usuario}          Cadastrar Usuario               ${dados_usuario}
+    ${token_auth}          Fazer Login                     ${id_usuario}
+    &{headers}             Create Dictionary               Authorization=${token_auth}
 
     # Criar Produto
-    ${id_produto}          Cadastrar Produto Dinamico    ${token_auth}
+    &{dados_produto}       Criar Dados Produto Dinamico
+    ${id_produto}          Cadastrar Produto               ${dados_produto}    ${token_auth}
 
     # Criar dados do Carrinho
     &{produto}             Create Dictionary    idProduto=${id_produto}
@@ -513,16 +503,17 @@ CT-C15: DELETE Concluir Compra Com Carrinho Existente 200
     [Tags]                DELETE    STATUS-2XX
     ##########
     # Setup
-    Criar Sessao
 
     # Criar Usuário
-    ${id_usuario}             Cadastrar Usuario Dinamico    administrador=true
-    ${token_auth}             Fazer Login                   ${id_usuario}
-    &{headers}                Create Dictionary             Authorization=${token_auth}
+    &{dados_usuario}          Criar Dados Usuario Dinamico    administrador=true
+    ${id_usuario}             Cadastrar Usuario               ${dados_usuario}
+    ${token_auth}             Fazer Login                     ${id_usuario}
+    &{headers}                Create Dictionary               Authorization=${token_auth}
 
     # Criar Produto
-    ${quantidade_estoque}     Set Variable         ${100}
-    ${id_produto}             Cadastrar Produto Dinamico    ${token_auth}    quantidade=${quantidade_estoque}
+    ${quantidade_estoque}     Set Variable                    ${100}
+    &{dados_produto}          Criar Dados Produto Dinamico    quantidade=${quantidade_estoque}
+    ${id_produto}             Cadastrar Produto               ${dados_produto}    ${token_auth}
     
 
     # Criar Carrinho
@@ -559,16 +550,17 @@ CT-C16: DELETE Cancelar Compra Com Carrinho Existente 200
     [Tags]                DELETE    STATUS-2XX
     ##########
     # Setup
-    Criar Sessao
 
     # Criar Usuário
-    ${id_usuario}             Cadastrar Usuario Dinamico    administrador=true
-    ${token_auth}             Fazer Login                   ${id_usuario}
-    &{headers}                Create Dictionary             Authorization=${token_auth}
+    &{dados_usuario}          Criar Dados Usuario Dinamico    administrador=true
+    ${id_usuario}             Cadastrar Usuario               ${dados_usuario}
+    ${token_auth}             Fazer Login                     ${id_usuario}
+    &{headers}                Create Dictionary               Authorization=${token_auth}
 
     # Criar Produto
-    ${quantidade_estoque}     Set Variable         ${100}
-    ${id_produto}             Cadastrar Produto Dinamico    ${token_auth}    quantidade=${quantidade_estoque}
+    ${quantidade_estoque}     Set Variable                    ${100}
+    &{dados_produto}          Criar Dados Produto Dinamico    quantidade=${quantidade_estoque}
+    ${id_produto}             Cadastrar Produto               ${dados_produto}    ${token_auth}
 
     # Criar Carrinho
     ${quantidade_carrinho}    Set Variable         ${3}
@@ -603,14 +595,13 @@ CT-C17: DELETE Tentar Concluir Compra Sem Carrinho 200
     [Documentation]       Teste de concluir compra com usuário sem carrinho.
     [Tags]                DELETE    STATUS-2XX
     ##########
-    # Setup
-    Criar Sessao
-    
+    # Setup  
 
     # Criar Usuário
-    ${id_usuario}          Cadastrar Usuario Dinamico    administrador=true
-    ${token_auth}          Fazer Login                   ${id_usuario}
-    &{headers}             Create Dictionary             Authorization=${token_auth}
+    &{dados_usuario}       Criar Dados Usuario Dinamico    administrador=true
+    ${id_usuario}          Cadastrar Usuario               ${dados_usuario}
+    ${token_auth}          Fazer Login                     ${id_usuario}
+    &{headers}             Create Dictionary               Authorization=${token_auth}
 
     ##########
     # Teste
@@ -629,13 +620,12 @@ CT-C18: DELETE Tentar Cancelar Compra Sem Carrinho 200
     [Tags]                DELETE    STATUS-2XX
     ##########
     # Setup
-    Criar Sessao
-    
 
     # Criar Usuário
-    ${id_usuario}          Cadastrar Usuario Dinamico    administrador=true
-    ${token_auth}          Fazer Login                   ${id_usuario}
-    &{headers}             Create Dictionary             Authorization=${token_auth}
+    &{dados_usuario}       Criar Dados Usuario Dinamico    administrador=true
+    ${id_usuario}          Cadastrar Usuario               ${dados_usuario}
+    ${token_auth}          Fazer Login                     ${id_usuario}
+    &{headers}             Create Dictionary               Authorization=${token_auth}
     
     ##########
     # Teste
@@ -653,10 +643,6 @@ CT-C19: DELETE Tentar Concluir Compra Sem Login 401
     [Documentation]       Teste de concluir compra sem ter feito login.
     [Tags]                DELETE    STATUS-401
     ##########
-    # Setup
-    Criar Sessao
-
-    ##########
     # Teste
     ${response}                Enviar DELETE    /carrinhos/concluir-compra
 
@@ -669,10 +655,6 @@ CT-C20: DELETE Tentar Cancelar Compra Sem Login 401
     [Documentation]       Teste de cancelar compra sem ter feito login.
     [Tags]                DELETE    STATUS-4XX
     ##########
-    # Setup
-    Criar Sessao
-
-    ##########
     # Teste
     ${response}                Enviar DELETE    /carrinhos/cancelar-compra
 
@@ -683,32 +665,4 @@ CT-C20: DELETE Tentar Cancelar Compra Sem Login 401
 
 ##########################################################################################
 
-* Keywords *
-    
-Validar Carrinho
-    [Documentation]    Verifica se os dados de um carrinho correspondem ao esperado
-    [Arguments]    ${carrinho}    @{lista_produtos}    
-    ${len_lista}=                   Get Length    ${lista_produtos}
-    ${len_produtos}=                Get Length    ${carrinho["produtos"]}
-    Should Be Equal As Integers     ${len_lista}    ${len_produtos}
 
-    ${preco_total_lista}=           Set Variable    ${0}
-    ${quantidade_total_lista}=      Set Variable    ${0}
-
-    FOR  ${index}  IN RANGE    ${len_lista}
-        ${produto_carrinho}=            Set Variable    ${carrinho["produtos"][${index}]}
-        ${produto_lista}=               Set Variable    ${lista_produtos[${index}]}
-        Should Be Equal                 ${produto_carrinho["idProduto"]}    ${produto_lista["idProduto"]}
-        Should Be Equal As Integers     ${produto_carrinho["quantidade"]}    ${produto_lista["quantidade"]}
-
-        ${response}=           Enviar GET    /produtos/${produto_lista["idProduto"]}
-        ${preco_produto}=      Set Variable    ${response.json()["preco"]}
-        Should Be Equal        ${produto_carrinho["precoUnitario"]}    ${preco_produto}
-
-        ${preco_total_lista}=         Evaluate    ${preco_total_lista}+(${${preco_produto}}*${${produto_lista["quantidade"]}})
-        ${quantidade_total_lista}=    Evaluate    ${quantidade_total_lista}+${${produto_lista["quantidade"]}}
-    END
-
-    Should Be Equal    ${carrinho["precoTotal"]}    ${preco_total_lista}
-    Should Be Equal    ${carrinho["quantidadeTotal"]}    ${quantidade_total_lista}
-    

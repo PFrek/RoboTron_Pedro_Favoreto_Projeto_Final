@@ -1,13 +1,9 @@
 * Settings *
-Documentation    Arquivo contendo os casos de teste para o endpoint /login da API ServeRest.
-Library          RequestsLibrary
-Resource         ../keywords_comuns.robot
+Documentation    Arquivo contendo os casos de teste para o endpoint /login.
+Resource         ../keywords/login_keywords.robot
 
-
-* Variables *
-${arquivo_json}         login_dados.json
-
-
+Suite Setup      Run Keywords    Criar Sessao
+...              AND             Carregar JSON    ${login_json}
 
 * Test Cases *
 #########################
@@ -18,11 +14,8 @@ CT-L01: POST Fazer Login Com Sucesso 200
     [Documentation]        Teste de login de usuário com sucesso.
     [Tags]                 POST    STATUS-2XX
     ##########
-    # Setup
-    Criar Sessao
-    ${json}                Carregar JSON        ${arquivo_json}
-    
-    ${usuario_id}          Cadastrar Usuario Estatico    ${json["dados_cadastro"]["user_valido"]}
+    # Setup    
+    ${usuario_id}          Cadastrar Usuario    ${json["dados_cadastro"]["user_valido"]}
     ${login}               Set Variable         ${json["dados_teste"]["user_valido"]}
 
     ##########
@@ -43,8 +36,6 @@ CT-L02: POST Tentar Fazer Login Com Usuario Inexistente 400
     [Tags]                  POST    STATUS-4XX
     ####################
     # Setup & Teste
-    Criar Sessao
-
     ${response}             Tentar Login    "user_inexistente"
 
     Validar Status Code     400    ${response}
@@ -59,8 +50,6 @@ CT-L03: POST Tentar Fazer Login Com Email Em Branco 400
     [Tags]                  POST    STATUS-4XX
     ####################
     # Setup & Teste
-    Criar Sessao
-
     ${response}             Tentar Login    "user_email_em_branco"
 
     Validar Status Code     400    ${response}
@@ -72,8 +61,6 @@ CT-L04: POST Tentar Fazer Login Sem Email 400
     [Tags]                  POST    STATUS-4XX
     ####################
     # Setup & Teste
-    Criar Sessao
-
     ${response}             Tentar Login    "user_sem_email"
 
     Validar Status Code     400    ${response}
@@ -85,8 +72,6 @@ CT-L05: POST Tentar Fazer Login Com Senha Em Branco 400
     [Tags]                 POST    STATUS-4XX
     ####################
     # Setup & Teste
-    Criar Sessao
-
     ${response}            Tentar Login    "user_senha_em_branco"
 
     Validar Status Code    400    ${response}
@@ -98,8 +83,6 @@ CT-L06: POST Tentar Fazer Login Sem Senha 400
     [Tags]                 POST    STATUS-4XX
     ####################
     # Setup & Teste
-    Criar Sessao
-
     ${response}            Tentar Login    "user_sem_senha"
 
     Validar Status Code    400    ${response}
@@ -107,16 +90,3 @@ CT-L06: POST Tentar Fazer Login Sem Senha 400
 
 
 ##########################################################################################
-
-* Keywords *
-
-Tentar Login
-    [Documentation]         Realiza uma tentativa de login com os dados json informados.
-    ...                     Não faz validações dentro da keyword.
-    ...                     \nReturn: \${response} -- a resposta da tentativa de login.
-    [Arguments]             ${json_login}
-
-    ${json}                 Carregar JSON    ${arquivo_json}
-    ${login}                Set Variable     ${json["dados_teste"][${json_login}]}
-    ${response}             Enviar POST      /login    ${login}
-    [Return]                ${response}
