@@ -124,18 +124,6 @@ Cadastrar Produto
     Validar Produto Cadastrado    ${response}
     [Return]                      ${response.json()["_id"]}
 
-# Cadastrar Produto Dinamico
-#     [Documentation]               Cadastra um novo produto com dados dinâmicos.
-#     ...                           Faz validações dentro da keyword.
-#     ...                           \nReturn: \${id} -- a id do produto cadastrado
-#     [Arguments]                   ${token_auth}    ${quantidade}=100
-#     ${nome}                       FakerLibrary.Sentence    nb_words=4
-#     ${preco}                      FakerLibrary.Random Int    min=1    max=9999
-#     ${descricao}                  FakerLibrary.Sentence    nb_words=10
-#     &{dados_produto}              Create Dictionary    nome=${nome}    preco=${preco}
-#     ...                           descricao=${descricao}    quantidade=${quantidade}
-#     ${id}                         Cadastrar Produto Estatico    ${dados_produto}    ${token_auth}
-#     [Return]                      ${id}
 
 
 Validar Produto Cadastrado
@@ -184,15 +172,15 @@ Validar Carrinho Cadastrado
     Validar Mensagem              Cadastro realizado com sucesso    ${response}
     Should Not Be Empty           ${response.json()["_id"]}
 
-Concluir Compra
-    [Documentation]               Deleta um carrinho cadastrado com o token_auth informado.
-    ...                           Indica que a compra foi concluída.
-    ...                           Faz validações dentro da keyword.
-    [Arguments]                   ${token_auth}
-    &{headers}                    Create Dictionary    Authorization=${token_auth}
+# Concluir Compra
+#     [Documentation]               Deleta um carrinho cadastrado com o token_auth informado.
+#     ...                           Indica que a compra foi concluída.
+#     ...                           Faz validações dentro da keyword.
+#     [Arguments]                   ${token_auth}
+#     &{headers}                    Create Dictionary    Authorization=${token_auth}
 
-    ${response}                   Enviar DELETE    /carrinhos/concluir-compra    headers=${headers}
-    Validar Carrinho Deletado      ${response} 
+#     ${response}                   Enviar DELETE    /carrinhos/concluir-compra    headers=${headers}
+#     Validar Carrinho Deletado      ${response} 
 
 Cancelar Compra
     [Documentation]               Deleta um carrinho cadastrado com o token_auth informado.
