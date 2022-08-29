@@ -4,8 +4,8 @@ Library          RequestsLibrary
 Library          OperatingSystem
 Library          FakerLibrary
 
-
 * Keywords *
+
 # DADOS ESTÁTICOS
 Carregar JSON
     [Documentation]       Carrega e retorna um arquivo json.

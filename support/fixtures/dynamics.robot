@@ -1,6 +1,7 @@
 * Settings *
 Documentation        Keywords para geração de dados dinâmicos.
 Library              FakerLibrary
+Library              ../../Gerador_Dados_Invalidos.py
 
 * Keywords *
 
@@ -37,3 +38,17 @@ Criar Dados Produto Dinamico
     ...                           quantidade=${quantidade}
     
     [Return]                      &{dados_produto}
+
+Gerar Dados Invalidos
+    [Documentation]         Utiliza o Gerador para obter uma lista contendo
+    ...                     permutações de dados inválidos criadas a partir de um
+    ...                     modelo válido.
+    ...                     \nTest Variable criada: \@{dados_invalidos} -- a lista de dados inválidos gerados.
+    [Arguments]             ${modelo}
+    
+    Definir Modelo          ${modelo}
+    
+    Gerar Massa De Dados Invalidos
+    @{dados_invalidos}      Obter Massa De Dados Invalidos
+    
+    [Return]                ${dados_invalidos}
