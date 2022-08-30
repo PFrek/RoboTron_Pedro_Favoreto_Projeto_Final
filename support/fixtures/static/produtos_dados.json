@@ -11,50 +11,6 @@
             "preco": 200,
             "descricao": "Produto com nome repetido",
             "quantidade": 100
-        },
-        "produto_nome_em_branco": {
-            "nome": "",
-            "preco": 200,
-            "descricao": "Produto com nome em branco",
-            "quantidade": 100
-        },
-        "produto_sem_nome": {
-            "preco": 200,
-            "descricao": "Produto sem nome",
-            "quantidade": 100
-        },
-        "produto_preco_em_branco": {
-            "nome": "Preco em branco",
-            "preco": "",
-            "descricao": "Produto com preco em branco",
-            "quantidade": 100
-        },
-        "produto_sem_preco": {
-            "nome": "Sem Preco",
-            "descricao": "Produto sem preco",
-            "quantidade": 100
-        },
-        "produto_descricao_em_branco": {
-            "nome": "Descricao em branco",
-            "preco": 200,
-            "descricao": "",
-            "quantidade": 100
-        },
-        "produto_sem_descricao": {
-            "nome": "Sem Descricao",
-            "preco": 200,
-            "quantidade": 100
-        },
-        "produto_quantidade_em_branco": {
-            "nome": "Quantidade em branco",
-            "preco": 200,
-            "descricao": "Produto com quantidade em branco",
-            "quantidade": ""
-        },
-        "produto_sem_quantidade": {
-            "nome": "Sem quantidade",
-            "preco": 200,
-            "descricao": "Produto sem quantidade"
         }
     },
     "dados_edicao": {
@@ -81,50 +37,6 @@
             "preco": 200,
             "descricao": "Produto com nome repetido",
             "quantidade": 100
-        },
-        "edicao_nome_em_branco": {
-            "nome": "",
-            "preco": 200,
-            "descricao": "editado",
-            "quantidade": 100
-        },
-        "edicao_sem_nome": {
-            "preco": 200,
-            "descricao": "editado",
-            "quantidade": 100
-        },
-        "edicao_preco_em_branco": {
-            "nome": "Nome Editado",
-            "preco": "",
-            "descricao": "editado",
-            "quantidade": 100
-        },
-        "edicao_sem_preco": {
-            "nome": "Nome editado",
-            "descricao": "editado",
-            "quantidade": 100
-        },
-        "edicao_descricao_em_branco": {
-            "nome": "Nome editado",
-            "preco": 200,
-            "descricao": "",
-            "quantidade": 100
-        },
-        "edicao_sem_descricao": {
-            "nome": "Nome editado",
-            "preco": 200,
-            "quantidade": 100
-        },
-        "edicao_quantidade_em_branco": {
-            "nome": "Nome editado",
-            "preco": 200,
-            "descricao": "editado",
-            "quantidade": ""
-        },
-        "edicao_sem_quantidade": {
-            "nome": "Nome editado",
-            "preco": 200,
-            "descricao": "editado"
         }
     }
 }

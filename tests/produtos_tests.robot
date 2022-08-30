@@ -66,7 +66,7 @@ CT-P03: GET Tentar Buscar Produto Inexistente 400
 
 #########################
 #         POST          #
-#     CT-P04 ~ CT-P15   #
+#     CT-P04 ~ CT-P08   #
 #########################
 CT-P04: POST Cadastrar Novo Produto 201
     [Documentation]       Teste de cadastrar um novo produto com sucesso.
@@ -170,126 +170,41 @@ CT-P07: POST Tentar Cadastrar Produto Sem Ser Administrador 403
     [Teardown]             Deletar Usuario    ${id_usuario}
 
 
-##############################################
-# CT-P08 ~ CT-P15: Testes de dados inválidos #
-##############################################
-CT-P08: POST Tentar Cadastrar Produto Com Nome Em Branco 400
-    [Documentation]        Teste para tentativa de cadastro de produto com nome em branco.
-    [Tags]                 POST    STATUS-4XX
-    ####################
-    # Setup & Teste
-    ${response}    ${id_usuario}     Tentar Cadastrar Produto    "produto_nome_em_branco"
-    Validar Status Code              400    ${response}
-    Log To Console                   ${response.json()}
+CT-P08: POST Tentar Cadastrar Produto Com Dados Invalidos 400
+    [Documentation]            Teste para tentativa de cadastro de produto com dados inválidos.
+    ...                        Os dados são gerados a partir de um modelo válido,
+    ...                        mas com entradas em branco, ou faltando.
+    [Tags]                     POST    STATUS-4XX
+
+    ##########
+    # Setup
+    &{dados_usuario}           Criar Dados Usuario Dinamico    administrador=true
+    ${id_usuario}              Cadastrar Usuario               ${dados_usuario}
+    ${token_auth}              Fazer Login                     ${id_usuario}
+    &{headers}                 Create Dictionary               Authorization=${token_auth}
+
+    ##########
+    # Teste
+    @{dados_invalidos}         Gerar Dados Invalidos    ${json["dados_cadastro"]["produto_valido"]}
+
+    FOR  ${produto}  IN  @{dados_invalidos}
+        Log To Console         Testando: ${produto}
+        ${response}            Enviar POST    /produtos    ${produto}    headers=${headers}
+
+        Validar Status Code    400    ${response}
+        Log To Console         ${response.json()}
+    END
 
     #########################
-    # Limpeza dos dados
-    [Teardown]                       Deletar Usuario    ${id_usuario}
-
-
-CT-P09: POST Tentar Cadastrar Produto Sem Nome 400
-    [Documentation]        Teste para tentativa de cadastro de produto sem campo de nome.
-    [Tags]                 POST    STATUS-4XX
-    ####################
-    # Setup & Teste
-    ${response}    ${id_usuario}     Tentar Cadastrar Produto    "produto_sem_nome"
-    Validar Status Code              400    ${response}
-    Log To Console                   ${response.json()}
-
-    #########################
-    # Limpeza dos dados
-    [Teardown]                       Deletar Usuario    ${id_usuario}
-
-
-CT-P10: POST Tentar Cadastrar Produto Com Preco Em Branco 400
-    [Documentation]        Teste para tentativa de cadastro de produto com preco em branco.
-    [Tags]                 POST    STATUS-4XX
-    ####################
-    # Setup & Teste  
-    ${response}    ${id_usuario}     Tentar Cadastrar Produto    "produto_preco_em_branco"
-    Validar Status Code              400    ${response}
-    Log To Console                   ${response.json()}
-
-    #########################
-    # Limpeza dos dados
-    [Teardown]                       Deletar Usuario    ${id_usuario}
-
-
-CT-P11: POST Tentar Cadastrar Produto Sem Preco 400
-    [Documentation]        Teste para tentativa de cadastro de produto sem campo de preco.
-    [Tags]                 POST    STATUS-4XX
-    ####################
-    # Setup & Teste
-    ${response}    ${id_usuario}     Tentar Cadastrar Produto    "produto_sem_preco"
-    Validar Status Code              400    ${response}
-    Log To Console                   ${response.json()}
-
-    #########################
-    # Limpeza dos dados
-    [Teardown]                       Deletar Usuario    ${id_usuario}
-
-
-CT-P12: POST Tentar Cadastrar Produto Com Descricao Em Branco 400
-    [Documentation]        Teste para tentativa de cadastro de produto com descricao em branco.
-    [Tags]                 POST    STATUS-4XX
-    ####################
-    # Setup & Teste
-    ${response}    ${id_usuario}     Tentar Cadastrar Produto    "produto_descricao_em_branco"
-    Validar Status Code              400    ${response}
-    Log To Console                   ${response.json()}
-
-    #########################
-    # Limpeza dos dados
-    [Teardown]                       Deletar Usuario    ${id_usuario}
-
-
-CT-P13: POST Tentar Cadastrar Produto Sem Descricao 400
-    [Documentation]        Teste para tentativa de cadastro de produto sem campo de descricao.
-    [Tags]                 POST    STATUS-4XX
-    ####################
-    # Setup & Teste
-    ${response}    ${id_usuario}     Tentar Cadastrar Produto    "produto_sem_descricao"
-    Validar Status Code              400    ${response}
-    Log To Console                   ${response.json()}
-
-    #########################
-    # Limpeza dos dados
-    [Teardown]                       Deletar Usuario    ${id_usuario}
-
-
-CT-P14: POST Tentar Cadastrar Produto Com Quantidade Em Branco 400
-    [Documentation]        Teste para tentativa de cadastro de produto com quantidade em branco.
-    [Tags]                 POST    STATUS-4XX
-    ####################
-    # Setup & Teste
-    ${response}    ${id_usuario}     Tentar Cadastrar Produto    "produto_quantidade_em_branco"
-    Validar Status Code              400    ${response}
-    Log To Console                   ${response.json()}
-
-    #########################
-    # Limpeza dos dados
-    [Teardown]                       Deletar Usuario    ${id_usuario}
-
-
-CT-P15: POST Tentar Cadastrar Produto Sem Quantidade 400
-    [Documentation]        Teste para tentativa de cadastro de produto sem campo de quantidade.
-    [Tags]                 POST    STATUS-4XX
-    ####################
-    # Setup & Teste
-    ${response}    ${id_usuario}     Tentar Cadastrar Produto    "produto_sem_quantidade"
-    Validar Status Code              400    ${response}
-    Log To Console                   ${response.json()}
-
-    #########################
-    # Limpeza dos dados
-    [Teardown]                       Deletar Usuario    ${id_usuario}
-
+    # Limpeza de dados
+    [Teardown]                 Deletar Usuario    ${id_usuario}
+    
 
 #########################
 #         DELETE        #
-#     CT-P16 ~ CT-P20   #
+#     CT-P09 ~ CT-P13   #
 #########################
-CT-P16: DELETE Excluir Produto Existente 200
+CT-P09: DELETE Excluir Produto Existente 200
     [Documentation]        Teste de excluir produto existente com sucesso.
     [Tags]                 DELETE    STATUS-2XX
     ##########
@@ -320,7 +235,7 @@ CT-P16: DELETE Excluir Produto Existente 200
     [Teardown]             Deletar Usuario    ${id_usuario}
 
 
-CT-P17: DELETE Tentar Excluir Produto Inexistente 200
+CT-P10: DELETE Tentar Excluir Produto Inexistente 200
     [Documentation]        Teste de tentativa de excluir produto inexistente.
     [Tags]                 DELETE    STATUS-2XX
     ##########
@@ -344,7 +259,7 @@ CT-P17: DELETE Tentar Excluir Produto Inexistente 200
     [Teardown]             Deletar Usuario    ${id_usuario}
 
 
-CT-P18: DELETE Tentar Excluir Produto Em Carrinho 400
+CT-P11: DELETE Tentar Excluir Produto Em Carrinho 400
     [Documentation]        Teste de tentativa de excluir produto cadastrado em carrinho.
     [Tags]                 DELETE    STATUS-4XX
     ##########
@@ -391,7 +306,7 @@ CT-P18: DELETE Tentar Excluir Produto Em Carrinho 400
     ...                    AND             Deletar Usuario    ${id_usuario}
 
 
-CT-P19: DELETE Tentar Excluir Produto Existente Sem Login 401
+CT-P12: DELETE Tentar Excluir Produto Existente Sem Login 401
     [Documentation]        Teste de tentativa de excluir produto existente sem ter feito login.
     [Tags]                 DELETE    STATUS-4XX
     ##########
@@ -424,7 +339,7 @@ CT-P19: DELETE Tentar Excluir Produto Existente Sem Login 401
     ...                    AND             Deletar Usuario    ${id_usuario}
 
 
-CT-P20: DELETE Tentar Excluir Produto Existente Sem Ser Administrador 403
+CT-P13: DELETE Tentar Excluir Produto Existente Sem Ser Administrador 403
     [Documentation]        Teste de tentativa de excluir produto existente por usuário não-administrador.
     [Tags]                 DELETE    STATUS-4XX
     ##########
@@ -465,9 +380,9 @@ CT-P20: DELETE Tentar Excluir Produto Existente Sem Ser Administrador 403
 
 #########################
 #         PUT           #
-#     CT-P21 ~ CT-P44   #
+#     CT-P14 ~ CT-P23   #
 #########################
-CT-P21: PUT Editar Produto Existente 200
+CT-P14: PUT Editar Produto Existente 200
     [Documentation]        Teste de edição de um produto existente.
     [Tags]                 PUT    STATUS-2XX
     ##########
@@ -501,7 +416,7 @@ CT-P21: PUT Editar Produto Existente 200
     ...                    AND             Deletar Usuario    ${id_usuario}
 
 
-CT-P22: PUT Tentar Editar Produto Inexistente 201
+CT-P15: PUT Tentar Editar Produto Inexistente 201
     [Documentation]        Teste de edição de um produto inexistente.
     [Tags]                 PUT    STATUS-2XX
     ##########
@@ -537,7 +452,7 @@ CT-P22: PUT Tentar Editar Produto Inexistente 201
     ...                    AND             Deletar Usuario    ${id_usuario}
 
 
-CT-P23: PUT Tentar Editar Produto Existente Com Nome Repetido 400
+CT-P16: PUT Tentar Editar Produto Existente Com Nome Repetido 400
     [Documentation]        Teste de tentativa de edição de um produto existente com
     ...                    o nome de outro produto já cadastrado.
     [Tags]                 PUT    STATUS-4XX
@@ -578,7 +493,7 @@ CT-P23: PUT Tentar Editar Produto Existente Com Nome Repetido 400
     ...                             AND             Deletar Usuario    ${id_usuario}
 
 
-CT-P24: PUT Tentar Editar Produto Inexistente Com Nome Repetido 400    
+CT-P17: PUT Tentar Editar Produto Inexistente Com Nome Repetido 400    
     [Documentation]        Teste de tentativa de edição de um produto inexistente com
     ...                    o nome de outro produto já cadastrado.
     [Tags]                 PUT    STATUS-4XX
@@ -610,7 +525,7 @@ CT-P24: PUT Tentar Editar Produto Inexistente Com Nome Repetido 400
     ...                             AND             Deletar Usuario    ${id_usuario}
 
 
-CT-P25: PUT Tentar Editar Produto Existente Sem Login 401
+CT-P18: PUT Tentar Editar Produto Existente Sem Login 401
     [Documentation]        Teste de edição de um produto existente sem ter feito login.
     [Tags]                 PUT    STATUS-4XX
     ##########
@@ -645,7 +560,7 @@ CT-P25: PUT Tentar Editar Produto Existente Sem Login 401
     ...                    AND             Deletar Usuario    ${id_usuario}
 
 
-CT-P26: PUT Tentar Editar Produto Inexistente Sem Login 401
+CT-P19: PUT Tentar Editar Produto Inexistente Sem Login 401
     [Documentation]        Teste de edição de um produto existente sem ter feito login.
     [Tags]                 PUT    STATUS-4XX
     ##########
@@ -664,7 +579,7 @@ CT-P26: PUT Tentar Editar Produto Inexistente Sem Login 401
     ...                    ${response}
 
 
-CT-P27: PUT Tentar Editar Produto Existente Sem Ser Administrador 403
+CT-P20: PUT Tentar Editar Produto Existente Sem Ser Administrador 403
     [Documentation]        Teste de edição de um produto existente por usuário não-administrador.
     [Tags]                 PUT    STATUS-4XX
     ##########
@@ -705,7 +620,7 @@ CT-P27: PUT Tentar Editar Produto Existente Sem Ser Administrador 403
     ...                    AND             Deletar Usuario    ${id_user_admin}
 
 
-CT-P28: PUT Tentar Editar Produto Inexistente Sem Ser Administrador 403
+CT-P21: PUT Tentar Editar Produto Inexistente Sem Ser Administrador 403
     [Documentation]        Teste de edição de um produto existente por usuário não-administrador.
     [Tags]                 PUT    STATUS-4XX
     ##########
@@ -732,270 +647,70 @@ CT-P28: PUT Tentar Editar Produto Inexistente Sem Ser Administrador 403
     [Teardown]             Deletar Usuario    ${id_user_padrao}
 
 
-##############################################
-# CT-P29 ~ CT-P44: Testes de dados inválidos #
-##############################################
-CT-P29: PUT Tentar Editar Produto Existente Com Nome Em Branco 400
-    [Documentation]    Teste para tentativa de edição de produto existente com nome em branco.
-    [Tags]             PUT    STATUS-4XX
-    ####################
-    # Setup & Teste
-    ${response}    ${id_usuario}    ${id_produto}    ${token_auth} 
-    ...    Tentar Editar Produto Existente    "edicao_nome_em_branco"
+CT-P22: PUT Tentar Editar Produto Existente Com Dados Invalidos 400
+    [Documentation]            Teste para tentativa de edição de produto existente com dados inválidos.
+    ...                        Os dados são gerados a partir de um modelo válido,
+    ...                        mas com entradas em branco, ou faltando.
+    [Tags]                     PUT    STATUS-4XX
 
-    Validar Status Code        400    ${response}
-    Log To Console             ${response.json()}
+    ##########
+    # Setup
+    &{dados_usuario}           Criar Dados Usuario Dinamico    administrador=true
+    ${id_usuario}              Cadastrar Usuario               ${dados_usuario}
+    ${token_auth}              Fazer Login                     ${id_usuario}
+    &{headers}                 Create Dictionary               Authorization=${token_auth}
 
-    #########################
-    # Limpeza dos dados
-    [Teardown]        Run Keywords    Deletar Produto    ${id_produto}    ${token_auth}
-    ...               AND             Deletar Usuario    ${id_usuario}
+    &{dados_produto}           Criar Dados Produto Dinamico
+    ${id_produto}              Cadastrar Produto               ${dados_produto}    ${token_auth}
+    
+    ##########
+    # Teste
+    @{dados_invalidos}         Gerar Dados Invalidos    ${json["dados_cadastro"]["produto_valido"]}
 
+    FOR  ${produto}  IN  @{dados_invalidos}
+        Log To Console         Testando: ${produto}
+        ${response}            Enviar PUT    /produtos/${id_produto}    ${produto}    headers=${headers}
 
-CT-P30: PUT Tentar Editar Produto Inexistente Com Nome Em Branco 400
-    [Documentation]    Teste para tentativa de edição de produto inexistente com nome em branco.
-    [Tags]             PUT    STATUS-4XX
-    ####################
-    # Setup & Teste
-    ${response}    ${id_usuario}
-    ...    Tentar Editar Produto Inexistente    "edicao_nome_em_branco"
-
-    Validar Status Code        400    ${response}
-    Log To Console             ${response.json()}
+        Validar Status Code    400    ${response}
+        Log To Console         ${response.json()}
+    END
 
     #########################
-    # Limpeza dos dados
-    [Teardown]        Deletar Usuario    ${id_usuario}
+    # Limpeza de dados
+    [Teardown]                 Run Keywords    Deletar Produto    ${id_produto}    ${token_auth}
+    ...                        AND             Deletar Usuario    ${id_usuario}
 
 
-CT-P31: PUT Tentar Editar Produto Existente Sem Nome 400
-    [Documentation]    Teste para tentativa de edição de produto existente sem campo de nome.
-    [Tags]             PUT    STATUS-4XX
-    ####################
-    # Setup & Teste
-    ${response}    ${id_usuario}    ${id_produto}    ${token_auth} 
-    ...    Tentar Editar Produto Existente    "edicao_sem_nome"
+CT-P23: PUT Tentar Editar Produto Inexistente Com Dados Invalidos 400
+    [Documentation]            Teste para tentativa de edição de produto inexistente com dados inválidos.
+    ...                        Os dados são gerados a partir de um modelo válido,
+    ...                        mas com entradas em branco, ou faltando.
+    [Tags]                     PUT    STATUS-4XX
 
-    Validar Status Code        400    ${response}
-    Log To Console             ${response.json()}
+    ##########
+    # Setup
+    &{dados_usuario}           Criar Dados Usuario Dinamico    administrador=true
+    ${id_usuario}              Cadastrar Usuario               ${dados_usuario}
+    ${token_auth}              Fazer Login                     ${id_usuario}
+    &{headers}                 Create Dictionary               Authorization=${token_auth}
 
-    #########################
-    # Limpeza dos dados
-    [Teardown]        Run Keywords    Deletar Produto    ${id_produto}    ${token_auth}
-    ...               AND             Deletar Usuario    ${id_usuario}
+    ${id_produto}              Set Variable                    nao_existe12314
+    
+    ##########
+    # Teste
+    @{dados_invalidos}         Gerar Dados Invalidos    ${json["dados_cadastro"]["produto_valido"]}
 
+    FOR  ${produto}  IN  @{dados_invalidos}
+        Log To Console         Testando: ${produto}
+        ${response}            Enviar PUT    /produtos/${id_produto}    ${produto}    headers=${headers}
 
-CT-P32: PUT Tentar Editar Produto Inexistente Sem Nome 400
-    [Documentation]    Teste para tentativa de edição de produto inexistente sem campo de nome.
-    [Tags]             PUT    STATUS-4XX
-    ####################
-    # Setup & Teste
-    ${response}    ${id_usuario}
-    ...    Tentar Editar Produto Inexistente    "edicao_sem_nome"
-
-    Validar Status Code        400    ${response}
-
-    #########################
-    # Limpeza dos dados
-    [Teardown]        Deletar Usuario    ${id_usuario}
-
-
-CT-P33: PUT Tentar Editar Produto Existente Com Preco Em Branco 400
-    [Documentation]    Teste para tentativa de edição de produto existente com preco em branco.
-    [Tags]             PUT    STATUS-4XX
-    ####################
-    # Setup & Teste
-    ${response}    ${id_usuario}    ${id_produto}    ${token_auth}
-    ...    Tentar Editar Produto Existente    "edicao_preco_em_branco"
-
-    Validar Status Code        400    ${response}
-    Log To Console             ${response.json()}
+        Validar Status Code    400    ${response}
+        Log To Console         ${response.json()}
+    END
 
     #########################
-    # Limpeza dos dados
-    [Teardown]        Run Keywords    Deletar Produto    ${id_produto}    ${token_auth}
-    ...               AND             Deletar Usuario    ${id_usuario}
-
-
-CT-P34: PUT Tentar Editar Produto Inexistente Com Preco Em Branco 400
-    [Documentation]    Teste para tentativa de edição de produto inexistente com preco em branco.
-    [Tags]             PUT    STATUS-4XX
-    ####################
-    # Setup & Teste
-    ${response}    ${id_usuario}
-    ...    Tentar Editar Produto Inexistente    "edicao_preco_em_branco"
-
-    Validar Status Code        400    ${response}
-    Log To Console             ${response.json()}
-
-    #########################
-    # Limpeza dos dados
-    [Teardown]        Deletar Usuario    ${id_usuario}
-
-
-CT-P35: PUT Tentar Editar Produto Existente Sem Preco 400
-    [Documentation]    Teste para tentativa de edição de produto existente sem campo de preco.
-    [Tags]             PUT    STATUS-4XX
-    ####################
-    # Setup & Teste
-    ${response}    ${id_usuario}    ${id_produto}    ${token_auth}
-    ...    Tentar Editar Produto Existente    "edicao_sem_preco"
-
-    Validar Status Code        400    ${response}
-    Log To Console             ${response.json()}
-
-    #########################
-    # Limpeza dos dados
-    [Teardown]        Run Keywords    Deletar Produto    ${id_produto}    ${token_auth}
-    ...               AND             Deletar Usuario    ${id_usuario}
-
-
-CT-P36: PUT Tentar Editar Produto Inexistente Sem Preco 400
-    [Documentation]    Teste para tentativa de edição de produto inexistente sem campo de preco.
-    [Tags]             PUT    STATUS-4XX
-    ####################
-    # Setup & Teste
-    ${response}    ${id_usuario} 
-    ...    Tentar Editar Produto Inexistente    "edicao_sem_preco"
-
-    Validar Status Code        400    ${response}
-    Log To Console             ${response.json()}
-
-    #########################
-    # Limpeza dos dados
-    [Teardown]        Deletar Usuario    ${id_usuario}
-
-
-CT-P37: PUT Tentar Editar Produto Existente Com Descricao Em Branco 400
-    [Documentation]    Teste para tentativa de edição de produto existente com descricao em branco.
-    [Tags]             PUT    STATUS-4XX
-    ####################
-    # Setup & Teste
-    ${response}    ${id_usuario}    ${id_produto}    ${token_auth} 
-    ...    Tentar Editar Produto Existente    "edicao_descricao_em_branco"
-
-    Validar Status Code        400    ${response}
-    Log To Console             ${response.json()}
-
-    #########################
-    # Limpeza dos dados
-    [Teardown]        Run Keywords    Deletar Produto    ${id_produto}    ${token_auth}
-    ...               AND             Deletar Usuario    ${id_usuario}
-
-
-CT-P38: PUT Tentar Editar Produto Inexistente Com Descricao Em Branco 400
-    [Documentation]    Teste para tentativa de edição de produto inexistente com descricao em branco.
-    [Tags]             PUT    STATUS-4XX
-    ####################
-    # Setup & Teste
-    ${response}    ${id_usuario} 
-    ...    Tentar Editar Produto Inexistente    "edicao_descricao_em_branco"
-
-    Validar Status Code        400    ${response}
-    Log To Console             ${response.json()}
-
-    #########################
-    # Limpeza dos dados
-    [Teardown]        Deletar Usuario    ${id_usuario}
-
-
-CT-P39: PUT Tentar Editar Produto Existente Sem Descricao 400
-    [Documentation]    Teste para tentativa de edição de produto existente sem campo de descricao.
-    [Tags]             PUT    STATUS-4XX
-    ####################
-    # Setup & Teste
-    ${response}    ${id_usuario}    ${id_produto}    ${token_auth} 
-    ...    Tentar Editar Produto Existente    "edicao_sem_descricao"
-
-    Validar Status Code        400    ${response}
-    Log To Console             ${response.json()}
-
-    #########################
-    # Limpeza dos dados
-    [Teardown]        Run Keywords    Deletar Produto    ${id_produto}    ${token_auth}
-    ...               AND             Deletar Usuario    ${id_usuario}
-
-
-CT-P40: PUT Tentar Editar Produto Inexistente Sem Descricao 400
-    [Documentation]    Teste para tentativa de edição de produto inexistente sem campo de descricao.
-    [Tags]             PUT    STATUS-4XX
-    ####################
-    # Setup & Teste
-    ${response}    ${id_usuario}
-    ...    Tentar Editar Produto Inexistente    "edicao_sem_descricao"
-
-    Validar Status Code        400    ${response}
-    Log To Console             ${response.json()}
-
-    #########################
-    # Limpeza dos dados
-    [Teardown]        Deletar Usuario    ${id_usuario}
-
-
-CT-P41: PUT Tentar Editar Produto Existente Com Quantidade Em Branco 400
-    [Documentation]    Teste para tentativa de edição de produto existente com quantidade em branco.
-    [Tags]             PUT    STATUS-4XX
-    ####################
-    # Setup & Teste
-    ${response}    ${id_usuario}    ${id_produto}    ${token_auth} 
-    ...    Tentar Editar Produto Existente    "edicao_quantidade_em_branco"
-
-    Validar Status Code        400    ${response}
-    Log To Console             ${response.json()}
-
-    #########################
-    # Limpeza dos dados
-    [Teardown]        Run Keywords    Deletar Produto    ${id_produto}    ${token_auth}
-    ...               AND             Deletar Usuario    ${id_usuario}
-
-
-CT-P42: PUT Tentar Editar Produto Inexistente Com Quantidade Em Branco 400
-    [Documentation]    Teste para tentativa de edição de produto inexistente com quantidade em branco.
-    [Tags]             PUT    STATUS-4XX
-    ####################
-    # Setup & Teste
-    ${response}    ${id_usuario}
-    ...    Tentar Editar Produto Inexistente    "edicao_quantidade_em_branco"
-
-    Validar Status Code        400    ${response}
-    Log To Console             ${response.json()}
-
-    #########################
-    # Limpeza dos dados
-    [Teardown]        Deletar Usuario    ${id_usuario}
-
-
-CT-P43: PUT Tentar Editar Produto Existente Sem Quantidade 400
-    [Documentation]    Teste para tentativa de edição de produto existente sem campo de quantidade.
-    [Tags]             PUT    STATUS-4XX
-    ####################
-    # Setup & Teste
-    ${response}    ${id_usuario}    ${id_produto}    ${token_auth} 
-    ...    Tentar Editar Produto Existente    "edicao_sem_quantidade"
-
-    Validar Status Code        400    ${response}
-    Log To Console             ${response.json()}
-
-    #####
-    # Limpeza dos dados
-    [Teardown]        Run Keywords    Deletar Produto    ${id_produto}    ${token_auth}
-    ...               AND             Deletar Usuario    ${id_usuario}
-
-
-CT-P44: PUT Tentar Editar Produto Inexistente Sem Quantidade 400
-    [Documentation]    Teste para tentativa de edição de produto inexistente sem campo de quantidade.
-    [Tags]             PUT    STATUS-4XX
-    ####################
-    # Setup & Teste
-    ${response}    ${id_usuario} 
-    ...    Tentar Editar Produto Inexistente    "edicao_sem_quantidade"
-
-    Validar Status Code        400    ${response}
-    Log To Console             ${response.json()}
-
-    #########################
-    # Limpeza dos dados
-    [Teardown]        Deletar Usuario    ${id_usuario}
+    # Limpeza de dados
+    [Teardown]                 Deletar Usuario    ${id_usuario}
 
 
 ##########################################################################################

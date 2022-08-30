@@ -23,7 +23,6 @@ class Gerador_Dados_Invalidos:
             entrada_faltando = self.modelo.copy()
             del entrada_faltando[chave]
             self.massa_de_dados.append(entrada_faltando)
-        
     
     @keyword
     def Obter_Massa_De_Dados_Invalidos(self):
@@ -36,3 +35,4 @@ if __name__ == '__main__':
     modelo_jsn = json.loads('{ "name": "Teste", "idade": 12, "Bio": "Teste bio string" }')
     gerador.Definir_Modelo(modelo_jsn)
     gerador.Gerar_Massa_De_Dados_Invalidos()
+    print(gerador.Obter_Massa_De_Dados_Invalidos())

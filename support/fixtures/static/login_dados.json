@@ -4,7 +4,7 @@
             "nome": "User Valido",
             "email": "user_valido@qa.com.br",
             "password": "teste",
-            "administrador": "false"
+            "administrador": "true"
         }
     },
     "dados_teste": {
@@ -15,20 +15,6 @@
         "user_inexistente": {
             "email": "nao_existe@qa.com.br",
             "password": "teste"
-        },
-        "user_email_em_branco": {
-            "email": "",
-            "password": "teste"
-        },
-        "user_sem_email": {
-            "password": "teste"
-        },
-        "user_senha_em_branco": {
-            "email": "user_valido@qa.com.br",
-            "password": ""
-        },
-        "user_sem_senha": {
-            "email": "user_valido@qa.com.br"
         }
     }
 }

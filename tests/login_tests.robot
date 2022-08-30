@@ -15,7 +15,7 @@ CT-L01: POST Fazer Login Com Sucesso 200
     [Tags]                 POST    STATUS-2XX
     ##########
     # Setup    
-    ${usuario_id}          Cadastrar Usuario    ${json["dados_cadastro"]["user_valido"]}
+    ${id_usuario}          Cadastrar Usuario    ${json["dados_cadastro"]["user_valido"]}
     ${login}               Set Variable         ${json["dados_teste"]["user_valido"]}
 
     ##########
@@ -26,9 +26,17 @@ CT-L01: POST Fazer Login Com Sucesso 200
     Validar Mensagem       Login realizado com sucesso    ${response}
     Should Not Be Empty    ${response.json()["authorization"]}
 
+    # Testar se o Token de autorização retornado é válido
+    ${token_auth}          Set Variable    ${response.json()["authorization"]}
+
+    &{dados_produto}       Criar Dados Produto Dinamico
+    ${id_produto}          Cadastrar Produto    ${dados_produto}   ${token_auth}
+
+    Deletar Produto        ${id_produto}    ${token_auth} 
+
     #########################
     # Limpeza dos dados
-    [Teardown]             Deletar Usuario    ${usuario_id}
+    [Teardown]             Deletar Usuario    ${id_usuario}
 
 
 CT-L02: POST Tentar Fazer Login Com Usuario Inexistente 400
@@ -42,51 +50,20 @@ CT-L02: POST Tentar Fazer Login Com Usuario Inexistente 400
     Validar Mensagem        Email e/ou senha inválidos    ${response}
 
 
-##############################################
-# CT-L03 ~ CT-L06: Testes de dados inválidos #
-##############################################
-CT-L03: POST Tentar Fazer Login Com Email Em Branco 400
-    [Documentation]         Teste para tentativa de login com email em branco.
-    [Tags]                  POST    STATUS-4XX
-    ####################
-    # Setup & Teste
-    ${response}             Tentar Login    "user_email_em_branco"
+CT-L03: POST Tentar Fazer Login Com Dados Inválidos 400
+    [Documentation]            Teste para tentativa de login com dados inválidos.
+    ...                        Os dados são gerados a partir de um modelo válido,
+    ...                        mas com entradas em branco, ou faltando.
+    [Tags]                     POST    STATUS-4XX
 
-    Validar Status Code     400    ${response}
-    Log To Console          ${response.json()}
+    @{dados_invalidos}         Gerar Dados Invalidos        ${json["dados_teste"]["user_valido"]}
 
+    FOR  ${login}  IN  @{dados_invalidos}
+        Log To Console         Testando: ${login}
+        ${response}            Enviar POST    /login    ${login}
 
-CT-L04: POST Tentar Fazer Login Sem Email 400
-    [Documentation]         Teste para tentativa de login sem campo de email.
-    [Tags]                  POST    STATUS-4XX
-    ####################
-    # Setup & Teste
-    ${response}             Tentar Login    "user_sem_email"
-
-    Validar Status Code     400    ${response}
-    Log To Console          ${response.json()}
-
-
-CT-L05: POST Tentar Fazer Login Com Senha Em Branco 400
-    [Documentation]        Teste para tentativa de login com senha em braco.
-    [Tags]                 POST    STATUS-4XX
-    ####################
-    # Setup & Teste
-    ${response}            Tentar Login    "user_senha_em_branco"
-
-    Validar Status Code    400    ${response}
-    Log To Console         ${response.json()}
-
-
-CT-L06: POST Tentar Fazer Login Sem Senha 400
-    [Documentation]        Teste para tentativa de login sem campo de senha.
-    [Tags]                 POST    STATUS-4XX
-    ####################
-    # Setup & Teste
-    ${response}            Tentar Login    "user_sem_senha"
-
-    Validar Status Code    400    ${response}
-    Log To Console         ${response.json()}
-
+        Validar Status Code    400    ${response}
+        Log To Console         ${response.json()}
+    END
 
 ##########################################################################################

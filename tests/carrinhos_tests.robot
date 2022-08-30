@@ -78,7 +78,7 @@ CT-C03: GET Buscar Carrinho Inexistente 400
 
 #########################
 #         POST          #
-#     CT-C04 ~ CT-C14   #
+#     CT-C04 ~ CT-C12   #
 #########################
 CT-C04: POST Cadastrar Carrinho Como Administrador 201
     [Documentation]        Teste de cadastrar novo carrinho com usuário administrador.
@@ -365,14 +365,9 @@ CT-C10: POST Tentar Cadastrar Carrinho Sem Login 401
     ...                   AND                 Deletar Usuario    ${id_usuario}
 
 
-##############################################
-# CT-C11 ~ CT-C14: Testes de dados inválidos #
-##############################################
-CT-C11: POST Tentar Cadastrar Carrinho Com IdProduto Em Branco 400
-    [Documentation]        Teste de cadastrar novo carrinho com idProduto em branco.
+CT-C11: POST Tentar Cadastrar Carrinho Vazio 400
+    [Documentation]        Teste de cadastrar um carrinho vazio.
     [Tags]                 POST    STATUS-4XX
-    ##########
-    # Setup
 
     # Criar Usuário
     &{dados_usuario}       Criar Dados Usuario Dinamico    administrador=true
@@ -381,8 +376,7 @@ CT-C11: POST Tentar Cadastrar Carrinho Com IdProduto Em Branco 400
     &{headers}             Create Dictionary               Authorization=${token_auth}
 
     # Criar dados do Carrinho
-    &{produto}             Create Dictionary    idProduto=""    quantidade=${100}
-    @{lista_produtos}      Create List          ${produto}
+    @{lista_produtos}      Create List          @{EMPTY}
     &{carrinho}            Create Dictionary    produtos=${lista_produtos}
 
     ##########
@@ -394,41 +388,15 @@ CT-C11: POST Tentar Cadastrar Carrinho Com IdProduto Em Branco 400
 
     #########################
     # Limpeza dos dados
-    [Teardown]            Deletar Usuario    ${id_usuario}
+    [Teardown]             Deletar Usuario    ${id_usuario}
 
 
-CT-C12: POST Tentar Cadastrar Carrinho Sem IdProduto 400
-    [Documentation]        Teste de cadastrar novo carrinho sem campo de idProduto.
-    [Tags]                 POST    STATUS-4XX
-    ##########
-    # Setup 
+CT-C12: POST Tentar Cadastrar Carrinho Com Dados Invalidos 400
+    [Documentation]            Teste para tentativa de cadastro de carrinho com dados inválidos.
+    ...                        Os dados são gerados a partir de um modelo válido,
+    ...                        mas com entradas em branco, ou faltando.
+    [Tags]                     POST    STATUS-4XX
 
-    # Criar Usuário
-    &{dados_usuario}       Criar Dados Usuario Dinamico    administrador=true
-    ${id_usuario}          Cadastrar Usuario               ${dados_usuario}
-    ${token_auth}          Fazer Login                     ${id_usuario}
-    &{headers}             Create Dictionary               Authorization=${token_auth}
-
-    # Criar dados do Carrinho
-    &{produto}             Create Dictionary    quantidade=${100}
-    @{lista_produtos}      Create List          ${produto}
-    &{carrinho}            Create Dictionary    produtos=${lista_produtos}
-
-    ##########
-    # Teste
-    ${response}            Enviar POST    /carrinhos    ${carrinho}    headers=${headers}
-
-    Validar Status Code    400    ${response}    
-    Log To Console         ${response.json()}
-
-    #########################
-    # Limpeza dos dados
-    [Teardown]            Deletar Usuario    ${id_usuario}
-
-
-CT-C13: POST Tentar Cadastrar Carrinho Com Quantidade Em Branco 400
-    [Documentation]        Teste de cadastrar novo carrinho com quantidade em branco.
-    [Tags]                 POST    STATUS-4XX
     ##########
     # Setup
 
@@ -442,51 +410,21 @@ CT-C13: POST Tentar Cadastrar Carrinho Com Quantidade Em Branco 400
     &{dados_produto}       Criar Dados Produto Dinamico
     ${id_produto}          Cadastrar Produto               ${dados_produto}    ${token_auth}
 
-    # Criar dados do Carrinho
-    &{produto}             Create Dictionary    idProduto=${id_produto}    quantidade=""
-    @{lista_produtos}      Create List          ${produto}
-    &{carrinho}            Create Dictionary    produtos=${lista_produtos}
+    # Criar dados do modelo
+    &{produto}             Create Dictionary        idProduto=${id_produto}    quantidade=${2}
 
-    ##########
-    # Teste
-    ${response}            Enviar POST    /carrinhos    ${carrinho}    headers=${headers}
+    @{dados_invalidos}     Gerar Dados Invalidos    ${produto}
 
-    Validar Status Code    400    ${response}    
-    Log To Console         ${response.json()}
+    FOR  ${produto_invalido}  IN  @{dados_invalidos}
+        @{lista_produtos}      Create List          ${produto_invalido}
+        &{carrinho}            Create Dictionary    produtos=${lista_produtos}
+        Log To Console         Testando: ${carrinho}
 
-    #########################
-    # Limpeza dos dados
-    [Teardown]            Run Keywords        Deletar Produto    ${id_produto}    ${token_auth}
-    ...                   AND                 Deletar Usuario    ${id_usuario}
+        ${response}            Enviar POST    /carrinhos    ${carrinho}    headers=${headers}
 
-
-CT-C14: POST Tentar Cadastrar Carrinho Sem Quantidade 400
-    [Documentation]        Teste de cadastrar novo carrinho sem campo de quantidade.
-    [Tags]                 POST    STATUS-4XX
-    ##########
-    # Setup
-
-    # Criar Usuário
-    &{dados_usuario}       Criar Dados Usuario Dinamico    administrador=true
-    ${id_usuario}          Cadastrar Usuario               ${dados_usuario}
-    ${token_auth}          Fazer Login                     ${id_usuario}
-    &{headers}             Create Dictionary               Authorization=${token_auth}
-
-    # Criar Produto
-    &{dados_produto}       Criar Dados Produto Dinamico
-    ${id_produto}          Cadastrar Produto               ${dados_produto}    ${token_auth}
-
-    # Criar dados do Carrinho
-    &{produto}             Create Dictionary    idProduto=${id_produto}
-    @{lista_produtos}      Create List          ${produto}
-    &{carrinho}            Create Dictionary    produtos=${lista_produtos}
-
-    ##########
-    # Teste
-    ${response}            Enviar POST    /carrinhos    ${carrinho}    headers=${headers}
-
-    Validar Status Code    400    ${response}
-    Log To Console         ${response.json()}    
+        Validar Status Code    400    ${response}
+        Log To Console         ${response.json()}
+    END
 
     #########################
     # Limpeza dos dados
@@ -496,9 +434,9 @@ CT-C14: POST Tentar Cadastrar Carrinho Sem Quantidade 400
 
 #########################
 #         DELETE        #
-#     CT-C15 ~ CT-C20   #
+#     CT-C13 ~ CT-C18   #
 #########################
-CT-C15: DELETE Concluir Compra Com Carrinho Existente 200
+CT-C13: DELETE Concluir Compra Com Carrinho Existente 200
     [Documentation]       Teste de concluir compra com carrinho existente com sucesso.
     [Tags]                DELETE    STATUS-2XX
     ##########
@@ -545,7 +483,7 @@ CT-C15: DELETE Concluir Compra Com Carrinho Existente 200
     ...                   AND                 Deletar Usuario    ${id_usuario}
 
 
-CT-C16: DELETE Cancelar Compra Com Carrinho Existente 200
+CT-C14: DELETE Cancelar Compra Com Carrinho Existente 200
     [Documentation]       Teste de cancelar compra com carrinho existente com sucesso.
     [Tags]                DELETE    STATUS-2XX
     ##########
@@ -591,7 +529,7 @@ CT-C16: DELETE Cancelar Compra Com Carrinho Existente 200
     ...                   AND                 Deletar Usuario    ${id_usuario}
 
 
-CT-C17: DELETE Tentar Concluir Compra Sem Carrinho 200
+CT-C15: DELETE Tentar Concluir Compra Sem Carrinho 200
     [Documentation]       Teste de concluir compra com usuário sem carrinho.
     [Tags]                DELETE    STATUS-2XX
     ##########
@@ -615,7 +553,7 @@ CT-C17: DELETE Tentar Concluir Compra Sem Carrinho 200
     [Teardown]            Deletar Usuario    ${id_usuario}
 
 
-CT-C18: DELETE Tentar Cancelar Compra Sem Carrinho 200
+CT-C16: DELETE Tentar Cancelar Compra Sem Carrinho 200
     [Documentation]       Teste de cancelar compra com usuário sem carrinho.
     [Tags]                DELETE    STATUS-2XX
     ##########
@@ -639,7 +577,7 @@ CT-C18: DELETE Tentar Cancelar Compra Sem Carrinho 200
     [Teardown]            Deletar Usuario    ${id_usuario}
 
 
-CT-C19: DELETE Tentar Concluir Compra Sem Login 401
+CT-C17: DELETE Tentar Concluir Compra Sem Login 401
     [Documentation]       Teste de concluir compra sem ter feito login.
     [Tags]                DELETE    STATUS-401
     ##########
@@ -651,7 +589,7 @@ CT-C19: DELETE Tentar Concluir Compra Sem Login 401
     ...                        ${response}
 
 
-CT-C20: DELETE Tentar Cancelar Compra Sem Login 401
+CT-C18: DELETE Tentar Cancelar Compra Sem Login 401
     [Documentation]       Teste de cancelar compra sem ter feito login.
     [Tags]                DELETE    STATUS-4XX
     ##########
