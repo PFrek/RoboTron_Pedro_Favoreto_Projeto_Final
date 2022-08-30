@@ -3,6 +3,7 @@ Documentation    Arquivo contendo keywords comuns que são reutilizadas em vári
 Library          RequestsLibrary
 Library          OperatingSystem
 Library          FakerLibrary
+Library          Collections
 
 * Keywords *
 
