@@ -2,14 +2,14 @@
 @echo off
 if "%~1" == "" (
     echo Numero de argumentos invalido
-    echo Uso: iniciar_tests.bat [endpoint] [tags]
+    echo Uso: iniciar_tests.bat [endpoint] [tags - opcional]
     exit /b
 )
 
 @echo ==============================================================================
 @echo Iniciando testes do endpoint /%1
 
-set command=robot -d ./reports/%1
+set command=robot -d ./reports
 
 if "%~2" NEQ "" set command=%command% -i %2
 

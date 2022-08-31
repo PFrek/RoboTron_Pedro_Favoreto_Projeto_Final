@@ -7,6 +7,7 @@ Library          Collections
 
 * Keywords *
 
+################################################################################
 # DADOS ESTÁTICOS
 Carregar JSON
     [Documentation]       Carrega e retorna um arquivo json.
@@ -16,7 +17,7 @@ Carregar JSON
     ${json}               Evaluate    json.loads('''${arquivo}''')    json
     Set Suite Variable    \${json}
 
-
+################################################################################
 # REQUISIÇÕES HTTP
 Enviar DELETE
     [Documentation]     Envia uma requisição DELETE para o endpoint escolhido.
@@ -54,8 +55,9 @@ Enviar PUT
     ${response}            PUT On Session    serverest    ${endpoint}    json=${json}    headers=${headers}    expected_status=any
     [Return]                ${response}
 
-
+################################################################################
 # LOGIN
+
 Obter Dados Login
     [Documentation]         Obtém os campos de email e password de um usuário existente,
     ...                     a partir de sua id.
@@ -83,7 +85,9 @@ Validar Login
     Validar Mensagem        Login realizado com sucesso    ${response}
     Should Not Be Empty     ${response.json()["authorization"]}
 
+################################################################################
 # USUARIO
+
 Cadastrar Usuario
     [Documentation]               Cadastra um novo usuário com os dados json informados.
     ...                           Faz validações dentro da keyword.
@@ -113,8 +117,9 @@ Validar Usuario Deletado
     Validar Status Code           200    ${response}
     Validar Mensagem              Registro excluído com sucesso    ${response}
 
-
+################################################################################
 # PRODUTO
+
 Cadastrar Produto
     [Documentation]               Cadastra um novo produto com os dados json informados.
     ...                           Faz validações dentro da keyword.
@@ -124,8 +129,6 @@ Cadastrar Produto
     ${response}                   Enviar POST    /produtos    ${dados_produto}    headers=${headers}
     Validar Produto Cadastrado    ${response}
     [Return]                      ${response.json()["_id"]}
-
-
 
 Validar Produto Cadastrado
     [Documentation]               Valida se um produto foi cadastrado com sucesso.
@@ -148,7 +151,9 @@ Validar Produto Deletado
     Validar Status Code           200    ${response}
     Validar Mensagem              Registro excluído com sucesso    ${response}
 
+################################################################################
 # CARRINHO
+
 Cadastrar Carrinho
     [Documentation]               Cadastra um novo carrinho com os dados json informados.
     ...                           Faz validações dentro da keyword.
@@ -173,16 +178,6 @@ Validar Carrinho Cadastrado
     Validar Mensagem              Cadastro realizado com sucesso    ${response}
     Should Not Be Empty           ${response.json()["_id"]}
 
-# Concluir Compra
-#     [Documentation]               Deleta um carrinho cadastrado com o token_auth informado.
-#     ...                           Indica que a compra foi concluída.
-#     ...                           Faz validações dentro da keyword.
-#     [Arguments]                   ${token_auth}
-#     &{headers}                    Create Dictionary    Authorization=${token_auth}
-
-#     ${response}                   Enviar DELETE    /carrinhos/concluir-compra    headers=${headers}
-#     Validar Carrinho Deletado      ${response} 
-
 Cancelar Compra
     [Documentation]               Deleta um carrinho cadastrado com o token_auth informado.
     ...                           Indica que a compra foi cancelada.
@@ -199,8 +194,9 @@ Validar Carrinho Deletado
     Validar Status Code           200    ${response}
     Validar Mensagem Contem       Registro excluído com sucesso.    ${response}
 
-
+################################################################################
 # VALIDAÇÕES DE RESPOSTA
+
 Validar Mensagem
     [Documentation]                   Verifica se a propriedade 'message' da resposta é a mesma que o esperado.
 
