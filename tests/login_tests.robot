@@ -8,42 +8,29 @@ Suite Setup      Run Keywords    Criar Sessao
 * Test Cases *
 #########################
 #         POST          #
-#     CT-L01 ~ CT-L06   #
+#     CT-L01 ~ CT-L03   #
 #########################
 CT-L01: POST Fazer Login Com Sucesso 200
-    [Documentation]        Teste de login de usuário com sucesso.
-    [Tags]                 POST    STATUS-2XX
-    ##########
-    # Setup    
-    ${id_usuario}          Cadastrar Usuario    ${json["dados_cadastro"]["user_valido"]}
-    ${login}               Set Variable         ${json["dados_teste"]["user_valido"]}
+    [Documentation]    Teste de login de usuário com sucesso.
+    [Tags]             POST    STATUS-2XX
+    
+    [Setup]            Preparar Novo Usuario Estatico    user_valido    ${json["dados_cadastro"]["user_valido"]}
+        
+    ${login}                     Set Variable         ${json["dados_teste"]["user_valido"]}
 
-    ##########
-    # Teste
-    ${response}            Enviar POST    /login    ${login}
+    ${response}                  Enviar POST    /login    ${login}
 
-    Validar Status Code    200    ${response}
-    Validar Mensagem       Login realizado com sucesso    ${response}
-    Should Not Be Empty    ${response.json()["authorization"]}
+    Validar Login Com Sucesso    ${response}
 
-    # Testar se o Token de autorização retornado é válido
-    ${token_auth}          Set Variable    ${response.json()["authorization"]}
+    Validar Token Valido         ${response.json()["authorization"]}
 
-    &{dados_produto}       Criar Dados Produto Dinamico
-    ${id_produto}          Cadastrar Produto    ${dados_produto}   ${token_auth}
-
-    Deletar Produto        ${id_produto}    ${token_auth} 
-
-    #########################
-    # Limpeza dos dados
-    [Teardown]             Deletar Usuario    ${id_usuario}
+    [Teardown]         Limpar Registro De Usuarios
 
 
 CT-L02: POST Tentar Fazer Login Com Usuario Inexistente 400
     [Documentation]         Teste para tentativa de login com informações de usuário inexistente.
     [Tags]                  POST    STATUS-4XX
-    ####################
-    # Setup & Teste
+    
     ${response}             Tentar Login    "user_inexistente"
 
     Validar Status Code     400    ${response}

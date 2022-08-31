@@ -2,84 +2,55 @@
 Documentation    Arquivo contendo as keywords exclusivas para o Endpoint /produtos.
 Resource         ../support/base.robot
 
-
 * Keywords *
 
-Tentar Cadastrar Produto
-    [Documentation]         Realiza uma tentativa de cadastro de produto com os dados json informados.
-    ...                     Não faz validações dentro da keyword.
-    ...                     \nCria um usuário administrador para login, e que precisa ser excluído manualmente.
-    ...                     \nReturn: \${response} -- a resposta da tentativa de cadastro de usuário.
-    ...                     \n\${id_usuario} -- a id do usuário criado para login.
-    [Arguments]             ${json_produto}
-    ##########
-    # Setup
-    ${dados_produto}        Set Variable    ${json["dados_cadastro"][${json_produto}]}
+Obter Quantidade De Produtos
+    [Documentation]    Retorna a quantidade de produtos cadastrados na API.
 
-    &{dados_usuario}        Criar Dados Usuario Dinamico    administrador=true
-    ${id_usuario}           Cadastrar Usuario               ${dados_usuario}
-    ${token_auth}           Fazer Login                     ${id_usuario}
-    &{headers}              Create Dictionary               Authorization=${token_auth}
+    ${response}        Enviar GET    /produtos
 
-    ##########
-    # Teste
-    ${response}             Enviar POST    /produtos    ${dados_produto}    headers=${headers}
+    ${quantidade}      Set Variable    ${response.json()["quantidade"]}
 
-    [Return]                ${response}    ${id_usuario}
+    [Return]           ${quantidade}
 
-Tentar Editar Produto Existente
-    [Documentation]         Realiza uma tentativa de edição de produto existente com os dados json informados.
-    ...                     Não faz validações dentro da keyword.
-    ...                     \nCria um usuário administrador para login, e que precisa ser excluído manualmente.
-    ...                     \nCria um produto que será editado, e que precisa ser excluído manualmente.
-    ...                     \nReturn: \${response} -- a resposta da tentativa de edição de produto.
-    ...                     \n\${id_usuario} -- a id do usuário criado para login.
-    ...                     \n\${id_produto} -- a id do produto criado para edição.
-    ...                     \n\${token_auth} -- a token de autorização do usuário logado.
-    [Arguments]             ${json_edicao}
-    ##########
-    # Setup
-    &{dados_usuario}        Criar Dados Usuario Dinamico    administrador=true
-    ${id_usuario}           Cadastrar Usuario               ${dados_usuario}
-    ${token_auth}           Fazer Login                     ${id_usuario}
-    &{headers}              Create Dictionary               Authorization=${token_auth}
+Preparar Produto Em Carrinho
+    [Documentation]    Cria um produto presente em um carrinho e adiciona ao
+    ...                dicionário de usuários.
 
-    &{dados_produto}        Criar Dados Produto Dinamico
-    ${id_produto}           Cadastrar Produto               ${dados_produto}    ${token_auth}
+    Preparar Novo Usuario Dinamico    user_carrinho    administrador=true
+    ${token_auth}          Fazer Login                     ${registro_usuarios.user_carrinho}
 
-    ${novos_dados}          Set Variable    ${json["dados_edicao"][${json_edicao}]}
+    &{dados_produto}       Criar Dados Produto Dinamico
+    ${id_produto}          Cadastrar Produto               ${dados_produto}    ${token_auth}
 
-    ##########
-    # Teste
-    ${response}             Enviar PUT    /produtos/${id_produto}    ${novos_dados}    headers=${headers}
+    ${id_carrinho}         Cadastrar Carrinho              ${id_produto}    ${token_auth}
 
-    [Return]                ${response}    ${id_usuario}    ${id_produto}    ${token_auth}
+    Set To Dictionary      ${registro_produtos}            produto_carrinho=${id_produto}
 
-Tentar Editar Produto Inexistente
-    [Documentation]         Realiza uma tentativa de edição de produto inexistente com os dados json informados.
-    ...                     Não faz validações dentro da keyword.
-    ...                     \nCria um usuário administrador para login, e que precisa ser excluído manualmente.
-    ...                     \nReturn: \${response} -- a resposta da tentativa de edição de produto.
-    ...                     \n\${id_usuario} -- a id do usuário criado para login.
-    [Arguments]             ${json_edicao}
-    ##########
-    # Setup
-    &{dados_usuario}        Criar Dados Usuario Dinamico    administrador=true
-    ${id_usuario}           Cadastrar Usuario               ${dados_usuario}
-    ${token_auth}           Fazer Login                     ${id_usuario}
-    &{headers}              Create Dictionary               Authorization=${token_auth}
 
-    ${id_produto}           Set Variable    naoexiste234
+Limpar Produto Em Carrinho
+    [Documentation]    Faz a limpeza dos dados preparados para a criação do
+    ...                produto em carrinho.
 
-    ${novos_dados}          Set Variable    ${json["dados_edicao"][${json_edicao}]}
+    ${token_auth}      Fazer Login    ${registro_usuarios.user_carrinho}
 
-    ##########
-    # Teste
-    ${response}             Enviar PUT    /produtos/${id_produto}    ${novos_dados}    headers=${headers}
+    Cancelar Compra    ${token_auth}
+    Limpar Registro De Produtos
+    Limpar Registro De Usuarios
 
-    [Return]                ${response}    ${id_usuario}
 
-Validar Produto Valido
+Validar Dados De Produto
+    [Documentation]    Verifica se um produto existe, e se os dados equivalem ao esperado.
+    [Arguments]        ${id_produto}    ${dados_esperados}
+    
+    ${response}                Enviar GET    /produtos/${id_produto}
+
+    Validar Status Code        200    ${response}
+    Validar Produto            ${response.json()}
+    Validar Produtos Iguais    ${response.json()}    ${dados_esperados}
+
+
+Validar Produto
     [Documentation]      Verifica se o produto contém todos os campos exigidos pela ServeRest.
     [Arguments]          ${produto}
     Should Not Be Empty        ${produto["nome"]}
@@ -93,10 +64,10 @@ Validar Produtos Iguais
     [Documentation]      Verifica se dois produtos serverest possuem todos os campos iguais.
     ...                  Ignora o campo de '_id'.
 
-    [Arguments]          ${produto_1}    ${produto_2}
-    Should Be Equal      ${produto_1["nome"]}    ${produto_2["nome"]}
-    Should Be Equal      ${produto_1["preco"]}    ${produto_2["preco"]}
-    Should Be Equal      ${produto_1["descricao"]}    ${produto_2["descricao"]}
+    [Arguments]          ${produto_1}                  ${produto_2}
+    Should Be Equal      ${produto_1["nome"]}          ${produto_2["nome"]}
+    Should Be Equal      ${produto_1["preco"]}         ${produto_2["preco"]}
+    Should Be Equal      ${produto_1["descricao"]}     ${produto_2["descricao"]}
     Should Be Equal      ${produto_1["quantidade"]}    ${produto_2["quantidade"]}
 
 Validar Quantidade Produto

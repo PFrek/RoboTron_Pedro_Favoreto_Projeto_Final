@@ -5,9 +5,30 @@ Resource         ../support/base.robot
 
 * Keywords *
 
+Obter Quantidade De Carrinhos
+    [Documentation]    Retorna a quantidade de carrinhos cadastrados na API.
+
+    ${response}        Enviar GET    /carrinhos
+
+    ${quantidade}      Set Variable    ${response.json()["quantidade"]}
+
+    [Return]           ${quantidade}
+
+
 Validar Carrinho
+    [Documentation]    Faz uma requisição GET para o endpoint /carrinhos/[id]
+    ...                e verifica se os dados recebidos são os mesmos que os
+    ...                esperados.
+    [Arguments]        ${id_carrinho}    ${id_esperada}    @{lista_produtos}
+
+    ${response}                     Enviar GET    /carrinhos/${id_carrinho}
+    
+    Validar Status Code             200    ${response}
+    Validar Dados De Carrinho       ${response.json()}    ${id_esperada}    @{lista_produtos}
+
+Validar Dados De Carrinho
     [Documentation]    Verifica se os dados de um carrinho correspondem ao esperado
-    [Arguments]    ${carrinho}    @{lista_produtos}    
+    [Arguments]        ${carrinho}    ${user_id_esperada}    @{lista_produtos}
     ${len_lista}                    Get Length    ${lista_produtos}
     ${len_produtos}                 Get Length    ${carrinho["produtos"]}
     Should Be Equal As Integers     ${len_lista}    ${len_produtos}
@@ -29,6 +50,7 @@ Validar Carrinho
         ${quantidade_total_lista}     Evaluate    ${quantidade_total_lista}+${${produto_lista["quantidade"]}}
     END
 
-    Should Be Equal    ${carrinho["precoTotal"]}    ${preco_total_lista}
+    Should Be Equal    ${carrinho["precoTotal"]}         ${preco_total_lista}
     Should Be Equal    ${carrinho["quantidadeTotal"]}    ${quantidade_total_lista}
+    Should Be Equal    ${carrinho["idUsuario"]}          ${user_id_esperada}
     

@@ -4,45 +4,18 @@ Resource         ../support/base.robot
 
 
 * Variables *
-&{registro_usuarios}      # Dicionário que guarda as ids dos usuários cadastrados para limpeza de dados.
-${id_produto}             # Id do produto cadastrado para criação de carrinho.
+${produto_carrinho}             # Id do produto cadastrado para criação de carrinho.
 
 * Keywords *
 
-Preparar Novo Usuario Estatico
-    [Documentation]    Cria um usuário a partir de dados json e adiciona
-    ...                ao dicionário de usuários.
-    [Arguments]        ${chave}    ${dados_usuario}
+Obter Quantidade De Usuarios
+    [Documentation]    Retorna a quantidade de usuários cadastrados na API.
 
-    ${id_usuario}        Cadastrar Usuario    ${dados_usuario}
-    Set To Dictionary    ${registro_usuarios}    ${chave}=${id_usuario}
+    ${response}        Enviar GET    /usuarios
 
+    ${quantidade}      Set Variable    ${response.json()["quantidade"]}
 
-Preparar Novo Usuario Dinamico
-    [Documentation]    Cria um usuário a partir de dados dinâmicos e adiciona
-    ...                ao dicionário de usuários.
-    [Arguments]        ${chave}    ${administrador}=true
-
-    &{dados_usuario}     Criar Dados Usuario Dinamico    ${administrador}  
-    ${id_usuario}        Cadastrar Usuario               ${dados_usuario}
-
-    Set To Dictionary    ${registro_usuarios}    ${chave}=${id_usuario}
-
-Limpar Dicionario De Usuarios
-    [Documentation]    Deleta todos os usuários presentes no dicionário de usuários.
-    
-    FOR  ${chave}    ${id_usuario}  IN  &{registro_usuarios}
-        Deletar Usuario    ${id_usuario}
-    END
-
-    Set Suite Variable    &{registro_usuarios}    &{EMPTY}
-
-Remover Usuario Do Dicionario
-    [Documentation]    Remove um usuário do dicionário de usuários.
-    ...                Utilizado para casos em que o usuário já foi deletado.
-    [Arguments]        ${chave}
-
-    Remove From Dictionary    ${registro_usuarios}    ${chave}
+    [Return]           ${quantidade}
 
 Preparar Usuario Com Carrinho
     [Documentation]    Cria um usuário com carrinho registrado e adiciona ao
@@ -53,10 +26,10 @@ Preparar Usuario Com Carrinho
     ${token_auth}          Fazer Login                     ${id_usuario}
 
     &{dados_produto}       Criar Dados Produto Dinamico
-    ${id_produto}          Cadastrar Produto               ${dados_produto}    ${token_auth}
-    Set Suite Variable     ${id_produto}
+    ${produto_carrinho}    Cadastrar Produto               ${dados_produto}    ${token_auth}
+    Set Suite Variable     ${produto_carrinho}
 
-    ${id_carrinho}         Cadastrar Carrinho              ${id_produto}    ${token_auth}
+    ${id_carrinho}         Cadastrar Carrinho              ${produto_carrinho}    ${token_auth}
 
     Set To Dictionary      ${registro_usuarios}            user_carrinho=${id_usuario}
 
@@ -68,13 +41,12 @@ Limpar Usuario Com Carrinho
     ${token_auth}      Fazer Login    ${registro_usuarios.user_carrinho}
 
     Cancelar Compra    ${token_auth}
-    Deletar Produto    ${id_produto}    ${token_auth}
+    Deletar Produto    ${produto_carrinho}    ${token_auth}
 
-    Limpar Dicionario De Usuarios
+    Limpar Registro De Usuarios
 
-Validar Criacao De Usuario
-    [Documentation]    Verifica se um usuário foi realmente cadastrado, e se os
-    ...                dados equivalem ao esperado.
+Validar Dados De Usuario
+    [Documentation]    Verifica se um usuário existe, e se os dados equivalem ao esperado.
     [Arguments]        ${id_usuario}    ${dados_esperados}
     
     ${response}                Enviar GET    /usuarios/${id_usuario}

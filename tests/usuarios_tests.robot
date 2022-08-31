@@ -33,7 +33,7 @@ CT-U02: GET Buscar Usuario Existente 200
     Validar Usuario            ${response.json()}
     Validar Usuarios Iguais    ${response.json()}    ${json["dados_cadastro"]["user_valido"]}
 
-    [Teardown]         Limpar Dicionario De Usuarios
+    [Teardown]         Limpar Registro De Usuarios
     
 
 CT-U03: GET Tentar Buscar Usuario Inexistente 400
@@ -56,19 +56,17 @@ CT-U04: POST Cadastrar Novo Usuario 201
     [Documentation]    Teste de cadastrar um novo usuário com sucesso.
     [Tags]             POST    STATUS-2XX
 
-    ${dados_usuario}           Set Variable    ${json["dados_cadastro"]["user_valido"]}
+    ${dados_usuario}              Set Variable    ${json["dados_cadastro"]["user_valido"]}
 
-    ${response}                Enviar POST    /usuarios    ${dados_usuario}
+    ${response}                   Enviar POST    /usuarios    ${dados_usuario}
 
-    Validar Status Code        201    ${response}
-    Validar Mensagem           Cadastro realizado com sucesso    ${response}
-    Should Not Be Empty        ${response.json()["_id"]}
+    Validar Status Code           201    ${response}
+    Validar Mensagem              Cadastro realizado com sucesso    ${response}
+    Should Not Be Empty           ${response.json()["_id"]}
     
-    # Verificar se o usuário foi realmente criado
-    ${id_usuario}              Set Variable    ${response.json()["_id"]}
-
-    Validar Criacao De Usuario    ${id_usuario}    ${dados_usuario}
-
+    # Verifica se o usuário foi realmente criado.
+    ${id_usuario}                 Set Variable    ${response.json()["_id"]}
+    Validar Dados De Usuario    ${id_usuario}    ${dados_usuario}
     
     [Teardown]         Deletar Usuario    ${id_usuario}
     
@@ -77,16 +75,22 @@ CT-U05: POST Tentar Cadastrar Usuario Com Email Repetido 400
     [Documentation]    Teste para tentativa de cadastro de usuário com email já cadastrado.
     [Tags]             POST    STATUS-4XX
     
-    [Setup]            Preparar Novo Usuario Estatico    user_valido          ${json["dados_cadastro"]["user_valido"]}
+    [Setup]            Preparar Novo Usuario Estatico    user_valido    ${json["dados_cadastro"]["user_valido"]}
     
-    ${dados_usuario}         Set Variable    ${json["dados_cadastro"]["user_email_repetido"]}
+    ${dados_usuario}               Set Variable    ${json["dados_cadastro"]["user_email_repetido"]}
 
-    ${response}              Enviar POST    /usuarios    ${dados_usuario}
+    ${num_users_inicial}           Obter Quantidade De Usuarios
 
-    Validar Status Code      400    ${response}
-    Validar Mensagem         Este email já está sendo usado    ${response}
+    ${response}                    Enviar POST    /usuarios    ${dados_usuario}
 
-    [Teardown]         Limpar Dicionario De Usuarios
+    Validar Status Code            400    ${response}
+    Validar Mensagem               Este email já está sendo usado    ${response}
+
+    # Verifica se a quantidade de usuários permanece a mesma.
+    ${num_users_final}             Obter Quantidade De Usuarios
+    Should Be Equal As Integers    ${num_users_inicial}    ${num_users_final}
+
+    [Teardown]         Limpar Registro De Usuarios
 
 
 CT-U06: POST Tentar Cadastrar Usuario Com Dados Inválidos 400
@@ -100,10 +104,17 @@ CT-U06: POST Tentar Cadastrar Usuario Com Dados Inválidos 400
     FOR  ${usuario}  IN  @{dados_invalidos}
 
         Log To Console         Testando: ${usuario}
+
+        ${num_users_inicial}           Obter Quantidade De Usuarios
+
         ${response}            Enviar POST    /usuarios    ${usuario}
 
         Validar Status Code    400    ${response}
         Log To Console         ${response.json()}
+
+        # Verifica se a quantidade de usuários permanece a mesma.
+        ${num_users_final}             Obter Quantidade De Usuarios
+        Should Be Equal As Integers    ${num_users_inicial}    ${num_users_final}
     
     END
     
@@ -123,25 +134,31 @@ CT-U07: DELETE Excluir Usuario Existente 200
     Validar Status Code    200    ${response}
     Validar Mensagem       Registro excluído com sucesso    ${response}
     
-    # Verificar se o usuário foi realmente excluído
+    # Verifica se o usuário foi realmente excluído
     ${response}            Enviar GET    /usuarios/${registro_usuarios.user_admin}
 
     Validar Status Code    400    ${response}
     Validar Mensagem       Usuário não encontrado    ${response}
 
-    [Teardown]         Remover Usuario Do Dicionario    user_admin
+    [Teardown]         Remover Usuario Do Registro    user_admin
 
 
 CT-U08: DELETE Tentar Excluir Usuario Inexistente 200
     [Documentation]    Teste de tentativa de excluir usuário inexistente.
     [Tags]             DELETE    STATUS-2XX
     
-    ${id_usuario}          Set Variable    naoexiste123
+    ${id_usuario}                  Set Variable    naoexiste123
 
-    ${response}            Enviar DELETE    /usuarios/${id_usuario}
+    ${num_users_inicial}           Obter Quantidade De Usuarios
 
-    Validar Status Code    200    ${response}
-    Validar Mensagem       Nenhum registro excluído    ${response}
+    ${response}                    Enviar DELETE    /usuarios/${id_usuario}
+
+    Validar Status Code            200    ${response}
+    Validar Mensagem               Nenhum registro excluído    ${response}
+
+    # Verifica se a quantidade de usuários permanece a mesma.
+    ${num_users_final}             Obter Quantidade De Usuarios
+    Should Be Equal As Integers    ${num_users_inicial}    ${num_users_final}
 
 
 CT-U09: DELETE Tentar Excluir Usuario Com Carrinho 400
@@ -155,14 +172,12 @@ CT-U09: DELETE Tentar Excluir Usuario Com Carrinho 400
     Validar Status Code    400    ${response}
     Validar Mensagem       Não é permitido excluir usuário com carrinho cadastrado    ${response}
 
-    # Verificar se o usuário realmente NÃO foi excluído
+    # Verifica se o usuário realmente NÃO foi excluído
     ${response}            Enviar GET    /usuarios/${registro_usuarios.user_carrinho}
 
     Validar Status Code    200    ${response}
     Validar Usuario        ${response.json()}
 
-    #########################
-    # Limpeza de dados
     [Teardown]         Limpar Usuario Com Carrinho
     
 
@@ -183,14 +198,10 @@ CT-U10: PUT Editar Usuario Existente 200
     Validar Status Code        200    ${response}
     Validar Mensagem           Registro alterado com sucesso    ${response}
 
-    # Verificar se o usuário foi realmente editado
-    ${response}                Enviar GET    /usuarios/${registro_usuarios.user_inicial}
+    # Verifica se o usuário foi realmente editado
+    Validar Dados De Usuario    ${registro_usuarios.user_inicial}    ${novos_dados}
 
-    Validar Status Code        200    ${response}
-    Validar Usuario            ${response.json()}
-    Validar Usuarios Iguais    ${response.json()}    ${novos_dados}
-
-    [Teardown]         Limpar Dicionario De Usuarios
+    [Teardown]         Limpar Registro De Usuarios
 
 
 CT-U11: PUT Tentar Editar Usuário Inexistente 201
@@ -206,10 +217,9 @@ CT-U11: PUT Tentar Editar Usuário Inexistente 201
     Validar Status Code        201    ${response}
     Validar Mensagem           Cadastro realizado com sucesso    ${response}
 
-    # Verificar se o usuário foi realmente criado
+    # Verifica se o usuário foi realmente criado
     ${id_usuario}              Set Variable    ${response.json()["_id"]}
-
-    Validar Criacao De Usuario    ${id_usuario}    ${novos_dados}
+    Validar Dados De Usuario    ${id_usuario}    ${novos_dados}
 
     [Teardown]         Deletar Usuario    ${id_usuario}
 
@@ -225,20 +235,15 @@ CT-U12: PUT Tentar Editar Usuario Existente Com Email Repetido 400
 
     ${novos_dados}              Set Variable    ${json["dados_edicao"]["edicao_email_repetido"]}
     
-
     ${response}                 Enviar PUT    /usuarios/${registro_usuarios.user_inicial}    ${novos_dados}
 
     Validar Status Code         400    ${response}
     Validar Mensagem            Este email já está sendo usado    ${response}
 
     # Verificar se o usuário realmente NÃO foi editado
-    ${response}                Enviar GET    /usuarios/${registro_usuarios.user_inicial}
+    Validar Dados De Usuario    ${registro_usuarios.user_inicial}    ${json["dados_edicao"]["user_inicial"]}
 
-    Validar Status Code        200    ${response}
-    Validar Usuario            ${response.json()}
-    Validar Usuarios Iguais    ${response.json()}    ${json["dados_edicao"]["user_inicial"]}
-
-    [Teardown]         Limpar Dicionario De Usuarios
+    [Teardown]         Limpar Registro De Usuarios
 
 
 CT-U13: PUT Tentar Editar Usuário Inexistente Com Email Repetido 400
@@ -248,17 +253,22 @@ CT-U13: PUT Tentar Editar Usuário Inexistente Com Email Repetido 400
     
     [Setup]            Preparar Novo Usuario Estatico    user_email_repetido    ${json["dados_edicao"]["user_email_repetido"]}
 
-    ${id_usuario_editado}       Set Variable    naoexiste124
+    ${id_usuario_editado}          Set Variable    naoexiste124
 
-    ${novos_dados}              Set Variable    ${json["dados_edicao"]["edicao_email_repetido"]}
-    
+    ${novos_dados}                 Set Variable    ${json["dados_edicao"]["edicao_email_repetido"]}
 
-    ${response}                 Enviar PUT    /usuarios/${id_usuario_editado}    ${novos_dados}
+    ${num_users_inicial}           Obter Quantidade De Usuarios
 
-    Validar Status Code         400    ${response}
-    Validar Mensagem            Este email já está sendo usado    ${response}
+    ${response}                    Enviar PUT    /usuarios/${id_usuario_editado}    ${novos_dados}
 
-    [Teardown]         Limpar Dicionario De Usuarios
+    Validar Status Code            400    ${response}
+    Validar Mensagem               Este email já está sendo usado    ${response}
+
+    # Verifica se a quantidade de usuários permanece a mesma.
+    ${num_users_final}             Obter Quantidade De Usuarios
+    Should Be Equal As Integers    ${num_users_inicial}    ${num_users_final}
+
+    [Teardown]         Limpar Registro De Usuarios
 
 
 CT-U14: PUT Tentar Editar Usuario Existente Com Dados Inválidos 400
@@ -272,14 +282,19 @@ CT-U14: PUT Tentar Editar Usuario Existente Com Dados Inválidos 400
     @{dados_invalidos}         Gerar Dados Invalidos    ${json["dados_edicao"]["edicao_valida"]}
 
     FOR  ${edicao}  IN  @{dados_invalidos}
-        Log To Console         Testando: ${edicao}
-        ${response}            Enviar PUT    /usuarios/${registro_usuarios.user_inicial}    ${edicao}
+        Log To Console                 Testando: ${edicao}
 
-        Validar Status Code    400    ${response}
-        Log To Console         ${response.json()}
+        ${response}                    Enviar PUT    /usuarios/${registro_usuarios.user_inicial}    ${edicao}
+
+        Validar Status Code            400    ${response}
+        Log To Console                 ${response.json()}
+
+        # Verifica se o usuário realmente NÃO foi editado
+        Validar Dados De Usuario    ${registro_usuarios.user_inicial}    ${json["dados_edicao"]["user_inicial"]}
+        
     END
 
-    [Teardown]         Limpar Dicionario De Usuarios
+    [Teardown]         Limpar Registro De Usuarios
 
 
 CT-U15: PUT Tentar Editar Usuario Inexistente Com Dados Inválidos 400
@@ -294,10 +309,16 @@ CT-U15: PUT Tentar Editar Usuario Inexistente Com Dados Inválidos 400
 
     FOR  ${edicao}  IN  @{dados_invalidos}
         Log To Console         Testando: ${edicao}
+        ${num_users_inicial}           Obter Quantidade De Usuarios
+
         ${response}            Enviar PUT    /usuarios/${id_usuario}    ${edicao}
 
         Validar Status Code    400    ${response}
         Log To Console         ${response.json()}
+
+        # Verifica se a quantidade de usuários permanece a mesma.
+        ${num_users_final}             Obter Quantidade De Usuarios
+        Should Be Equal As Integers    ${num_users_inicial}    ${num_users_final}
     END
 
 

@@ -9,7 +9,7 @@ if "%~1" == "" (
 @echo ==============================================================================
 @echo Iniciando testes do endpoint /%1
 
-set command=robot -d ./reports
+set command=robot -d ./reports/%1
 
 if "%~2" NEQ "" set command=%command% -i %2
 

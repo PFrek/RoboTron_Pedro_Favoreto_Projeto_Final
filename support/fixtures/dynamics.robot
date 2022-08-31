@@ -26,7 +26,7 @@ Criar Dados Usuario Dinamico
 Criar Dados Produto Dinamico
     [Documentation]               Cria um dicionário contendo os dados de um produto dinâmico.
     ...                           \nReturn: \&{dados_produto} -- os dados do produto gerado.
-    [Arguments]                   ${quantidade}=100
+    [Arguments]                   ${quantidade}=${100}
 
     ${nome}                       FakerLibrary.Sentence      nb_words=4
     ${preco}                      FakerLibrary.Random Int    min=1    max=9999
