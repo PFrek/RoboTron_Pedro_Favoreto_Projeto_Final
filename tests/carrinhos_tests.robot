@@ -370,168 +370,161 @@ CT-C12: POST Tentar Cadastrar Carrinho Com Dados Invalidos 400
 #     CT-C13 ~ CT-C18   #
 #########################
 CT-C13: DELETE Concluir Compra Com Carrinho Existente 200
-    [Documentation]       Teste de concluir compra com carrinho existente com sucesso.
-    [Tags]                DELETE    STATUS-2XX
-    ##########
-    # Setup
-
-    # Criar Usuário
-    &{dados_usuario}          Criar Dados Usuario Dinamico    administrador=true
-    ${id_usuario}             Cadastrar Usuario               ${dados_usuario}
-    ${token_auth}             Fazer Login                     ${id_usuario}
-    &{headers}                Create Dictionary               Authorization=${token_auth}
-
-    # Criar Produto
-    ${quantidade_estoque}     Set Variable                    ${100}
-    &{dados_produto}          Criar Dados Produto Dinamico    quantidade=${quantidade_estoque}
-    ${id_produto}             Cadastrar Produto               ${dados_produto}    ${token_auth}
+    [Documentation]    Teste de concluir compra com carrinho existente com sucesso.
+    [Tags]             DELETE    STATUS-2XX
     
+    [Setup]            Run Keywords
+    ...                Preparar Novo Usuario Dinamico    user_admin    administrador=true
+    ...    AND         Preparar Novo Produto Dinamico    produto_1     quantidade=${50}
+
+    ${quantidade_estoque}          Set Variable    ${50}
+
+    ${token_auth}                  Fazer Login                     ${registro_usuarios.user_admin}
+    &{headers}                     Create Dictionary               Authorization=${token_auth}
 
     # Criar Carrinho
-    ${quantidade_carrinho}    Set Variable         ${3}
-    ${id_carrinho}            Cadastrar Carrinho    ${id_produto}    ${token_auth}    ${quantidade_carrinho}
+    ${quantidade_carrinho}         Set Variable         ${3}
+    ${id_carrinho}                 Cadastrar Carrinho    ${registro_produtos.produto_1}    ${token_auth}    ${quantidade_carrinho}
 
-    ##########
-    # Teste
-    ${response}                Enviar DELETE    /carrinhos/concluir-compra    headers=${headers}
+    ${response}                    Enviar DELETE    /carrinhos/concluir-compra    headers=${headers}
 
-    Validar Status Code        200    ${response}
-    Validar Mensagem           Registro excluído com sucesso    ${response}
+    Validar Status Code            200    ${response}
+    Validar Mensagem               Registro excluído com sucesso    ${response}
 
-    # Verificar se o carrinho foi realmente excluído
-    ${response}            Enviar GET    /carrinhos/${id_carrinho}
+    # Verifica se o carrinho foi realmente excluído
+    ${response}                    Enviar GET    /carrinhos/${id_carrinho}
 
-    Validar Status Code    400    ${response}
-    Validar Mensagem       Carrinho não encontrado    ${response}
+    Validar Status Code            400    ${response}
+    Validar Mensagem               Carrinho não encontrado    ${response}
 
-    # Verificar se o estoque NÃO foi reabastecido
-    ${response}             Enviar GET      /produtos/${id_produto}
+    # Verifica se o estoque NÃO foi reabastecido
+    ${response}                    Enviar GET      /produtos/${registro_produtos.produto_1}
 
-    ${novo_estoque}         Set Variable    ${response.json()["quantidade"]}
-    Should Be Equal As Integers         ${novo_estoque}    ${${quantidade_estoque}-${quantidade_carrinho}}
+    ${novo_estoque}                Set Variable    ${response.json()["quantidade"]}
+    Should Be Equal As Integers    ${novo_estoque}    ${${quantidade_estoque}-${quantidade_carrinho}}
 
-    #########################
-    # Limpeza dos dados
-    [Teardown]            Run Keywords        Deletar Produto    ${id_produto}    ${token_auth}
-    ...                   AND                 Deletar Usuario    ${id_usuario}
+    [Teardown]         Run Keywords
+    ...                Limpar Registro De Produtos
+    ...    AND         Limpar Registro De Usuarios
 
 
 CT-C14: DELETE Cancelar Compra Com Carrinho Existente 200
-    [Documentation]       Teste de cancelar compra com carrinho existente com sucesso.
-    [Tags]                DELETE    STATUS-2XX
-    ##########
-    # Setup
+    [Documentation]    Teste de cancelar compra com carrinho existente com sucesso.
+    [Tags]             DELETE    STATUS-2XX
+    
+    [Setup]            Run Keywords
+    ...                Preparar Novo Usuario Dinamico    user_admin    administrador=true
+    ...    AND         Preparar Novo Produto Dinamico    produto_1     quantidade=${50}
 
-    # Criar Usuário
-    &{dados_usuario}          Criar Dados Usuario Dinamico    administrador=true
-    ${id_usuario}             Cadastrar Usuario               ${dados_usuario}
-    ${token_auth}             Fazer Login                     ${id_usuario}
-    &{headers}                Create Dictionary               Authorization=${token_auth}
+    ${quantidade_estoque}          Set Variable    ${50}
 
-    # Criar Produto
-    ${quantidade_estoque}     Set Variable                    ${100}
-    &{dados_produto}          Criar Dados Produto Dinamico    quantidade=${quantidade_estoque}
-    ${id_produto}             Cadastrar Produto               ${dados_produto}    ${token_auth}
+    ${token_auth}                  Fazer Login                     ${registro_usuarios.user_admin}
+    &{headers}                     Create Dictionary               Authorization=${token_auth}
 
     # Criar Carrinho
-    ${quantidade_carrinho}    Set Variable         ${3}
-    ${id_carrinho}            Cadastrar Carrinho    ${id_produto}    ${token_auth}    ${quantidade_carrinho}
+    ${quantidade_carrinho}         Set Variable          ${3}
+    ${id_carrinho}                 Cadastrar Carrinho    ${registro_produtos.produto_1}    ${token_auth}    ${quantidade_carrinho}
 
-    ##########
-    # Teste
-    ${response}                Enviar DELETE    /carrinhos/cancelar-compra    headers=${headers}
+    ${response}                    Enviar DELETE    /carrinhos/cancelar-compra    headers=${headers}
 
-    Validar Status Code        200    ${response}
-    Validar Mensagem Contem    Registro excluído com sucesso    ${response}
+    Validar Status Code            200    ${response}
+    Validar Mensagem Contem        Registro excluído com sucesso    ${response}
 
-    # Verificar se o carrinho foi realmente excluído
-    ${response}            Enviar GET    /carrinhos/${id_carrinho}
+    # Verifica se o carrinho foi realmente excluído
+    ${response}                    Enviar GET    /carrinhos/${id_carrinho}
 
-    Validar Status Code    400    ${response}
-    Validar Mensagem       Carrinho não encontrado    ${response}
+    Validar Status Code            400    ${response}
+    Validar Mensagem               Carrinho não encontrado    ${response}
 
-    # Verificar se o estoque FOI reabastecido
-    ${response}             Enviar GET    /produtos/${id_produto}
+    # Verifica se o estoque FOI reabastecido
+    ${response}                    Enviar GET    /produtos/${registro_produtos.produto_1}
 
-    ${novo_estoque}         Set Variable    ${response.json()["quantidade"]}
-    Should Be Equal As Integers         ${novo_estoque}    ${${quantidade_estoque}}
+    ${novo_estoque}                Set Variable    ${response.json()["quantidade"]}
+    Should Be Equal As Integers    ${novo_estoque}    ${${quantidade_estoque}}
 
-    #########################
-    # Limpeza dos dados
-    [Teardown]            Run Keywords        Deletar Produto    ${id_produto}    ${token_auth}
-    ...                   AND                 Deletar Usuario    ${id_usuario}
+    [Teardown]         Run Keywords
+    ...                Limpar Registro De Produtos
+    ...    AND         Limpar Registro De Usuarios
 
 
 CT-C15: DELETE Tentar Concluir Compra Sem Carrinho 200
-    [Documentation]       Teste de concluir compra com usuário sem carrinho.
-    [Tags]                DELETE    STATUS-2XX
-    ##########
-    # Setup  
+    [Documentation]    Teste de concluir compra com usuário sem carrinho.
+    [Tags]             DELETE    STATUS-2XX
+    
+    [Setup]            Preparar Novo Usuario Dinamico    user_admin    administrador=true
 
-    # Criar Usuário
-    &{dados_usuario}       Criar Dados Usuario Dinamico    administrador=true
-    ${id_usuario}          Cadastrar Usuario               ${dados_usuario}
-    ${token_auth}          Fazer Login                     ${id_usuario}
-    &{headers}             Create Dictionary               Authorization=${token_auth}
+    ${token_auth}                  Fazer Login                     ${registro_usuarios.user_admin}
+    &{headers}                     Create Dictionary               Authorization=${token_auth}
 
-    ##########
-    # Teste
-    ${response}            Enviar DELETE    /carrinhos/concluir-compra    headers=${headers}
+    ${num_carrinhos_inicial}       Obter Quantidade De Carrinhos
 
-    Validar Status Code    200    ${response}
-    Validar Mensagem       Não foi encontrado carrinho para esse usuário    ${response}
+    ${response}                    Enviar DELETE    /carrinhos/concluir-compra    headers=${headers}
 
-    #########################
-    # Limpeza dos dados
-    [Teardown]            Deletar Usuario    ${id_usuario}
+    Validar Status Code            200    ${response}
+    Validar Mensagem               Não foi encontrado carrinho para esse usuário    ${response}
+
+    # Verifica se a quantidade de carrinhos permanece a mesma.
+    ${num_carrinhos_final}         Obter Quantidade De Carrinhos
+    Should Be Equal As Integers    ${num_carrinhos_inicial}    ${num_carrinhos_final}
+
+    [Teardown]         Limpar Registro De Usuarios
 
 
 CT-C16: DELETE Tentar Cancelar Compra Sem Carrinho 200
-    [Documentation]       Teste de cancelar compra com usuário sem carrinho.
-    [Tags]                DELETE    STATUS-2XX
-    ##########
-    # Setup
-
-    # Criar Usuário
-    &{dados_usuario}       Criar Dados Usuario Dinamico    administrador=true
-    ${id_usuario}          Cadastrar Usuario               ${dados_usuario}
-    ${token_auth}          Fazer Login                     ${id_usuario}
-    &{headers}             Create Dictionary               Authorization=${token_auth}
+    [Documentation]    Teste de cancelar compra com usuário sem carrinho.
+    [Tags]             DELETE    STATUS-2XX
     
-    ##########
-    # Teste
-    ${response}            Enviar DELETE    /carrinhos/cancelar-compra    headers=${headers}
+    [Setup]            Preparar Novo Usuario Dinamico    user_admin    administrador=true
 
-    Validar Status Code    200    ${response}
-    Validar Mensagem       Não foi encontrado carrinho para esse usuário    ${response}
+    ${token_auth}                  Fazer Login                     ${registro_usuarios.user_admin}
+    &{headers}                     Create Dictionary               Authorization=${token_auth}
+    
+    ${num_carrinhos_inicial}       Obter Quantidade De Carrinhos
 
-    #########################
-    # Limpeza dos dados
-    [Teardown]            Deletar Usuario    ${id_usuario}
+    ${response}                    Enviar DELETE    /carrinhos/cancelar-compra    headers=${headers}
+
+    Validar Status Code            200    ${response}
+    Validar Mensagem               Não foi encontrado carrinho para esse usuário    ${response}
+
+    # Verifica se a quantidade de carrinhos permanece a mesma.
+    ${num_carrinhos_final}         Obter Quantidade De Carrinhos
+    Should Be Equal As Integers    ${num_carrinhos_inicial}    ${num_carrinhos_final}
+
+    [Teardown]         Limpar Registro De Usuarios
 
 
 CT-C17: DELETE Tentar Concluir Compra Sem Login 401
-    [Documentation]       Teste de concluir compra sem ter feito login.
-    [Tags]                DELETE    STATUS-401
-    ##########
-    # Teste
-    ${response}                Enviar DELETE    /carrinhos/concluir-compra
+    [Documentation]    Teste de concluir compra sem ter feito login.
+    [Tags]             DELETE    STATUS-4XX
 
-    Validar Status Code        401    ${response}
-    Validar Mensagem           Token de acesso ausente, inválido, expirado ou usuário do token não existe mais
-    ...                        ${response}
+    ${num_carrinhos_inicial}       Obter Quantidade De Carrinhos
+
+    ${response}                    Enviar DELETE    /carrinhos/concluir-compra
+
+    Validar Status Code            401    ${response}
+    Validar Mensagem               Token de acesso ausente, inválido, expirado ou usuário do token não existe mais
+    ...                            ${response}
+
+    # Verifica se a quantidade de carrinhos permanece a mesma.
+    ${num_carrinhos_final}         Obter Quantidade De Carrinhos
+    Should Be Equal As Integers    ${num_carrinhos_inicial}    ${num_carrinhos_final}
 
 
 CT-C18: DELETE Tentar Cancelar Compra Sem Login 401
     [Documentation]       Teste de cancelar compra sem ter feito login.
     [Tags]                DELETE    STATUS-4XX
-    ##########
-    # Teste
-    ${response}                Enviar DELETE    /carrinhos/cancelar-compra
+    
+    ${num_carrinhos_inicial}       Obter Quantidade De Carrinhos
 
-    Validar Status Code        401    ${response}
-    Validar Mensagem           Token de acesso ausente, inválido, expirado ou usuário do token não existe mais
-    ...                        ${response}
+    ${response}                    Enviar DELETE    /carrinhos/cancelar-compra
+
+    Validar Status Code            401    ${response}
+    Validar Mensagem               Token de acesso ausente, inválido, expirado ou usuário do token não existe mais
+    ...                            ${response}
+
+    # Verifica se a quantidade de carrinhos permanece a mesma.
+    ${num_carrinhos_final}         Obter Quantidade De Carrinhos
+    Should Be Equal As Integers    ${num_carrinhos_inicial}    ${num_carrinhos_final}
 
 
 ##########################################################################################
