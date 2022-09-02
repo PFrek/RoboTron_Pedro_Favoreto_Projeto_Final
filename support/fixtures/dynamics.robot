@@ -1,7 +1,7 @@
 * Settings *
 Documentation        Keywords para geração de dados dinâmicos.
 Library              FakerLibrary
-Library              ../../Gerador_Dados_Invalidos.py
+Library              ./Gerador_Dados_Invalidos.py
 
 * Keywords *
 

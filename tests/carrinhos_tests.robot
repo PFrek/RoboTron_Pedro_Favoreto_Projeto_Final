@@ -358,8 +358,6 @@ CT-C12: POST Tentar Cadastrar Carrinho Com Dados Invalidos 400
         Should Be Equal As Integers    ${num_carrinhos_inicial}    ${num_carrinhos_final}
     END
 
-    #########################
-    # Limpeza dos dados
     [Teardown]            Run Keywords
     ...                   Limpar Registro De Produtos
     ...    AND            Limpar Registro De Usuarios
@@ -528,5 +526,3 @@ CT-C18: DELETE Tentar Cancelar Compra Sem Login 401
 
 
 ##########################################################################################
-
-
