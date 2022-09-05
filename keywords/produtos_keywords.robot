@@ -15,7 +15,7 @@ Obter Quantidade De Produtos
 
 Preparar Produto Em Carrinho
     [Documentation]    Cria um produto presente em um carrinho e adiciona ao
-    ...                dicionário de usuários.
+    ...                registro de usuários.
 
     Preparar Novo Usuario Dinamico    user_carrinho    administrador=true
     ${token_auth}          Fazer Login                     ${registro_usuarios.user_carrinho}

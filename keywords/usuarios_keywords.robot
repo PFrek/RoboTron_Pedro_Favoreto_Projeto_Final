@@ -19,7 +19,7 @@ Obter Quantidade De Usuarios
 
 Preparar Usuario Com Carrinho
     [Documentation]    Cria um usuário com carrinho registrado e adiciona ao
-    ...                dicionário de usuários.
+    ...                registro de usuários.
 
     &{dados_usuario}       Criar Dados Usuario Dinamico    administrador=true
     ${id_usuario}          Cadastrar Usuario               ${dados_usuario}
