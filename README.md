@@ -126,3 +126,8 @@ iniciar_testes.bat usuarios putANDstatus-2xx
 ## Autores
 
 - Pedro Favoreto Gaya: <https://github.com/PFrek>
+
+## Créditos
+
+- Os colegas de estágio Laura, Manoella, Mari e Paulo pelas contribuições e colocações feitas nas reuniões diárias.
+- Os SM e evangelistas Matheus e Demétrio pelas MasterClass e disponibilidade na tirada de dúvidas.
