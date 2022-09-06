@@ -1,0 +1,20 @@
+{
+    "dados_cadastro": {
+        "user_valido": {
+            "nome": "User Valido",
+            "email": "user_valido@qa.com.br",
+            "password": "teste",
+            "administrador": "true"
+        }
+    },
+    "dados_teste": {
+        "user_valido": {
+            "email": "user_valido@qa.com.br",
+            "password": "teste"
+        },
+        "user_inexistente": {
+            "email": "nao_existe@qa.com.br",
+            "password": "teste"
+        }
+    }
+}

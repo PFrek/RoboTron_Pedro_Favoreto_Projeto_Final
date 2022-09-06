@@ -1,0 +1,42 @@
+{
+    "dados_cadastro": {
+        "user_valido": {
+            "nome": "User Válido",
+            "email": "user_valido@qa.com.br",
+            "password": "teste",
+            "administrador": "false"
+        },
+        "user_email_repetido": {
+            "nome": "Email Repetido",
+            "email": "user_valido@qa.com.br",
+            "password": "teste",
+            "administrador": "false"
+        }
+    },
+    "dados_edicao": {
+        "user_inicial": {
+            "nome": "User Inicial",
+            "email": "user_inicial@qa.com.br",
+            "password": "teste",
+            "administrador": "false"
+        },
+        "user_email_repetido": {
+            "nome": "User Email Repetido",
+            "email": "email_repetido@qa.com.br",
+            "password": "teste",
+            "administrador": "false"
+        },
+        "edicao_valida": {
+            "nome": "Nome Editado",
+            "email": "email_editado@qa.com.br",
+            "password": "editado",
+            "administrador": "true"
+        },
+        "edicao_email_repetido": {
+            "nome": "Nome Editado",
+            "email": "email_repetido@qa.com.br",
+            "password": "editado",
+            "administrador": "true"
+        }
+    }
+}

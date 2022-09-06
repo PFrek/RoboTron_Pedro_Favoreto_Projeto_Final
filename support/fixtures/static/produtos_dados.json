@@ -1,0 +1,42 @@
+{
+    "dados_cadastro": {
+        "produto_valido": {
+            "nome": "Teste Produto Válido",
+            "preco": 150,
+            "descricao": "Teste",
+            "quantidade": 300
+        },
+        "produto_nome_repetido": {
+            "nome": "Teste Produto Válido",
+            "preco": 200,
+            "descricao": "Produto com nome repetido",
+            "quantidade": 100
+        }
+    },
+    "dados_edicao": {
+        "produto_inicial": {
+            "nome": "Produto Inicial",
+            "preco": 150,
+            "descricao": "Teste",
+            "quantidade": 300
+        },
+        "produto_nome_repetido": {
+            "nome": "Produto Nome Repetido",
+            "preco": 100,
+            "descricao": "Produto para teste de nome repetido",
+            "quantidade": 200
+        },
+        "edicao_valida": {
+            "nome": "Nome Editado",
+            "preco": 300,
+            "descricao": "editado",
+            "quantidade": 100
+        },
+        "edicao_nome_repetido": {
+            "nome": "Produto Nome Repetido",
+            "preco": 200,
+            "descricao": "Produto com nome repetido",
+            "quantidade": 100
+        }
+    }
+}
